@@ -493,9 +493,18 @@ object core:
     if !isWindowInitialized then return
 
     glfwSetInputMode(windowHandle, GLFW_CURSOR, GLFW_CURSOR_HIDDEN)
+  def IsCursorHidden(): Boolean =
+    if !isWindowInitialized then return false
 
+    glfwGetInputMode(windowHandle, GLFW_CURSOR) == GLFW_CURSOR_HIDDEN
+  def EnableCursor(): Unit =
+    if !isWindowInitialized then return
 
+    glfwSetInputMode(windowHandle, GLFW_CURSOR, GLFW_CURSOR_NORMAL)
+  def DisableCursor(): Unit =
+    if !isWindowInitialized then return
 
+    glfwSetInputMode(windowHandle, GLFW_CURSOR, GLFW_CURSOR_DISABLED)
 
 
 

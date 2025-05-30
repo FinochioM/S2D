@@ -28,11 +28,11 @@ def main(): Unit =
     BeginDrawing()
 
     if IsKeyDown(Keys.A) then
-      ShowCursor()
+      EnableCursor()
       Thread.sleep(300)
 
     if IsKeyDown(Keys.D) then
-      HideCursor()
+      DisableCursor()
       Thread.sleep(300)
 
     EndDrawing()
