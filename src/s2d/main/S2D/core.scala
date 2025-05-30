@@ -518,8 +518,13 @@ object core:
 
     xPos(0) >= 0 && xPos(0) < width(0) && yPos(0) >= 0 && yPos(0) < height(0)
 
-
-
+  // DRAWING RELATED FUNCTIONS
+  def ClearBackground(color: Color): Unit =
+    glClearColor(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+  def ClearBackground(r: Float, g: Float, b: Float, a: Float = 1.0f): Unit =
+    glClearColor(r, g, b, a)
+  def ClearBackgroundRGB(r: Int, g: Int, b: Int): Unit =
+    ClearBackground(Color(r, g, b, 255))
   def BeginDrawing(): Unit =
     if !isWindowInitialized then
       throw new RuntimeException("Window not initialized!")
@@ -535,12 +540,32 @@ object core:
       throw new RuntimeException("Window not initialized!")
 
     glfwSwapBuffers(windowHandle)
-  def ClearBackground(r: Float, g: Float, b: Float, a: Float = 1.0f): Unit =
-    glClearColor(r, g, b, a)
-  def ClearBackground(color: (Float, Float, Float)): Unit =
-    ClearBackground(color._1, color._2, color._3)
-  def ClearBackgroundRGB(r: Int, g: Int, b: Int): Unit =
-    ClearBackground(r / 255.0f, g / 255.0f, b / 255.0f)
+  def BeginMode2D(camera: Camera2D): Unit =
+    if !isWindowInitialized then return
+
+    glMatrixMode(GL_PROJECTION)
+    glPushMatrix()
+    glLoadIdentity()
+
+    glOrtho(0.0, windowWidth.toDouble, windowHeight.toDouble, 0.0, -1.0, 1.0)
+
+    glMatrixMode(GL_MODELVIEW)
+    glPushMatrix()
+    glLoadIdentity()
+
+    glTranslatef(camera.offset.x, camera.offset.y, 0.0f)
+    glRotatef(camera.rotation, 0.0f, 0.0f, 1.0f)
+    glScalef(camera.zoom, camera.zoom, 1.0f)
+    glTranslatef(-camera.target.x, -camera.target.y, 0.0f)
+  def EndMode2D(): Unit =
+    if !isWindowInitialized then return
+
+    glMatrixMode(GL_PROJECTION)
+    glPopMatrix()
+
+    glMatrixMode(GL_MODELVIEW)
+    glPopMatrix()
+
   def IsKeyDown(key: Int): Boolean =
     if !isWindowInitialized then return false
     glfwGetKey(windowHandle, key) == GLFW_PRESS

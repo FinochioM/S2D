@@ -1,11 +1,11 @@
-import S2D.{Image, PixelFormat}
+import S2D.{Color, Image, PixelFormat}
 import S2D.core.*
 
 @main
 def main(): Unit =
   InitWindow(800, 600, "S2D Framework Says Hi!")
 
-  ClearBackgroundRGB(25, 25, 112)
+  ClearBackground(Color(100, 149, 237))
 
   val iconSize = 16
   val iconData = java.nio.ByteBuffer.allocateDirect(iconSize * iconSize * 4)
