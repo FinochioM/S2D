@@ -1,5 +1,6 @@
 import S2D.*
 import S2D.core.*
+import S2D.shapes.*
 
 @main
 def main(): Unit =
