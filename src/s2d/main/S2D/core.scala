@@ -322,6 +322,15 @@ object core:
 
     val clampedOpacity = Math.max(0.0f, Math.min(1.0f, opacity))
     glfwSetWindowOpacity(windowHandle, opacity)
+  def SetWindowFocused(): Unit =
+    if !isWindowInitialized then return
+
+    glfwFocusWindow(windowHandle)
+
+  def GetWindowHandle(): Long =
+    if !isWindowInitialized then return NULL
+
+    windowHandle
   def GetScreenWidth(): Int = windowWidth
   def GetScreenHeight(): Int = windowHeight
 
