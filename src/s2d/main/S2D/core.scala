@@ -4,6 +4,8 @@ import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.glfw.{GLFWErrorCallback, GLFWImage}
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL11.*
+import org.lwjgl.opengl.GL14.*
+import org.lwjgl.opengl.GL20.*
 import org.lwjgl.opengl.GL30.*
 import org.lwjgl.system.MemoryUtil.*
 
@@ -576,12 +578,52 @@ object core:
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0)
     glViewport(0, 0, windowWidth, windowHeight)
+  def BeginShaderMode(shader: Shader): Unit =
+    if !isWindowInitialized then return
+
+    glUseProgram(shader.id)
+  def EndShaderMode(): Unit =
+    if !isWindowInitialized then return
+
+    glUseProgram(0)
+  def BeginBlendMode(mode: Int): Unit =
+    if !isWindowInitialized then return
+
+    mode match
+      case BlendMode.ALPHA =>
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glBlendEquation(GL_FUNC_ADD)
+      case BlendMode.ADDITIVE =>
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE)
+        glBlendEquation(GL_FUNC_ADD)
+      case BlendMode.MULTIPLIED =>
+        glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA)
+        glBlendEquation(GL_FUNC_ADD)
+      case BlendMode.ADD_COLORS =>
+        glBlendFunc(GL_ONE, GL_ONE)
+        glBlendEquation(GL_FUNC_ADD)
+      case BlendMode.SUBTRACT_COLORS =>
+        glBlendFunc(GL_ONE, GL_ONE)
+        glBlendEquation(GL_FUNC_SUBTRACT)
+      case BlendMode.ALPHA_PREMULTIPLY =>
+        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA)
+        glBlendEquation(GL_FUNC_ADD)
+      case _ =>
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glBlendEquation(GL_FUNC_ADD)
+  def EndBlendMode(): Unit =
+    if !isWindowInitialized then return
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+    glBlendEquation(GL_FUNC_ADD)
+
+
 
   def IsKeyDown(key: Int): Boolean =
     if !isWindowInitialized then return false
     glfwGetKey(windowHandle, key) == GLFW_PRESS
   def IsKeyEscape(): Boolean = IsKeyDown(GLFW_KEY_ESCAPE)
-  
+
 
   object Keys:
     val ESCAPE = GLFW_KEY_ESCAPE
@@ -607,3 +649,12 @@ object core:
     val FOCUSED = 0x00000040
     val VISIBLE = 0x00000080
     val FULLSCREEN = 0x00000100
+  object BlendMode:
+    val ALPHA = 0
+    val ADDITIVE = 1
+    val MULTIPLIED = 2
+    val ADD_COLORS = 3
+    val SUBTRACT_COLORS = 4
+    val ALPHA_PREMULTIPLY = 5
+    val CUSTOM = 6
+    val CUSTOM_SEPARATE = 7
