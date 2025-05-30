@@ -22,6 +22,8 @@ object core:
   private var windowedWidth: Int = 0
   private var windowedHeight: Int = 0
 
+  private var isBorderlessWindowed: Boolean = false
+
   /**
    * Initialize window and OpenGL context
    * @param width Window width in pixels
@@ -212,6 +214,37 @@ object core:
       val monitor = glfwGetPrimaryMonitor()
       val videoMode = glfwGetVideoMode(monitor)
       glfwSetWindowMonitor(windowHandle, monitor, 0, 0, videoMode.width(), videoMode.height(), videoMode.refreshRate())
+  def ToggleBorderlessWindowed(): Unit =
+    if !isWindowInitialized then return
+
+    if isBorderlessWindowed then
+      glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_TRUE)
+      glfwSetWindowMonitor(windowHandle, NULL, windowedX, windowedY, windowedWidth, windowedHeight, GLFW_DONT_CARE)
+      isBorderlessWindowed = false
+    else
+      val xPos = Array(0)
+      val yPos = Array(0)
+      val width = Array(0)
+      val height = Array(0)
+      glfwGetWindowPos(windowHandle, xPos, yPos)
+      glfwGetWindowSize(windowHandle, width, height)
+
+      windowedX = xPos(0)
+      windowedY = yPos(0)
+      windowedWidth = width(0)
+      windowedHeight = height(0)
+
+      glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_FALSE)
+      val monitor = glfwGetPrimaryMonitor()
+      val videoMode = glfwGetVideoMode(monitor)
+      glfwSetWindowMonitor(windowHandle, NULL, 0, 0, videoMode.width(), videoMode.height(), GLFW_DONT_CARE)
+      isBorderlessWindowed = true
+  def MaximizeWindow(): Unit =
+    if !isWindowInitialized then return
+
+    if glfwGetWindowAttrib(windowHandle, GLFW_RESIZABLE) == GLFW_TRUE then
+      glfwMaximizeWindow(windowHandle)
+    
   def GetScreenWidth(): Int = windowWidth
   def GetScreenHeight(): Int = windowHeight
 
@@ -226,26 +259,20 @@ object core:
     glfwPollEvents()
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
   def EndDrawing(): Unit =
     if !isWindowInitialized then
       throw new RuntimeException("Window not initialized!")
 
     glfwSwapBuffers(windowHandle)
-
   def ClearBackground(r: Float, g: Float, b: Float, a: Float = 1.0f): Unit =
     glClearColor(r, g, b, a)
-
   def ClearBackground(color: (Float, Float, Float)): Unit =
     ClearBackground(color._1, color._2, color._3)
-
   def ClearBackgroundRGB(r: Int, g: Int, b: Int): Unit =
     ClearBackground(r / 255.0f, g / 255.0f, b / 255.0f)
-
   def IsKeyDown(key: Int): Boolean =
     if !isWindowInitialized then return false
     glfwGetKey(windowHandle, key) == GLFW_PRESS
-
   def IsKeyEscape(): Boolean = IsKeyDown(GLFW_KEY_ESCAPE)
 
   object Keys:

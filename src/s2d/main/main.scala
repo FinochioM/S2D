@@ -10,8 +10,7 @@ def main(): Unit =
     BeginDrawing()
 
     if IsKeyDown(Keys.A) then
-      ToggleFullscreen()
-      Thread.sleep(300)
+      MaximizeWindow()
 
     EndDrawing()
 
