@@ -333,10 +333,57 @@ object core:
     windowHandle
   def GetScreenWidth(): Int = windowWidth
   def GetScreenHeight(): Int = windowHeight
+  def GetRenderWidth(): Int =
+    if !isWindowInitialized then return 0
 
+    val width = Array(0)
+    val height = Array(0)
+    glfwGetFramebufferSize(windowHandle, width, height)
+    width(0)
+  def GetRenderHeight(): Int =
+    if !isWindowInitialized then return 0
 
+    val width = Array(0)
+    val height = Array(0)
+    glfwGetFramebufferSize(windowHandle, width, height)
+    height(0)
+  def GetMonitorCount(): Int =
+    val monitors = glfwGetMonitors()
+    if monitors == null then 0 else monitors.remaining()
+  def GetCurrentMonitor(): Int =
+    if !isWindowInitialized then return 0
 
+    val windowX = Array(0)
+    val windowY = Array(0)
+    val windowWidth = Array(0)
+    val windowHeight = Array(0)
 
+    glfwGetWindowPos(windowHandle, windowX, windowY)
+    glfwGetWindowSize(windowHandle, windowWidth, windowHeight)
+
+    val windowCenterX = windowX(0) + windowWidth(0) / 2
+    val windowCenterY = windowY(0) + windowHeight(0) / 2
+
+    val monitors = glfwGetMonitors()
+    if monitors == null then return 0
+
+    for (i <- 0 until monitors.remaining()) {
+      val monitor = monitors.get(i)
+      val monitorX = Array(0)
+      val monitorY = Array(0)
+      glfwGetMonitorPos(monitor, monitorX, monitorY)
+
+      val videoMode = glfwGetVideoMode(monitor)
+      if videoMode != null then
+        val monitorRight = monitorX(0) + videoMode.width()
+        val monitorBottom = monitorY(0) + videoMode.height()
+
+        if windowCenterX >= monitorX(0) && windowCenterX < monitorRight &&
+          windowCenterY >= monitorY(0) && windowCenterY < monitorBottom then
+          return i
+    }
+
+    0 // default to primary monitor
 
   def BeginDrawing(): Unit =
     if !isWindowInitialized then
