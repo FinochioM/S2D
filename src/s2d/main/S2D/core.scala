@@ -616,8 +616,17 @@ object core:
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
     glBlendEquation(GL_FUNC_ADD)
+  def BeginScissorMode(x: Int, y: Int, width: Int, height: Int): Unit =
+    if !isWindowInitialized then return
 
+    glEnable(GL_SCISSOR_TEST)
 
+    val flippedY = windowHeight - (y + height)
+    glScissor(x, flippedY, width, height)
+  def EndScissorMode(): Unit =
+    if !isWindowInitialized then return
+
+    glDisable(GL_SCISSOR_TEST)
 
   def IsKeyDown(key: Int): Boolean =
     if !isWindowInitialized then return false
