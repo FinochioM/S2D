@@ -1,7 +1,7 @@
 package S2D
 
 import org.lwjgl.glfw.GLFW.*
-import org.lwjgl.glfw.GLFWErrorCallback
+import org.lwjgl.glfw.{GLFWErrorCallback, GLFWImage}
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.system.MemoryUtil.*
@@ -23,13 +23,6 @@ object core:
   private var windowedHeight: Int = 0
 
   private var isBorderlessWindowed: Boolean = false
-
-  /**
-   * Initialize window and OpenGL context
-   * @param width Window width in pixels
-   * @param height Window height in pixels
-   * @param title Window title
-   */
 
   // WINDOW RELATED FUNCTIONS
   def InitWindow(width: Int, height: Int, title: String): Unit =
@@ -252,6 +245,43 @@ object core:
     if !isWindowInitialized then return
 
     glfwRestoreWindow(windowHandle)
+  def SetWindowIcon(image: Image): Unit =
+    if !isWindowInitialized then return
+
+    val glfwImage = GLFWImage.malloc()
+    glfwImage.width(image.width)
+    glfwImage.height(image.height)
+    glfwImage.pixels(image.data)
+
+    val imageBuffer = GLFWImage.malloc(1)
+    imageBuffer.put(0, glfwImage)
+
+    glfwSetWindowIcon(windowHandle, imageBuffer)
+
+    imageBuffer.free()
+    glfwImage.free()
+  def SetWindowIcons(images: Array[Image]): Unit =
+    if !isWindowInitialized then return
+    if images.isEmpty then return
+
+    val imageBuffer = GLFWImage.malloc(images.length)
+
+    for (i <- images.indices) {
+      val glfwImage = GLFWImage.malloc()
+      glfwImage.width(images(i).width)
+      glfwImage.height(images(i).height)
+      glfwImage.pixels(images(i).data)
+
+      imageBuffer.put(i, glfwImage)
+    }
+
+    glfwSetWindowIcon(windowHandle, imageBuffer)
+
+    for (i <- images.indices){
+      imageBuffer.get(i).free()
+    }
+
+    imageBuffer.free()
   def GetScreenWidth(): Int = windowWidth
   def GetScreenHeight(): Int = windowHeight
 
