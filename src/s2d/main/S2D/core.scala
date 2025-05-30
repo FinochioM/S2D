@@ -4,6 +4,7 @@ import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.glfw.{GLFWErrorCallback, GLFWImage}
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL11.*
+import org.lwjgl.opengl.GL30.glBindFramebuffer
 import org.lwjgl.system.MemoryUtil.*
 
 object core:
@@ -565,6 +566,17 @@ object core:
 
     glMatrixMode(GL_MODELVIEW)
     glPopMatrix()
+  def BeginTextureMode(target: RenderTexture2D): Unit =
+    if !isWindowInitialized then return
+
+    glBindFramebuffer(GL_FRAMEBUFFER, target.id)
+    glViewport(0, 0, target.texture.width, target.texture.height)
+
+  def EndTextureMode(): Unit =
+    if !isWindowInitialized then return
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0)
+    glViewport(0, 0, windowWidth, windowHeight)
 
   def IsKeyDown(key: Int): Boolean =
     if !isWindowInitialized then return false
