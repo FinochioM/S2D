@@ -10,7 +10,7 @@ def main(): Unit =
     BeginDrawing()
 
     if IsKeyDown(Keys.A) then
-      MaximizeWindow()
+      RestoreWindow()
 
     EndDrawing()
 

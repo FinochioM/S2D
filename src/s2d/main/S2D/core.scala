@@ -244,7 +244,14 @@ object core:
 
     if glfwGetWindowAttrib(windowHandle, GLFW_RESIZABLE) == GLFW_TRUE then
       glfwMaximizeWindow(windowHandle)
-    
+  def MinimizeWindow(): Unit =
+    if !isWindowInitialized then return
+
+    glfwIconifyWindow(windowHandle)
+  def RestoreWindow(): Unit =
+    if !isWindowInitialized then return
+
+    glfwRestoreWindow(windowHandle)
   def GetScreenWidth(): Int = windowWidth
   def GetScreenHeight(): Int = windowHeight
 
