@@ -22,11 +22,13 @@ def main(): Unit =
 
   SetWindowIcon(testIcon)
 
+  println(GetMonitorName(0))
+
   while !WindowShouldClose() do
     BeginDrawing()
 
     if IsKeyDown(Keys.A) then
-      println(GetMonitorPosition(2))
+      println(GetWindowScaleDPI())
       Thread.sleep(300)
 
     EndDrawing()

@@ -24,6 +24,8 @@ object core:
 
   private var isBorderlessWindowed: Boolean = false
 
+  private var eventWaitingEnabled: Boolean = false
+
   // WINDOW RELATED FUNCTIONS
   def InitWindow(width: Int, height: Int, title: String): Unit =
     if isWindowInitialized then
@@ -326,6 +328,10 @@ object core:
     if !isWindowInitialized then return
 
     glfwFocusWindow(windowHandle)
+  def SetClipboardText(text: String): Unit =
+    if !isWindowInitialized then return
+
+    glfwSetClipboardString(windowHandle, text)
 
   def GetWindowHandle(): Long =
     if !isWindowInitialized then return NULL
@@ -444,12 +450,48 @@ object core:
     val videoMode = glfwGetVideoMode(targetMonitor)
 
     if videoMode != null then videoMode.refreshRate() else 0
+  def GetWindowPosition(): Vector2 =
+    if !isWindowInitialized then return Vector2(0.0f, 0.0f)
+
+    val xPos = Array(0)
+    val yPos = Array(0)
+
+    glfwGetWindowPos(windowHandle, xPos, yPos)
+    Vector2(xPos(0).toFloat, yPos(0).toFloat)
+  def GetWindowScaleDPI(): Vector2 =
+    if !isWindowInitialized then return Vector2(1.0f, 1.0f)
+
+    val xScale = Array(0.0f)
+    val yScale = Array(0.0f)
+
+    glfwGetWindowContentScale(windowHandle, xScale, yScale)
+    Vector2(xScale(0), yScale(0))
+  def GetMonitorName(monitor: Int): String =
+    val monitors = glfwGetMonitors()
+    if monitors == null || monitor < 0 || monitor >= monitors.remaining() then
+      return ""
+
+    val targetMonitor = monitors.get(monitor)
+    val name = glfwGetMonitorName(targetMonitor)
+
+    if name != null then name else ""
+  def GetClipboardText(): String =
+    val clipboardContent = glfwGetClipboardString(windowHandle)
+    if clipboardContent != null then clipboardContent else ""
+
+  def EnableEventWaiting(): Unit =
+    eventWaitingEnabled = true
+  def DisableEventWaiting(): Unit =
+    eventWaitingEnabled = false
 
   def BeginDrawing(): Unit =
     if !isWindowInitialized then
       throw new RuntimeException("Window not initialized!")
 
-    glfwPollEvents()
+    if eventWaitingEnabled then
+      glfwWaitEvents()
+    else
+      glfwPollEvents()
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
   def EndDrawing(): Unit =
