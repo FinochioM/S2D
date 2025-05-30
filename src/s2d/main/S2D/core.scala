@@ -303,6 +303,25 @@ object core:
     if videoMode != null then
       glfwSetWindowMonitor(windowHandle, targetMonitor, 0, 0,
         videoMode.width(), videoMode.height(), videoMode.refreshRate())
+  def SetWindowMinSize(width: Int, height: Int): Unit =
+    if !isWindowInitialized then return
+
+    glfwSetWindowSizeLimits(windowHandle, width, height, GLFW_DONT_CARE, GLFW_DONT_CARE)
+  def SetWindowMaxSize(width: Int, height: Int): Unit =
+    if !isWindowInitialized then return
+
+    glfwSetWindowSizeLimits(windowHandle, GLFW_DONT_CARE, GLFW_DONT_CARE, width, height)
+  def SetWindowSize(width: Int, height: Int): Unit =
+    if !isWindowInitialized then return
+
+    glfwSetWindowSize(windowHandle, width, height)
+    windowWidth = width
+    windowHeight = height
+  def SetWindowOpacity(opacity: Float): Unit =
+    if !isWindowInitialized then return
+
+    val clampedOpacity = Math.max(0.0f, Math.min(1.0f, opacity))
+    glfwSetWindowOpacity(windowHandle, opacity)
   def GetScreenWidth(): Int = windowWidth
   def GetScreenHeight(): Int = windowHeight
 

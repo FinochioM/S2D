@@ -26,7 +26,7 @@ def main(): Unit =
     BeginDrawing()
 
     if IsKeyDown(Keys.A) then
-      SetWindowMonitor(0)
+      SetWindowOpacity(0.5f)
 
     EndDrawing()
 
