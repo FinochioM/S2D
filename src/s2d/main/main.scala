@@ -9,9 +9,6 @@ def main(): Unit =
   while !WindowShouldClose() do
     BeginDrawing()
 
-    if IsKeyEscape() then
-      println("PRESSED KEY ESCAPE")
-
     EndDrawing()
 
   CloseWindow()
