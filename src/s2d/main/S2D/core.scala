@@ -484,6 +484,22 @@ object core:
   def DisableEventWaiting(): Unit =
     eventWaitingEnabled = false
 
+  // CURSOR RELATED FUNCTIONS
+  def ShowCursor(): Unit =
+    if !isWindowInitialized then return
+
+    glfwSetInputMode(windowHandle, GLFW_CURSOR, GLFW_CURSOR_NORMAL)
+  def HideCursor(): Unit =
+    if !isWindowInitialized then return
+
+    glfwSetInputMode(windowHandle, GLFW_CURSOR, GLFW_CURSOR_HIDDEN)
+
+
+
+
+
+
+
   def BeginDrawing(): Unit =
     if !isWindowInitialized then
       throw new RuntimeException("Window not initialized!")

@@ -28,7 +28,11 @@ def main(): Unit =
     BeginDrawing()
 
     if IsKeyDown(Keys.A) then
-      println(GetWindowScaleDPI())
+      ShowCursor()
+      Thread.sleep(300)
+
+    if IsKeyDown(Keys.D) then
+      HideCursor()
       Thread.sleep(300)
 
     EndDrawing()
