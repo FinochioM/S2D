@@ -384,6 +384,66 @@ object core:
     }
 
     0 // default to primary monitor
+  def GetMonitorPosition(monitor: Int): Vector2 =
+    val monitors = glfwGetMonitors()
+    if monitors == null || monitor < 0 || monitor >= monitors.remaining() then
+      return Vector2(0.0f, 0.0f)
+
+    val targetMonitor = monitors.get(monitor)
+    val xPos = Array(0)
+    val yPos = Array(0)
+
+    glfwGetMonitorPos(targetMonitor, xPos, yPos)
+    Vector2(xPos(0).toFloat, yPos(0).toFloat)
+  def GetMonitorWidth(monitor: Int): Int =
+    val monitors = glfwGetMonitors()
+    if monitors == null || monitor < 0 || monitor >= monitors.remaining() then
+      return 0
+
+    val targetMonitor = monitors.get(monitor)
+    val videoMode = glfwGetVideoMode(targetMonitor)
+
+    if videoMode != null then videoMode.width() else 0
+  def GetMonitorHeight(monitor: Int): Int =
+    val monitors = glfwGetMonitors()
+    if monitors == null || monitor < 0 || monitor >= monitors.remaining() then
+      return 0
+
+    val targetMonitor = monitors.get(monitor)
+    val videoMode = glfwGetVideoMode(targetMonitor)
+
+    if videoMode != null then videoMode.height() else 0
+  def GetMonitorPhysicalWidth(monitor: Int): Int =
+    val monitors = glfwGetMonitors()
+    if monitors == null || monitor < 0 || monitor >= monitors.remaining() then
+      return 0
+
+    val targetMonitor = monitors.get(monitor)
+    val widthMM = Array(0)
+    val heightMM = Array(0)
+
+    glfwGetMonitorPhysicalSize(targetMonitor, widthMM, heightMM)
+    widthMM(0)
+  def GetMonitorPhysicalHeight(monitor: Int): Int =
+    val monitors = glfwGetMonitors()
+    if monitors == null || monitor < 0 || monitor >= monitors.remaining() then
+      return 0
+
+    val targetMonitor = monitors.get(monitor)
+    val widthMM = Array(0)
+    val heightMM = Array(0)
+
+    glfwGetMonitorPhysicalSize(targetMonitor, widthMM, heightMM)
+    heightMM(0)
+  def GetMonitorRefreshRate(monitor: Int): Int =
+    val monitors = glfwGetMonitors()
+    if monitors == null || monitor < 0 || monitor >= monitors.remaining() then
+      return 0
+
+    val targetMonitor = monitors.get(monitor)
+    val videoMode = glfwGetVideoMode(targetMonitor)
+
+    if videoMode != null then videoMode.refreshRate() else 0
 
   def BeginDrawing(): Unit =
     if !isWindowInitialized then

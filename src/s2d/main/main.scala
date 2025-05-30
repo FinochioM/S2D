@@ -26,7 +26,7 @@ def main(): Unit =
     BeginDrawing()
 
     if IsKeyDown(Keys.A) then
-      println(GetCurrentMonitor())
+      println(GetMonitorPosition(2))
       Thread.sleep(300)
 
     EndDrawing()
