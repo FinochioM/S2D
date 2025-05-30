@@ -17,6 +17,11 @@ object core:
 
   private var glfwInitialized: Boolean = false
 
+  private var windowedX: Int = 0
+  private var windowedY: Int = 0
+  private var windowedWidth: Int = 0
+  private var windowedHeight: Int = 0
+
   /**
    * Initialize window and OpenGL context
    * @param width Window width in pixels
@@ -53,6 +58,9 @@ object core:
     windowHeight = height
     windowTitle = title
 
+    windowedWidth = width
+    windowedHeight = height
+
     val videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor())
     if videoMode != null then
       glfwSetWindowPos(
@@ -60,6 +68,12 @@ object core:
         (videoMode.width() - width) / 2,
         (videoMode.height() - height) / 2
       )
+
+    val xPos = Array(0)
+    val yPos = Array(0)
+    glfwGetWindowPos(windowHandle, xPos, yPos)
+    windowedX = xPos(0)
+    windowedY = yPos(0)
 
     glfwMakeContextCurrent(windowHandle)
     glfwShowWindow(windowHandle)
@@ -177,6 +191,27 @@ object core:
 
     if (flags & WindowFlags.VISIBLE) != 0 then
       glfwHideWindow(windowHandle)
+  def ToggleFullscreen(): Unit =
+    if !isWindowInitialized then return
+
+    if IsWindowFullscreen() then
+      glfwSetWindowMonitor(windowHandle, NULL, windowedX, windowedY, windowedWidth, windowedHeight, GLFW_DONT_CARE)
+    else
+      val xPos = Array(0)
+      val yPos = Array(0)
+      val width = Array(0)
+      val height = Array(0)
+      glfwGetWindowPos(windowHandle, xPos, yPos)
+      glfwGetWindowSize(windowHandle, width, height)
+
+      windowedX = xPos(0)
+      windowedY = yPos(0)
+      windowedWidth = width(0)
+      windowedHeight = height(0)
+
+      val monitor = glfwGetPrimaryMonitor()
+      val videoMode = glfwGetVideoMode(monitor)
+      glfwSetWindowMonitor(windowHandle, monitor, 0, 0, videoMode.width(), videoMode.height(), videoMode.refreshRate())
   def GetScreenWidth(): Int = windowWidth
   def GetScreenHeight(): Int = windowHeight
 

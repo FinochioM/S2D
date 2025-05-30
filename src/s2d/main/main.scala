@@ -9,6 +9,10 @@ def main(): Unit =
   while !WindowShouldClose() do
     BeginDrawing()
 
+    if IsKeyDown(Keys.A) then
+      ToggleFullscreen()
+      Thread.sleep(300)
+
     EndDrawing()
 
   CloseWindow()
