@@ -26,7 +26,7 @@ def main(): Unit =
     BeginDrawing()
 
     if IsKeyDown(Keys.A) then
-      RestoreWindow()
+      SetWindowMonitor(0)
 
     EndDrawing()
 

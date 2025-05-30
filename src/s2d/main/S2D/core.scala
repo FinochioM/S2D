@@ -282,6 +282,27 @@ object core:
     }
 
     imageBuffer.free()
+  def SetWindowTitle(title: String): Unit =
+    if !isWindowInitialized then return
+
+    glfwSetWindowTitle(windowHandle, title)
+    windowTitle = title
+  def SetWindowPosition(x: Int, y: Int): Unit =
+    if !isWindowInitialized then return
+
+    glfwSetWindowPos(windowHandle, x, y)
+  def SetWindowMonitor(monitor: Int): Unit =
+    if !isWindowInitialized then return
+
+    val monitors = glfwGetMonitors()
+    if monitors == null || monitor < 0 || monitor >= monitors.remaining() then return
+
+    val targetMonitor = monitors.get(monitor)
+    val videoMode = glfwGetVideoMode(targetMonitor)
+
+    if videoMode != null then
+      glfwSetWindowMonitor(windowHandle, targetMonitor, 0, 0,
+        videoMode.width(), videoMode.height(), videoMode.refreshRate())
   def GetScreenWidth(): Int = windowWidth
   def GetScreenHeight(): Int = windowHeight
 
