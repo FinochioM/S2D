@@ -4,7 +4,7 @@ import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.glfw.{GLFWErrorCallback, GLFWImage}
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL11.*
-import org.lwjgl.opengl.GL30.glBindFramebuffer
+import org.lwjgl.opengl.GL30.*
 import org.lwjgl.system.MemoryUtil.*
 
 object core:
@@ -45,8 +45,8 @@ object core:
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3)
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE)
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE)
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE)
+    //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE)
 
     windowHandle = glfwCreateWindow(width, height, title, NULL, NULL)
     if windowHandle == NULL then
@@ -571,7 +571,6 @@ object core:
 
     glBindFramebuffer(GL_FRAMEBUFFER, target.id)
     glViewport(0, 0, target.texture.width, target.texture.height)
-
   def EndTextureMode(): Unit =
     if !isWindowInitialized then return
 
@@ -582,6 +581,7 @@ object core:
     if !isWindowInitialized then return false
     glfwGetKey(windowHandle, key) == GLFW_PRESS
   def IsKeyEscape(): Boolean = IsKeyDown(GLFW_KEY_ESCAPE)
+  
 
   object Keys:
     val ESCAPE = GLFW_KEY_ESCAPE

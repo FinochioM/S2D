@@ -1,39 +1,25 @@
-import S2D.{Color, Image, PixelFormat}
+import S2D.*
 import S2D.core.*
 
 @main
 def main(): Unit =
   InitWindow(800, 600, "S2D Framework Says Hi!")
 
-  ClearBackground(Color(100, 149, 237))
 
-  val iconSize = 16
-  val iconData = java.nio.ByteBuffer.allocateDirect(iconSize * iconSize * 4)
-
-  for (i <- 0 until iconSize * iconSize) {
-    iconData.put((255).toByte)
-    iconData.put((0).toByte)
-    iconData.put((0).toByte)
-    iconData.put((255).toByte)
-  }
-  iconData.flip()
-
-  val testIcon = Image(iconData, iconSize, iconSize, 1, PixelFormat.UNCOMPRESSED_R8G8B8A8)
-
-  SetWindowIcon(testIcon)
-
-  println(GetMonitorName(0))
+  val camera = Camera2D(
+    offset = Vector2(400, 300),
+    target = Vector2(0, 0),
+    rotation = 0.0f,
+    zoom = 1.0f
+  )
 
   while !WindowShouldClose() do
     BeginDrawing()
+    ClearBackground(Color(100, 149, 237))
 
-    if IsKeyDown(Keys.A) then
-      EnableCursor()
-      Thread.sleep(300)
+    BeginMode2D(camera)
 
-    if IsKeyDown(Keys.D) then
-      DisableCursor()
-      Thread.sleep(300)
+    EndMode2D()
 
     EndDrawing()
 
