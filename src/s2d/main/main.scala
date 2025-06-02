@@ -19,7 +19,7 @@ def main(): Unit =
 
     BeginMode2D(camera2D)
 
-      DrawRectangleGradientV(100, 100, 150, 200, Color(255, 0, 0), Color(0, 0, 255))
+      DrawRectangleGradientH(100, 100, 150, 200, Color(255, 0, 0), Color(0, 0, 255))
 
     EndMode2D()
 

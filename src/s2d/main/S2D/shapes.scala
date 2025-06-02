@@ -365,3 +365,19 @@ object shapes:
     glVertex2f(posX.toFloat, (posY + height).toFloat)
 
     glEnd()
+  def DrawRectangleGradientH(posX: Int, posY: Int, width: Int, height: Int, left: Color, right: Color): Unit =
+    glBegin(GL_QUADS)
+
+    glColor4f(left.r / 255.0f, left.g / 255.0f, left.b / 255.0f, left.a / 255.0f)
+    glVertex2f(posX.toFloat, posY.toFloat)
+
+    glColor4f(right.r / 255.0f, right.g / 255.0f, right.b / 255.0f, right.a / 255.0f)
+    glVertex2f((posX + width).toFloat, posY.toFloat)
+
+    glColor4f(right.r / 255.0f, right.g / 255.0f, right.b / 255.0f, right.a / 255.0f)
+    glVertex2f((posX + width).toFloat, (posY + height).toFloat)
+
+    glColor4f(left.r / 255.0f, left.g / 255.0f, left.b / 255.0f, left.a / 255.0f)
+    glVertex2f(posX.toFloat, (posY + height).toFloat)
+
+    glEnd()
