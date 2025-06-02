@@ -381,3 +381,19 @@ object shapes:
     glVertex2f(posX.toFloat, (posY + height).toFloat)
 
     glEnd()
+  def DrawRectangleGradientEx(rectangle: Rectangle, topLeft: Color, bottomLeft: Color, topRight: Color, bottomRight: Color): Unit =
+    glBegin(GL_QUADS)
+
+    glColor4f(topLeft.r / 255.0f, topLeft.g / 255.0f, topLeft.b / 255.0f, topLeft.a / 255.0f)
+    glVertex2f(rectangle.x, rectangle.y)
+
+    glColor4f(topRight.r / 255.0f, topRight.g / 255.0f, topRight.b / 255.0f, topRight.a / 255.0f)
+    glVertex2f((rectangle.x+ rectangle.width), rectangle.y)
+
+    glColor4f(bottomRight.r / 255.0f, bottomRight.g / 255.0f, bottomRight.b / 255.0f, bottomRight.a / 255.0f)
+    glVertex2f((rectangle.x + rectangle.width), (rectangle.y + rectangle.height))
+
+    glColor4f(bottomLeft.r / 255.0f, bottomLeft.g / 255.0f, bottomLeft.b / 255.0f, bottomLeft.a / 255.0f)
+    glVertex2f(rectangle.x, (rectangle.y + rectangle.height))
+
+    glEnd()

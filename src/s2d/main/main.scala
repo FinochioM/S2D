@@ -18,8 +18,8 @@ def main(): Unit =
     ClearBackground(Color(100, 149, 237))
 
     BeginMode2D(camera2D)
-
-      DrawRectangleGradientH(100, 100, 150, 200, Color(255, 0, 0), Color(0, 0, 255))
+      val rect1 = Rectangle(100.0f, 100.0f, 200.0f, 150.0f)
+      DrawRectangleGradientEx(rect1, Color(255, 0, 0), Color(0, 0, 255), Color(255, 255, 0), Color(0, 255, 255))
 
     EndMode2D()
 
