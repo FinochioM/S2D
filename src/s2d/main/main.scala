@@ -19,11 +19,10 @@ def main(): Unit =
 
     BeginMode2D(camera2D)
 
-      val pos1 = Vector2(200.0f, 200.0f)
-      val pos2 = Vector2(400.0f, 200.0f)
+      DrawEllipse(200, 200, 80, 40, Color(255, 100, 100))
+      DrawEllipse(400, 200, 30, 80, Color(100, 255, 100))
+      DrawEllipse(300, 400, 60, 60, Color(100, 100, 255))
 
-      DrawCircleV(pos1, 50.0f, Color(255, 100, 100))
-      DrawCircleV(pos2, 50.0f, Color(100, 255, 100))
     EndMode2D()
 
     EndDrawing()
