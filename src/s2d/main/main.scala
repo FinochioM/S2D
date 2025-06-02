@@ -19,9 +19,16 @@ def main(): Unit =
 
     BeginMode2D(camera2D)
 
-      val center1 = Vector2(200.0f, 200.0f)
-      DrawRingLines(center1, 30.0f, 60.0f, 0.0f, 360.0f, 3, Color(255, 100, 100))
+      DrawRectangle(100, 100, 200, 150, Color(255, 100, 100))
 
+
+      for i <- 0 until 5 do
+        for j <- 0 until 3 do
+          val x = 50 + i * 60
+          val y = 450 + j * 40
+          val red = (i * 51) % 256
+          val green =(j * 85) % 256
+          DrawRectangle(x, y, 50, 30, Color(red, green, 100))
     EndMode2D()
 
     EndDrawing()

@@ -305,3 +305,12 @@ object shapes:
       val y = center.y + outerRadius * math.sin(angle).toFloat
       glVertex2f(x, y)
     glEnd()
+  def DrawRectangle(posX: Int, posY: Int, width: Int, height: Int, color: Color): Unit =
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    glBegin(GL_QUADS)
+    glVertex2f(posX.toFloat, posY.toFloat)
+    glVertex2f((posX + width).toFloat, posY.toFloat)
+    glVertex2f((posX + width).toFloat, (posY + height).toFloat)
+    glVertex2f(posX.toFloat, (posY + height).toFloat)
+    glEnd()
