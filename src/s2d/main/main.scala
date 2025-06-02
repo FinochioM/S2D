@@ -19,9 +19,11 @@ def main(): Unit =
 
     BeginMode2D(camera2D)
 
-      DrawCircle(200, 200, 50, Color(255, 100, 100))
-      DrawCircleLines(200, 200, 60, Color(0, 0, 0))
+      val pos1 = Vector2(200.0f, 200.0f)
+      val pos2 = Vector2(400.0f, 200.0f)
 
+      DrawCircleV(pos1, 50.0f, Color(255, 100, 100))
+      DrawCircleV(pos2, 50.0f, Color(100, 255, 100))
     EndMode2D()
 
     EndDrawing()
