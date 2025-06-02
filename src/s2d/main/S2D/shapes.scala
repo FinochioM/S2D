@@ -251,3 +251,57 @@ object shapes:
       glVertex2f(x, y)
 
     glEnd()
+  def DrawRing(center: Vector2, innerRadius: Float, outerRadius: Float, startAngle: Float, endAngle: Float, segments: Int, color: Color): Unit =
+    if segments < 3 then return
+    if innerRadius >= outerRadius then return
+
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    val startRad = math.toRadians(startAngle).toFloat
+    val endRad = math.toRadians(endAngle).toFloat
+
+    val angleStep = (endRad - startRad) / segments.toFloat
+
+    glBegin(GL_TRIANGLE_STRIP)
+
+    for i <- 0 to segments do
+      val angle = startRad + (i * angleStep)
+      val cosAngle = math.cos(angle).toFloat
+      val sinAngle = math.sin(angle).toFloat
+
+      val innerX = center.x + innerRadius * cosAngle
+      val innerY = center.y + innerRadius * sinAngle
+      glVertex2f(innerX, innerY)
+
+      val outerX = center.x + outerRadius * cosAngle
+      val outerY = center.y + outerRadius * sinAngle
+      glVertex2f(outerX, outerY)
+
+    glEnd()
+  def DrawRingLines(center: Vector2, innerRadius: Float, outerRadius: Float, startAngle: Float, endAngle: Float, segments: Int, color: Color): Unit =
+    if segments < 3 then return
+    if innerRadius >= outerRadius then return
+
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    val startRad = math.toRadians(startAngle).toFloat
+    val endRad = math.toRadians(endAngle).toFloat
+
+    val angleStep = (endRad - startRad) / segments.toFloat
+
+    glBegin(GL_LINE_STRIP)
+
+    for i <- 0 to segments do
+      val angle = startRad + (i * angleStep)
+      val x = center.x + innerRadius * math.cos(angle).toFloat
+      val y = center.y + innerRadius * math.sin(angle).toFloat
+      glVertex2f(x, y)
+    glEnd()
+
+    glBegin(GL_LINE_STRIP)
+    for i <- 0 to segments do
+      val angle = startRad + (i * angleStep)
+      val x = center.x + outerRadius * math.cos(angle).toFloat
+      val y = center.y + outerRadius * math.sin(angle).toFloat
+      glVertex2f(x, y)
+    glEnd()

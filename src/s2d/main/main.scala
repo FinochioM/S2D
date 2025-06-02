@@ -19,9 +19,8 @@ def main(): Unit =
 
     BeginMode2D(camera2D)
 
-      DrawEllipseLines(200, 200, 80, 40, Color(255, 100, 100))
-      DrawEllipse(400, 200, 30, 80, Color(100, 255, 100))
-      DrawEllipse(300, 400, 60, 60, Color(100, 100, 255))
+      val center1 = Vector2(200.0f, 200.0f)
+      DrawRingLines(center1, 30.0f, 60.0f, 0.0f, 360.0f, 3, Color(255, 100, 100))
 
     EndMode2D()
 
