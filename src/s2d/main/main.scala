@@ -19,8 +19,15 @@ def main(): Unit =
 
     BeginMode2D(camera2D)
 
-      DrawCircleGradient(400, 300, 100.0f, Color(255, 255, 255), Color(255, 0, 0))
-      DrawCircleGradient(200, 200, 80.0f, Color(0, 100, 255), Color(0, 100, 255, 0))
+      val circlePos1 = Vector2(300.0f, 200.0f)
+      val circlePos2 = Vector2(500.0f, 400.0f)
+
+      DrawCircleV(circlePos1, 50.0f, Color(255, 100, 100))
+      DrawCircleV(circlePos2, 75.0f, Color(100, 255, 100))
+
+      val time = System.currentTimeMillis() / 1000.0f
+      val animatedPos = Vector2(400.0f + math.sin(time).toFloat * 100.0f, 300.0f)
+      DrawCircleV(animatedPos, 30.0f, Color(100, 100, 255))
 
     EndMode2D()
 

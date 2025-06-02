@@ -179,3 +179,18 @@ object shapes:
       glVertex2f(x, y)
 
     glEnd()
+  def DrawCircleV(center: Vector2, radius: Float, color: Color): Unit =
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    val segments = 36
+
+    glBegin(GL_TRIANGLE_FAN)
+    glVertex2f(center.x, center.y)
+
+    for i <- 0 to segments do
+      val angle = (i * 2.0f * math.Pi / segments).toFloat
+      val x = center.x + radius * math.cos(angle).toFloat
+      val y = center.y + radius * math.sin(angle).toFloat
+      glVertex2f(x, y)
+
+    glEnd()
