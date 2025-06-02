@@ -19,7 +19,7 @@ def main(): Unit =
 
     BeginMode2D(camera2D)
 
-      DrawEllipse(200, 200, 80, 40, Color(255, 100, 100))
+      DrawEllipseLines(200, 200, 80, 40, Color(255, 100, 100))
       DrawEllipse(400, 200, 30, 80, Color(100, 255, 100))
       DrawEllipse(300, 400, 60, 60, Color(100, 100, 255))
 
