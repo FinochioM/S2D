@@ -314,3 +314,12 @@ object shapes:
     glVertex2f((posX + width).toFloat, (posY + height).toFloat)
     glVertex2f(posX.toFloat, (posY + height).toFloat)
     glEnd()
+  def DrawRectangleV(pos: Vector2, size: Vector2, color: Color): Unit =
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    glBegin(GL_QUADS)
+    glVertex2f(pos.x, pos.y)
+    glVertex2f((pos.x + size.x), pos.y)
+    glVertex2f((pos.x + size.x), (pos.y + size.y))
+    glVertex2f(pos.x, (pos.y + size.y))
+    glEnd()

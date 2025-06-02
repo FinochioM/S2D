@@ -19,16 +19,8 @@ def main(): Unit =
 
     BeginMode2D(camera2D)
 
-      DrawRectangle(100, 100, 200, 150, Color(255, 100, 100))
+      DrawRectangleV(Vector2(100.0f, 100.0f), Vector2(200.0f, 150.0f), Color(255, 100, 100))
 
-
-      for i <- 0 until 5 do
-        for j <- 0 until 3 do
-          val x = 50 + i * 60
-          val y = 450 + j * 40
-          val red = (i * 51) % 256
-          val green =(j * 85) % 256
-          DrawRectangle(x, y, 50, 30, Color(red, green, 100))
     EndMode2D()
 
     EndDrawing()
