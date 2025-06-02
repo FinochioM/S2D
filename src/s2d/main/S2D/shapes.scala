@@ -349,3 +349,19 @@ object shapes:
     glEnd()
 
     glPopMatrix()
+  def DrawRectangleGradientV(posX: Int, posY: Int, width: Int, height: Int, top: Color, bottom: Color): Unit =
+    glBegin(GL_QUADS)
+
+    glColor4f(top.r / 255.0f, top.g / 255.0f, top.b / 255.0f, top.a / 255.0f)
+    glVertex2f(posX.toFloat, posY.toFloat)
+
+    glColor4f(top.r / 255.0f, top.g / 255.0f, top.b / 255.0f, top.a / 255.0f)
+    glVertex2f((posX + width).toFloat, posY.toFloat)
+
+    glColor4f(bottom.r / 255.0f, bottom.g / 255.0f, bottom.b / 255.0f, bottom.a / 255.0f)
+    glVertex2f((posX + width).toFloat, (posY + height).toFloat)
+
+    glColor4f(bottom.r / 255.0f, bottom.g / 255.0f, bottom.b / 255.0f, bottom.a / 255.0f)
+    glVertex2f(posX.toFloat, (posY + height).toFloat)
+
+    glEnd()
