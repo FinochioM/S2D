@@ -162,3 +162,20 @@ object shapes:
     glVertex2f(center.x, center.y)
     glVertex2f(center.x + radius * math.cos(endRad).toFloat, center.y + radius * math.sin(endRad).toFloat)
     glEnd()
+  def DrawCircleGradient(centerX: Int, centerY: Int, radius: Float, inner: Color, outer: Color): Unit =
+    val segments = 36
+
+    glBegin(GL_TRIANGLE_FAN)
+
+    glColor4f(inner.r / 255.0f, inner.g / 255.0f, inner.b / 255.0f, inner.a / 255.0f)
+    glVertex2f(centerX.toFloat, centerY.toFloat)
+
+    glColor4f(outer.r / 255.0f, outer.g / 255.0f, outer.b / 255.0f, outer.a / 255.0f)
+
+    for i <- 0 to segments do
+      val angle = (i * 2.0f * math.Pi / segments).toFloat
+      val x = centerX + radius * math.cos(angle).toFloat
+      val y = centerY + radius * math.sin(angle).toFloat
+      glVertex2f(x, y)
+
+    glEnd()
