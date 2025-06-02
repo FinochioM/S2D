@@ -19,7 +19,8 @@ def main(): Unit =
 
     BeginMode2D(camera2D)
 
-      DrawRectangleV(Vector2(100.0f, 100.0f), Vector2(200.0f, 150.0f), Color(255, 100, 100))
+      val rect1 = Rectangle(100.0f, 100.0f, 200.0f, 150.0f)
+      DrawRectangleRec(rect1, Color(255, 100, 100))
 
     EndMode2D()
 
