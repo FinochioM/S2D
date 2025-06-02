@@ -194,3 +194,17 @@ object shapes:
       glVertex2f(x, y)
 
     glEnd()
+  def DrawCircleLines(centerX: Int, centerY: Int, radius: Float, color: Color): Unit =
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    val segments = 36
+
+    glBegin(GL_LINE_LOOP)
+
+    for i <- 0 until segments do
+      val angle = (i * 2.0f * math.Pi / segments).toFloat
+      val x = centerX + radius * math.cos(angle).toFloat
+      val y = centerY + radius * math.sin(angle).toFloat
+      glVertex2f(x, y)
+
+    glEnd()
