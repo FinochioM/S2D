@@ -332,3 +332,20 @@ object shapes:
     glVertex2f((rectangle.x + rectangle.width), (rectangle.y + rectangle.height))
     glVertex2f(rectangle.x, (rectangle.y + rectangle.height))
     glEnd()
+  def DrawRectanglePro(rectangle: Rectangle, origin: Vector2, rotation: Float, color: Color): Unit =
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    glPushMatrix()
+
+    glTranslatef(rectangle.x + origin.x, rectangle.y + origin.y, 0.0f)
+
+    glRotatef(rotation, 0.0f, 0.0f, 1.0f)
+
+    glBegin(GL_QUADS)
+    glVertex2f(-origin.x, -origin.y)
+    glVertex2f(rectangle.width - origin.x, -origin.y)
+    glVertex2f(rectangle.width - origin.x, rectangle.height - origin.y)
+    glVertex2f(-origin.x, rectangle.height - origin.y)
+    glEnd()
+
+    glPopMatrix()

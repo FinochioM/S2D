@@ -19,8 +19,16 @@ def main(): Unit =
 
     BeginMode2D(camera2D)
 
-      val rect1 = Rectangle(100.0f, 100.0f, 200.0f, 150.0f)
-      DrawRectangleRec(rect1, Color(255, 100, 100))
+      val rect1 = Rectangle(200.0f, 150.0f, 100.0f, 60.0f)
+      DrawRectanglePro(rect1, Vector2(0.0f, 0.0f), 30.0f, Color(255, 100, 100))
+
+      val rect2 = Rectangle(400.0f, 200.0f, 120.0f, 80.0f)
+      val centerOrigin = Vector2(rect2.width / 2.0f, rect2.height / 2.0f)
+      DrawRectanglePro(rect2, centerOrigin, 0.0f, Color(100, 255, 100))
+
+    val rect3 = Rectangle(400.0f, 200.0f, 120.0f, 80.0f)
+    val centerOrigin2 = Vector2(0.0f, 0.0f)
+    DrawRectanglePro(rect3, centerOrigin2, 45.0f, Color(255, 100, 100))
 
     EndMode2D()
 
