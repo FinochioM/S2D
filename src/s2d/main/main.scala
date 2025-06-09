@@ -14,13 +14,22 @@ def main(): Unit =
     zoom = 1.0f
   )
 
+  val rectanglePos = Vector2(100.0, 100.0f)
+  val rectangleSize = Vector2(200.0f, 150.0f)
+
   while !WindowShouldClose() do
     BeginDrawing()
-    ClearBackground(Color(100, 149, 237))
+    ClearBackground(Color.fromHex("#6495ED").getOrElse(Color.Blue))
 
     BeginMode2D(camera2D)
-      val rect1 = Rectangle(100.0f, 100.0f, 200.0f, 150.0f)
-      DrawRectangleGradientEx(rect1, Color(255, 0, 0), Color(0, 0, 255), Color(255, 255, 0), Color(0, 255, 255))
+      val rect = Rectangle.fromCenter(rectanglePos + rectangleSize / 2, rectangleSize)
+
+      val baseColor = Color.Red
+      val animatedColor = baseColor.lerp(Color.Yellow, (math.sin(System.currentTimeMillis() / 1000.0) + 1.0).toFloat / 2.0f)
+
+      BeginBlendMode(BlendMode.Alpha)
+      DrawRectangleRec(rect, animatedColor)
+      EndBlendMode()
 
     EndMode2D()
 

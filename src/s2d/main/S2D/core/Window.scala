@@ -128,66 +128,71 @@ object Window:
     val wasResized = windowResizedThisFrame
     windowResizedThisFrame = false
     wasResized
-  def IsWindowState(flag: Int): Boolean =
+  def IsWindowState(flag: WindowFlag): Boolean =
     if !isWindowInitialized then return false
 
     flag match
-      case WindowFlags.RESIZABLE => glfwGetWindowAttrib(windowHandle, GLFW_RESIZABLE) == GLFW_TRUE
-      case WindowFlags.UNDECORATED => glfwGetWindowAttrib(windowHandle, GLFW_DECORATED) == GLFW_FALSE
-      case WindowFlags.TRANSPARENT => glfwGetWindowAttrib(windowHandle, GLFW_TRANSPARENT_FRAMEBUFFER) == GLFW_TRUE
-      case WindowFlags.ALWAYS_ON_TOP => glfwGetWindowAttrib(windowHandle, GLFW_FLOATING) == GLFW_TRUE
-      case WindowFlags.MAXIMIZED => glfwGetWindowAttrib(windowHandle, GLFW_MAXIMIZED) == GLFW_TRUE
-      case WindowFlags.MINIMIZED => glfwGetWindowAttrib(windowHandle, GLFW_ICONIFIED) == GLFW_TRUE
-      case WindowFlags.FOCUSED => glfwGetWindowAttrib(windowHandle, GLFW_FOCUSED) == GLFW_TRUE
-      case WindowFlags.VISIBLE => glfwGetWindowAttrib(windowHandle, GLFW_VISIBLE) == GLFW_TRUE
-      case WindowFlags.FULLSCREEN => glfwGetWindowMonitor(windowHandle) != NULL
-      case _ => false
-  def SetWindowState(flags: Int): Unit =
+      case WindowFlag.Resizable => glfwGetWindowAttrib(windowHandle, GLFW_RESIZABLE) == GLFW_TRUE
+      case WindowFlag.Undecorated => glfwGetWindowAttrib(windowHandle, GLFW_DECORATED) == GLFW_FALSE
+      case WindowFlag.Transparent => glfwGetWindowAttrib(windowHandle, GLFW_TRANSPARENT_FRAMEBUFFER) == GLFW_TRUE
+      case WindowFlag.AlwaysOnTop => glfwGetWindowAttrib(windowHandle, GLFW_FLOATING) == GLFW_TRUE
+      case WindowFlag.Maximized => glfwGetWindowAttrib(windowHandle, GLFW_MAXIMIZED) == GLFW_TRUE
+      case WindowFlag.Minimized => glfwGetWindowAttrib(windowHandle, GLFW_ICONIFIED) == GLFW_TRUE
+      case WindowFlag.Focused => glfwGetWindowAttrib(windowHandle, GLFW_FOCUSED) == GLFW_TRUE
+      case WindowFlag.Visible => glfwGetWindowAttrib(windowHandle, GLFW_VISIBLE) == GLFW_TRUE
+      case WindowFlag.Fullscreen => glfwGetWindowMonitor(windowHandle) != NULL
+  def SetWindowState(flags: WindowFlag*): Unit =
     if !isWindowInitialized then return
 
-    if (flags & WindowFlags.RESIZABLE) != 0 then
+    val combinedFlags = WindowFlag.combine(flags: _*)
+
+    if WindowFlag.contains(combinedFlags, WindowFlag.Resizable) then
       glfwSetWindowAttrib(windowHandle, GLFW_RESIZABLE, GLFW_TRUE)
 
-    if (flags & WindowFlags.UNDECORATED) != 0 then
+    if WindowFlag.contains(combinedFlags, WindowFlag.Undecorated) then
       glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_FALSE)
 
-    if (flags & WindowFlags.TRANSPARENT) != 0 then
+    if WindowFlag.contains(combinedFlags, WindowFlag.Transparent) then
       glfwSetWindowAttrib(windowHandle, GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE)
 
-    if (flags & WindowFlags.ALWAYS_ON_TOP) != 0 then
+    if WindowFlag.contains(combinedFlags, WindowFlag.AlwaysOnTop) then
       glfwSetWindowAttrib(windowHandle, GLFW_FLOATING, GLFW_TRUE)
 
-    if (flags & WindowFlags.MAXIMIZED) != 0 then
+    if WindowFlag.contains(combinedFlags, WindowFlag.Maximized)then
       glfwMaximizeWindow(windowHandle)
 
-    if (flags & WindowFlags.MINIMIZED) != 0 then
+    if WindowFlag.contains(combinedFlags, WindowFlag.Minimized) then
       glfwIconifyWindow(windowHandle)
 
-    if (flags & WindowFlags.FOCUSED) != 0 then
+    if WindowFlag.contains(combinedFlags, WindowFlag.Focused) then
       glfwFocusWindow(windowHandle)
 
-    if (flags & WindowFlags.VISIBLE) != 0 then
+    if WindowFlag.contains(combinedFlags, WindowFlag.Visible)then
       glfwShowWindow(windowHandle)
-  def ClearWindowState(flags: Int): Unit =
-    if (flags & WindowFlags.RESIZABLE) != 0 then
+  def ClearWindowState(flags: WindowFlag*): Unit =
+    if !isWindowInitialized then return
+
+    val combinedFlags = WindowFlag.combine(flags: _*)
+
+    if WindowFlag.contains(combinedFlags, WindowFlag.Resizable) then
       glfwSetWindowAttrib(windowHandle, GLFW_RESIZABLE, GLFW_FALSE)
 
-    if (flags & WindowFlags.UNDECORATED) != 0 then
+    if WindowFlag.contains(combinedFlags, WindowFlag.Undecorated) then
       glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_TRUE)
 
-    if (flags & WindowFlags.TRANSPARENT) != 0 then
+    if WindowFlag.contains(combinedFlags, WindowFlag.Transparent) then
       glfwSetWindowAttrib(windowHandle, GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_FALSE)
 
-    if (flags & WindowFlags.ALWAYS_ON_TOP) != 0 then
+    if WindowFlag.contains(combinedFlags, WindowFlag.AlwaysOnTop) then
       glfwSetWindowAttrib(windowHandle, GLFW_FLOATING, GLFW_FALSE)
 
-    if (flags & WindowFlags.MAXIMIZED) != 0 then
+    if WindowFlag.contains(combinedFlags, WindowFlag.Maximized) then
       glfwRestoreWindow(windowHandle)
 
-    if (flags & WindowFlags.MINIMIZED) != 0 then
+    if WindowFlag.contains(combinedFlags, WindowFlag.Minimized) then
       glfwRestoreWindow(windowHandle)
 
-    if (flags & WindowFlags.VISIBLE) != 0 then
+    if WindowFlag.contains(combinedFlags, WindowFlag.Visible) then
       glfwHideWindow(windowHandle)
   def ToggleFullscreen(): Unit =
     if !isWindowInitialized then return
@@ -482,14 +487,3 @@ object Window:
     eventWaitingEnabled = true
   def DisableEventWaiting(): Unit =
     eventWaitingEnabled = false
-
-  object WindowFlags:
-    val RESIZABLE = 0x00000001
-    val UNDECORATED = 0x00000002
-    val TRANSPARENT = 0x00000004
-    val ALWAYS_ON_TOP = 0x00000008
-    val MAXIMIZED = 0x00000010
-    val MINIMIZED = 0x00000020
-    val FOCUSED = 0x00000040
-    val VISIBLE = 0x00000080
-    val FULLSCREEN = 0x00000100

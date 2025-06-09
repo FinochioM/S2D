@@ -77,26 +77,26 @@ object Drawing:
     if !isWindowInitialized then return
 
     glUseProgram(0)
-  def BeginBlendMode(mode: Int): Unit =
+  def BeginBlendMode(mode: BlendMode): Unit =
     if !isWindowInitialized then return
 
     mode match
-      case BlendMode.ALPHA =>
+      case BlendMode.Alpha =>
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glBlendEquation(GL_FUNC_ADD)
-      case BlendMode.ADDITIVE =>
+      case BlendMode.Additive =>
         glBlendFunc(GL_SRC_ALPHA, GL_ONE)
         glBlendEquation(GL_FUNC_ADD)
-      case BlendMode.MULTIPLIED =>
+      case BlendMode.Multiplied =>
         glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA)
         glBlendEquation(GL_FUNC_ADD)
-      case BlendMode.ADD_COLORS =>
+      case BlendMode.AddColors =>
         glBlendFunc(GL_ONE, GL_ONE)
         glBlendEquation(GL_FUNC_ADD)
-      case BlendMode.SUBTRACT_COLORS =>
+      case BlendMode.SubtractColors =>
         glBlendFunc(GL_ONE, GL_ONE)
         glBlendEquation(GL_FUNC_SUBTRACT)
-      case BlendMode.ALPHA_PREMULTIPLY =>
+      case BlendMode.AlphaPremultiply =>
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA)
         glBlendEquation(GL_FUNC_ADD)
       case _ =>
@@ -118,17 +118,3 @@ object Drawing:
     if !isWindowInitialized then return
 
     glDisable(GL_SCISSOR_TEST)
-  def IsKeyDown(key: Int): Boolean =
-    if !isWindowInitialized then return false
-    glfwGetKey(windowHandle, key) == GLFW_PRESS
-  def IsKeyEscape(): Boolean = IsKeyDown(GLFW_KEY_ESCAPE)
-
-  object BlendMode:
-    val ALPHA = 0
-    val ADDITIVE = 1
-    val MULTIPLIED = 2
-    val ADD_COLORS = 3
-    val SUBTRACT_COLORS = 4
-    val ALPHA_PREMULTIPLY = 5
-    val CUSTOM = 6
-    val CUSTOM_SEPARATE = 7
