@@ -1,7 +1,7 @@
 package S2D.core
 
-
-import S2D.types.{Camera2D, Color, RenderTexture2D, Shader}
+import S2D.core.Window.*
+import S2D.types.*
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.glfw.{GLFWErrorCallback, GLFWImage}
 import org.lwjgl.opengl.GL

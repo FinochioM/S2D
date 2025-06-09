@@ -1,6 +1,6 @@
 package S2D.core
 
-import S2D.types.{Image,Vector2}
+import S2D.types.*
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.glfw.{GLFWErrorCallback, GLFWImage}
 import org.lwjgl.opengl.GL

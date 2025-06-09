@@ -1,23 +1,9 @@
-package S2D
+package S2D.shapes
 
-import S2D.types.{Color, Rectangle, Texture2D, Vector2}
+import S2D.types.{Color, Rectangle, Vector2}
 import org.lwjgl.opengl.GL11.*
 
-object shapes:
-  private var shapesTexture: Texture2D = Texture2D(0, 0, 0, 0, 0) // EMPTY TEXTURE
-  private var shapesTextureSource: Rectangle = Rectangle(0.0f, 0.0f, 0.0f, 0.0f)
-  private var shapesTextureEnabled: Boolean = false
-
-  // SETUP FUNCTIONS
-  def SetShapesTexture(texture: Texture2D, source: Rectangle): Unit =
-    shapesTexture = texture
-    shapesTextureSource = source
-    shapesTextureEnabled = texture.id != 0
-  def GetShapesTexture(): Texture2D =
-    shapesTexture
-  def GetShapesTextureRectangle(): Rectangle =
-    shapesTextureSource
-
+object Basics:
   // BASIC SHAPES DRAWING FUNCTIONS
   def DrawPixel(posX: Int, posY: Int, color: Color): Unit =
     glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
@@ -389,7 +375,7 @@ object shapes:
     glVertex2f(rectangle.x, rectangle.y)
 
     glColor4f(topRight.r / 255.0f, topRight.g / 255.0f, topRight.b / 255.0f, topRight.a / 255.0f)
-    glVertex2f((rectangle.x+ rectangle.width), rectangle.y)
+    glVertex2f((rectangle.x + rectangle.width), rectangle.y)
 
     glColor4f(bottomRight.r / 255.0f, bottomRight.g / 255.0f, bottomRight.b / 255.0f, bottomRight.a / 255.0f)
     glVertex2f((rectangle.x + rectangle.width), (rectangle.y + rectangle.height))

@@ -1,7 +1,7 @@
-import S2D.*
-import S2D.core.*
-import S2D.shapes.*
-import S2D.types.{Camera2D, Color, Rectangle, Vector2}
+import S2D.core.Window.*
+import S2D.core.Drawing.*
+import S2D.shapes.Basics.*
+import S2D.types.*
 
 @main
 def main(): Unit =
