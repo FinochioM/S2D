@@ -198,3 +198,7 @@
 /target/streams/runtime/fullClasspathAsJars/_global/streams/export
 /target/streams/runtime/internalDependencyAsJars/_global/streams/export
 /target/streams/runtime/internalDependencyAsJars/_global/streams/out
+/target/*
+/project/*
+/.target/*
+/.project/*

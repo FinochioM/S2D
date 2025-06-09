@@ -1,5 +1,7 @@
-package S2D
+package S2D.core
 
+
+import S2D.{Image, Vector2}
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.glfw.{GLFWErrorCallback, GLFWImage}
 import org.lwjgl.opengl.GL
@@ -9,25 +11,25 @@ import org.lwjgl.opengl.GL20.*
 import org.lwjgl.opengl.GL30.*
 import org.lwjgl.system.MemoryUtil.*
 
-object core:
-  private var windowHandle: Long = NULL
-  private var windowWidth: Int = 0
-  private var windowHeight: Int = 0
-  private var windowTitle: String = ""
-  private var isWindowInitialized: Boolean = false
-  private var shouldClose: Boolean = false
-  private var windowResizedThisFrame: Boolean = false
+object Window:
+  var windowHandle: Long = NULL
+  var windowWidth: Int = 0
+  var windowHeight: Int = 0
+  var windowTitle: String = ""
+  var isWindowInitialized: Boolean = false
+  var shouldClose: Boolean = false
+  var windowResizedThisFrame: Boolean = false
 
-  private var glfwInitialized: Boolean = false
+  var glfwInitialized: Boolean = false
 
-  private var windowedX: Int = 0
-  private var windowedY: Int = 0
-  private var windowedWidth: Int = 0
-  private var windowedHeight: Int = 0
+  var windowedX: Int = 0
+  var windowedY: Int = 0
+  var windowedWidth: Int = 0
+  var windowedHeight: Int = 0
 
-  private var isBorderlessWindowed: Boolean = false
+  var isBorderlessWindowed: Boolean = false
 
-  private var eventWaitingEnabled: Boolean = false
+  var eventWaitingEnabled: Boolean = false
 
   // WINDOW RELATED FUNCTIONS
   def InitWindow(width: Int, height: Int, title: String): Unit =
@@ -282,7 +284,7 @@ object core:
 
     glfwSetWindowIcon(windowHandle, imageBuffer)
 
-    for (i <- images.indices){
+    for (i <- images.indices) {
       imageBuffer.get(i).free()
     }
 
@@ -335,7 +337,6 @@ object core:
     if !isWindowInitialized then return
 
     glfwSetClipboardString(windowHandle, text)
-
   def GetWindowHandle(): Long =
     if !isWindowInitialized then return NULL
 
@@ -481,173 +482,11 @@ object core:
   def GetClipboardText(): String =
     val clipboardContent = glfwGetClipboardString(windowHandle)
     if clipboardContent != null then clipboardContent else ""
-
   def EnableEventWaiting(): Unit =
     eventWaitingEnabled = true
   def DisableEventWaiting(): Unit =
     eventWaitingEnabled = false
 
-  // CURSOR RELATED FUNCTIONS
-  def ShowCursor(): Unit =
-    if !isWindowInitialized then return
-
-    glfwSetInputMode(windowHandle, GLFW_CURSOR, GLFW_CURSOR_NORMAL)
-  def HideCursor(): Unit =
-    if !isWindowInitialized then return
-
-    glfwSetInputMode(windowHandle, GLFW_CURSOR, GLFW_CURSOR_HIDDEN)
-  def IsCursorHidden(): Boolean =
-    if !isWindowInitialized then return false
-
-    glfwGetInputMode(windowHandle, GLFW_CURSOR) == GLFW_CURSOR_HIDDEN
-  def EnableCursor(): Unit =
-    if !isWindowInitialized then return
-
-    glfwSetInputMode(windowHandle, GLFW_CURSOR, GLFW_CURSOR_NORMAL)
-  def DisableCursor(): Unit =
-    if !isWindowInitialized then return
-
-    glfwSetInputMode(windowHandle, GLFW_CURSOR, GLFW_CURSOR_DISABLED)
-  def IsCursorOnScreen(): Boolean =
-    if !isWindowInitialized then return false
-
-    val xPos = Array(0.0)
-    val yPos = Array(0.0)
-    glfwGetCursorPos(windowHandle, xPos, yPos)
-
-    val width = Array(0)
-    val height = Array(0)
-    glfwGetWindowSize(windowHandle, width, height)
-
-    xPos(0) >= 0 && xPos(0) < width(0) && yPos(0) >= 0 && yPos(0) < height(0)
-
-  // DRAWING RELATED FUNCTIONS
-  def ClearBackground(color: Color): Unit =
-    glClearColor(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
-  def ClearBackground(r: Float, g: Float, b: Float, a: Float = 1.0f): Unit =
-    glClearColor(r, g, b, a)
-  def ClearBackgroundRGB(r: Int, g: Int, b: Int): Unit =
-    ClearBackground(Color(r, g, b, 255))
-  def BeginDrawing(): Unit =
-    if !isWindowInitialized then
-      throw new RuntimeException("Window not initialized!")
-
-    if eventWaitingEnabled then
-      glfwWaitEvents()
-    else
-      glfwPollEvents()
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-  def EndDrawing(): Unit =
-    if !isWindowInitialized then
-      throw new RuntimeException("Window not initialized!")
-
-    glfwSwapBuffers(windowHandle)
-  def BeginMode2D(camera: Camera2D): Unit =
-    if !isWindowInitialized then return
-
-    glMatrixMode(GL_PROJECTION)
-    glPushMatrix()
-    glLoadIdentity()
-
-    glOrtho(0.0, windowWidth.toDouble, windowHeight.toDouble, 0.0, -1.0, 1.0)
-
-    glMatrixMode(GL_MODELVIEW)
-    glPushMatrix()
-    glLoadIdentity()
-
-    glTranslatef(camera.offset.x, camera.offset.y, 0.0f)
-    glRotatef(camera.rotation, 0.0f, 0.0f, 1.0f)
-    glScalef(camera.zoom, camera.zoom, 1.0f)
-    glTranslatef(-camera.target.x, -camera.target.y, 0.0f)
-  def EndMode2D(): Unit =
-    if !isWindowInitialized then return
-
-    glMatrixMode(GL_PROJECTION)
-    glPopMatrix()
-
-    glMatrixMode(GL_MODELVIEW)
-    glPopMatrix()
-  def BeginTextureMode(target: RenderTexture2D): Unit =
-    if !isWindowInitialized then return
-
-    glBindFramebuffer(GL_FRAMEBUFFER, target.id)
-    glViewport(0, 0, target.texture.width, target.texture.height)
-  def EndTextureMode(): Unit =
-    if !isWindowInitialized then return
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0)
-    glViewport(0, 0, windowWidth, windowHeight)
-  def BeginShaderMode(shader: Shader): Unit =
-    if !isWindowInitialized then return
-
-    glUseProgram(shader.id)
-  def EndShaderMode(): Unit =
-    if !isWindowInitialized then return
-
-    glUseProgram(0)
-  def BeginBlendMode(mode: Int): Unit =
-    if !isWindowInitialized then return
-
-    mode match
-      case BlendMode.ALPHA =>
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        glBlendEquation(GL_FUNC_ADD)
-      case BlendMode.ADDITIVE =>
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE)
-        glBlendEquation(GL_FUNC_ADD)
-      case BlendMode.MULTIPLIED =>
-        glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA)
-        glBlendEquation(GL_FUNC_ADD)
-      case BlendMode.ADD_COLORS =>
-        glBlendFunc(GL_ONE, GL_ONE)
-        glBlendEquation(GL_FUNC_ADD)
-      case BlendMode.SUBTRACT_COLORS =>
-        glBlendFunc(GL_ONE, GL_ONE)
-        glBlendEquation(GL_FUNC_SUBTRACT)
-      case BlendMode.ALPHA_PREMULTIPLY =>
-        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA)
-        glBlendEquation(GL_FUNC_ADD)
-      case _ =>
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        glBlendEquation(GL_FUNC_ADD)
-  def EndBlendMode(): Unit =
-    if !isWindowInitialized then return
-
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-    glBlendEquation(GL_FUNC_ADD)
-  def BeginScissorMode(x: Int, y: Int, width: Int, height: Int): Unit =
-    if !isWindowInitialized then return
-
-    glEnable(GL_SCISSOR_TEST)
-
-    val flippedY = windowHeight - (y + height)
-    glScissor(x, flippedY, width, height)
-  def EndScissorMode(): Unit =
-    if !isWindowInitialized then return
-
-    glDisable(GL_SCISSOR_TEST)
-
-  def IsKeyDown(key: Int): Boolean =
-    if !isWindowInitialized then return false
-    glfwGetKey(windowHandle, key) == GLFW_PRESS
-  def IsKeyEscape(): Boolean = IsKeyDown(GLFW_KEY_ESCAPE)
-
-
-  object Keys:
-    val ESCAPE = GLFW_KEY_ESCAPE
-    val SPACE = GLFW_KEY_SPACE
-    val ENTER = GLFW_KEY_ENTER
-    val A = GLFW_KEY_A
-    val B = GLFW_KEY_B
-    val C = GLFW_KEY_C
-    val D = GLFW_KEY_D
-    val W = GLFW_KEY_W
-    val S = GLFW_KEY_S
-    val UP = GLFW_KEY_UP
-    val DOWN = GLFW_KEY_DOWN
-    val LEFT = GLFW_KEY_LEFT
-    val RIGHT = GLFW_KEY_RIGHT
   object WindowFlags:
     val RESIZABLE = 0x00000001
     val UNDECORATED = 0x00000002
@@ -658,12 +497,3 @@ object core:
     val FOCUSED = 0x00000040
     val VISIBLE = 0x00000080
     val FULLSCREEN = 0x00000100
-  object BlendMode:
-    val ALPHA = 0
-    val ADDITIVE = 1
-    val MULTIPLIED = 2
-    val ADD_COLORS = 3
-    val SUBTRACT_COLORS = 4
-    val ALPHA_PREMULTIPLY = 5
-    val CUSTOM = 6
-    val CUSTOM_SEPARATE = 7
