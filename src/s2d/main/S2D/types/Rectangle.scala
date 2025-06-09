@@ -1,4 +1,4 @@
-package S2D
+package S2D.types
 
 case class Rectangle(
                     x: Float,

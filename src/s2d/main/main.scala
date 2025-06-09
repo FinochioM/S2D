@@ -1,6 +1,7 @@
 import S2D.*
 import S2D.core.*
 import S2D.shapes.*
+import S2D.types.{Camera2D, Color, Rectangle, Vector2}
 
 @main
 def main(): Unit =

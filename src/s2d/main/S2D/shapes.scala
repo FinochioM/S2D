@@ -1,5 +1,6 @@
 package S2D
 
+import S2D.types.{Color, Rectangle, Texture2D, Vector2}
 import org.lwjgl.opengl.GL11.*
 
 object shapes:

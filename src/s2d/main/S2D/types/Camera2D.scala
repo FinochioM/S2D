@@ -1,4 +1,6 @@
-package S2D
+package S2D.types
+
+import S2D.types.Vector2
 
 case class Camera2D(
                    offset: Vector2,

@@ -1,4 +1,4 @@
-package S2D
+package S2D.types
 
 case class Texture2D(
                     id: Int,

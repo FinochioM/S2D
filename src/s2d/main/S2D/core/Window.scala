@@ -1,14 +1,10 @@
 package S2D.core
 
-
-import S2D.{Image, Vector2}
+import S2D.types.{Image,Vector2}
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.glfw.{GLFWErrorCallback, GLFWImage}
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL11.*
-import org.lwjgl.opengl.GL14.*
-import org.lwjgl.opengl.GL20.*
-import org.lwjgl.opengl.GL30.*
 import org.lwjgl.system.MemoryUtil.*
 
 object Window:

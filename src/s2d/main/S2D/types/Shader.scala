@@ -1,4 +1,4 @@
-package S2D
+package S2D.types
 
 case class Shader(
                  id: Int,
