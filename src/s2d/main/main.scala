@@ -15,6 +15,7 @@ def main(): Unit =
   )
 
   val rectanglePos = Vector2(100.0, 100.0f)
+  val rectanglePos2 = Vector2(300.0, 300.0f)
   val rectangleSize = Vector2(200.0f, 150.0f)
 
   while !Window.shouldCloseWindow() do
@@ -23,12 +24,14 @@ def main(): Unit =
 
     Drawing.beginCamera(camera2D)
       val rect = Rectangle.fromCenter(rectanglePos + rectangleSize / 2, rectangleSize)
+      val roundedRect = Rectangle.fromCenter(rectanglePos2 + rectangleSize / 2, rectangleSize)
 
       val baseColor = Color.Red
       val animatedColor = baseColor.lerp(Color.Yellow, (math.sin(System.currentTimeMillis() / 1000.0) + 1.0).toFloat / 2.0f)
 
       Drawing.beginBlend(BlendMode.Alpha)
       Basics.rectangle(rect, animatedColor)
+      Basics.rectangleRoundedOutlineThick(roundedRect, 0.5f, 5, 10, animatedColor)
       Drawing.endBlend()
 
     Drawing.endCamera()
