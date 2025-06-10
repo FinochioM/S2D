@@ -687,3 +687,90 @@ object Basics:
       glVertex2f(innerX, innerY)
       glVertex2f(outerX, outerY)
     glEnd()
+  def triangle(v1: Vector2, v2: Vector2, v3: Vector2, color: Color): Unit =
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    glBegin(GL_TRIANGLES)
+    glVertex2f(v1.x, v1.y)
+    glVertex2f(v2.x, v2.y)
+    glVertex2f(v3.x, v3.y)
+    glEnd()
+  def triangleOutline(v1: Vector2, v2: Vector2, v3: Vector2, color: Color): Unit =
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    glBegin(GL_LINE_LOOP)
+    glVertex2f(v1.x, v1.y)
+    glVertex2f(v2.x, v2.y)
+    glVertex2f(v3.x, v3.y)
+    glEnd()
+  def triangleFan(points: Array[Vector2], color: Color): Unit =
+    if points.length < 3 then return
+
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    glBegin(GL_TRIANGLE_FAN)
+    for point <- points do
+      glVertex2f(point.x, point.y)
+    glEnd()
+  def triangleStrip(points: Array[Vector2], color: Color): Unit =
+    if points.length < 3 then return
+
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    glBegin(GL_TRIANGLE_STRIP)
+    for point <- points do
+      glVertex2f(point.x, point.y)
+    glEnd()
+  def polygon(center: Vector2, sides: Int, radius: Float, rotation: Float, color: Color): Unit =
+    if sides < 3 then return
+
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    val rotationRad = math.toRadians(rotation).toFloat
+    val angleStep = (2.0f * math.Pi / sides.toFloat).toFloat
+
+    glBegin(GL_TRIANGLE_FAN)
+    glVertex2f(center.x, center.y)
+
+    for i <- 0 to sides do
+      val angle = (i * angleStep) + rotationRad
+      val x = center.x + radius * math.cos(angle).toFloat
+      val y = center.y + radius * math.sin(angle).toFloat
+      glVertex2f(x, y)
+
+    glEnd()
+  def polygonOutline(center: Vector2, sides: Int, radius: Float, rotation: Float, color: Color): Unit =
+    if sides < 3 then return
+
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    val rotationRad = math.toRadians(rotation).toFloat
+    val angleStep = (2.0f * math.Pi / sides.toFloat).toFloat
+
+    glBegin(GL_LINE_LOOP)
+
+    for i <- 0 until sides do
+      val angle = (i * angleStep) + rotationRad
+      val x = center.x + radius * math.cos(angle).toFloat
+      val y = center.y + radius * math.sin(angle).toFloat
+      glVertex2f(x, y)
+
+    glEnd()
+  def polygonOutlineThick(center: Vector2, sides: Int, radius: Float, rotation: Float, thick: Float, color: Color): Unit =
+    if sides < 3 then return
+
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    val rotationRad = math.toRadians(rotation).toFloat
+    val angleStep = (2.0f * math.Pi / sides.toFloat).toFloat
+
+    for i <- 0 until sides do
+      val currentAngle = (i * angleStep) + rotationRad
+      val nextAngle = ((i + 1) * angleStep) + rotationRad
+
+      val x1 = center.x + radius * math.cos(currentAngle).toFloat
+      val y1 = center.y + radius * math.sin(currentAngle).toFloat
+      val x2 = center.x + radius * math.cos(nextAngle).toFloat
+      val y2 = center.y + radius * math.sin(nextAngle).toFloat
+
+      lineThick(Vector2(x1, y1), Vector2(x2, y2), thick, color)
