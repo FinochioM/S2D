@@ -384,3 +384,141 @@ object Basics:
     glVertex2f(rectangle.x, (rectangle.y + rectangle.height))
 
     glEnd()
+  def rectangleOutline(posX: Int, posY: Int, width: Int, height: Int, color: Color): Unit =
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    glBegin(GL_LINE_LOOP)
+    glVertex2f(posX.toFloat, posY.toFloat)
+    glVertex2f((posX + width).toFloat, posY.toFloat)
+    glVertex2f((posX + width).toFloat, (posY + height).toFloat)
+    glVertex2f(posX.toFloat, (posY + height).toFloat)
+    glEnd()
+  def rectangleOutline(pos: Vector2, size: Vector2, color: Color): Unit =
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    glBegin(GL_LINE_LOOP)
+    glVertex2f(pos.x, pos.y)
+    glVertex2f(pos.x + size.x, pos.y)
+    glVertex2f(pos.x + size.x, pos.y + size.y)
+    glVertex2f(pos.x, pos.y + size.y)
+    glEnd()
+  def rectangleOutline(rectangle: Rectangle, color: Color): Unit =
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    glBegin(GL_LINE_LOOP)
+    glVertex2f(rectangle.x, rectangle.y)
+    glVertex2f(rectangle.x + rectangle.width, rectangle.y)
+    glVertex2f(rectangle.x + rectangle.width, rectangle.y + rectangle.height)
+    glVertex2f(rectangle.x, rectangle.y + rectangle.height)
+    glEnd()
+  def rectangleOutlineThick(rectangle: Rectangle, thick: Float, color: Color): Unit =
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    glBegin(GL_QUADS)
+
+    glVertex2f(rectangle.x, rectangle.y)
+    glVertex2f(rectangle.x + rectangle.width, rectangle.y)
+    glVertex2f(rectangle.x + rectangle.width, rectangle.y + thick)
+    glVertex2f(rectangle.x, rectangle.y + thick)
+
+    glVertex2f(rectangle.x + rectangle.width - thick, rectangle.y + thick)
+    glVertex2f(rectangle.x + rectangle.width, rectangle.y + thick)
+    glVertex2f(rectangle.x + rectangle.width, rectangle.y + rectangle.height)
+    glVertex2f(rectangle.x + rectangle.width - thick, rectangle.y + rectangle.height)
+
+    glVertex2f(rectangle.x, rectangle.y + rectangle.height - thick)
+    glVertex2f(rectangle.x + rectangle.width, rectangle.y + rectangle.height - thick)
+    glVertex2f(rectangle.x + rectangle.width, rectangle.y + rectangle.height)
+    glVertex2f(rectangle.x, rectangle.y + rectangle.height)
+
+    glVertex2f(rectangle.x, rectangle.y)
+    glVertex2f(rectangle.x + thick, rectangle.y)
+    glVertex2f(rectangle.x + thick, rectangle.y + rectangle.height - thick)
+    glVertex2f(rectangle.x, rectangle.y + rectangle.height - thick)
+
+    glEnd()
+  def rectangleRounded(rect: Rectangle, roundness: Float, segments: Int, color: Color): Unit =
+    if segments < 3 then return
+    if roundness <= 0.0f then
+      rectangle(rect, color)
+      return
+
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    val maxRadius = math.min(rect.width, rect.height) / 2.0f
+    val cornerRadius = (roundness * maxRadius).min(maxRadius)
+
+    val innerWidth = rect.width - 2 * cornerRadius
+    val innerHeight = rect.height - 2 * cornerRadius
+
+    if innerWidth > 0 && innerHeight > 0 then
+      glBegin(GL_QUADS)
+      glVertex2f(rect.x + cornerRadius, rect.y + cornerRadius)
+      glVertex2f(rect.x + cornerRadius + innerWidth, rect.y + cornerRadius)
+      glVertex2f(rect.x + cornerRadius + innerWidth, rect.y + cornerRadius + innerHeight)
+      glVertex2f(rect.x + cornerRadius, rect.y + cornerRadius + innerHeight)
+      glEnd()
+
+    if innerWidth > 0 then
+      glBegin(GL_QUADS)
+      glVertex2f(rect.x + cornerRadius, rect.y)
+      glVertex2f(rect.x + cornerRadius + innerWidth, rect.y)
+      glVertex2f(rect.x + cornerRadius + innerWidth, rect.y + cornerRadius)
+      glVertex2f(rect.x + cornerRadius, rect.y + cornerRadius)
+
+      glVertex2f(rect.x + cornerRadius, rect.y + cornerRadius + innerHeight)
+      glVertex2f(rect.x + cornerRadius + innerWidth, rect.y + cornerRadius + innerHeight)
+      glVertex2f(rect.x + cornerRadius + innerWidth, rect.y + rect.height)
+      glVertex2f(rect.x + cornerRadius, rect.y + rect.height)
+      glEnd()
+
+    if innerHeight > 0 then
+      glBegin(GL_QUADS)
+      glVertex2f(rect.x, rect.y + cornerRadius)
+      glVertex2f(rect.x + cornerRadius, rect.y + cornerRadius)
+      glVertex2f(rect.x + cornerRadius, rect.y + cornerRadius + innerHeight)
+      glVertex2f(rect.x, rect.y + cornerRadius + innerHeight)
+
+      glVertex2f(rect.x + cornerRadius + innerWidth, rect.y + cornerRadius)
+      glVertex2f(rect.x + rect.width, rect.y + cornerRadius)
+      glVertex2f(rect.x + rect.width, rect.y + cornerRadius + innerHeight)
+      glVertex2f(rect.x + cornerRadius + innerWidth, rect.y + cornerRadius + innerHeight)
+      glEnd()
+
+    val angleStep = (math.Pi / 2.0f) / segments.toFloat
+
+    glBegin(GL_TRIANGLE_FAN)
+    glVertex2f(rect.x + cornerRadius, rect.y + cornerRadius)
+    for i <- 0 to segments do
+      val angle = math.Pi + (i * angleStep)
+      val x = rect.x + cornerRadius + cornerRadius * math.cos(angle).toFloat
+      val y = rect.y + cornerRadius + cornerRadius * math.sin(angle).toFloat
+      glVertex2f(x, y)
+    glEnd()
+
+    glBegin(GL_TRIANGLE_FAN)
+    glVertex2f(rect.x + rect.width - cornerRadius, rect.y + cornerRadius)
+    for i <- 0 to segments do
+      val angle = (3 * math.Pi / 2.0f) + (i * angleStep)
+      val x = rect.x + rect.width - cornerRadius + cornerRadius * math.cos(angle).toFloat
+      val y = rect.y + cornerRadius + cornerRadius * math.sin(angle).toFloat
+      glVertex2f(x, y)
+    glEnd()
+
+    glBegin(GL_TRIANGLE_FAN)
+    glVertex2f(rect.x + rect.width - cornerRadius, rect.y + rect.height - cornerRadius)
+    for i <- 0 to segments do
+      val angle = (i * angleStep)
+      val x = rect.x + rect.width - cornerRadius + cornerRadius * math.cos(angle).toFloat
+      val y = rect.y + rect.height - cornerRadius + cornerRadius * math.sin(angle).toFloat
+      glVertex2f(x, y)
+    glEnd()
+
+    glBegin(GL_TRIANGLE_FAN)
+    glVertex2f(rect.x + cornerRadius, rect.y + rect.height - cornerRadius)
+    for i <- 0 to segments do
+      val angle = (math.Pi / 2.0f) + (i * angleStep)
+      val x = rect.x + cornerRadius + cornerRadius * math.cos(angle).toFloat
+      val y = rect.y + rect.height - cornerRadius + cornerRadius * math.sin(angle).toFloat
+      glVertex2f(x, y)
+    glEnd()
