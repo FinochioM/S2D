@@ -6,27 +6,27 @@ import S2D.core.Window.*
 
 object Cursor:
   // CURSOR RELATED FUNCTIONS
-  def ShowCursor(): Unit =
+  def show(): Unit =
     if !isWindowInitialized then return
 
     glfwSetInputMode(windowHandle, GLFW_CURSOR, GLFW_CURSOR_NORMAL)
-  def HideCursor(): Unit =
+  def hide(): Unit =
     if !isWindowInitialized then return
 
     glfwSetInputMode(windowHandle, GLFW_CURSOR, GLFW_CURSOR_HIDDEN)
-  def IsCursorHidden(): Boolean =
+  def isHidden: Boolean =
     if !isWindowInitialized then return false
 
     glfwGetInputMode(windowHandle, GLFW_CURSOR) == GLFW_CURSOR_HIDDEN
-  def EnableCursor(): Unit =
+  def enable(): Unit =
     if !isWindowInitialized then return
 
     glfwSetInputMode(windowHandle, GLFW_CURSOR, GLFW_CURSOR_NORMAL)
-  def DisableCursor(): Unit =
+  def disable(): Unit =
     if !isWindowInitialized then return
 
     glfwSetInputMode(windowHandle, GLFW_CURSOR, GLFW_CURSOR_DISABLED)
-  def IsCursorOnScreen(): Boolean =
+  def isOnScreen: Boolean =
     if !isWindowInitialized then return false
 
     val xPos = Array(0.0)

@@ -8,11 +8,11 @@ object Setup:
   var shapesTextureEnabled: Boolean = false
 
   // SETUP FUNCTIONS
-  def SetShapesTexture(texture: Texture2D, source: Rectangle): Unit =
+  def setTexture(texture: Texture2D, source: Rectangle): Unit =
     shapesTexture = texture
     shapesTextureSource = source
     shapesTextureEnabled = texture.id != 0
-  def GetShapesTexture(): Texture2D =
+  def getTexture: Texture2D =
     shapesTexture
-  def GetShapesTextureRectangle(): Rectangle =
+  def getTextureSource: Rectangle =
     shapesTextureSource

@@ -5,35 +5,35 @@ import org.lwjgl.opengl.GL11.*
 
 object Basics:
   // BASIC SHAPES DRAWING FUNCTIONS
-  def DrawPixel(posX: Int, posY: Int, color: Color): Unit =
+  def pixel(posX: Int, posY: Int, color: Color): Unit =
     glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
     glPointSize(1.0f)
 
     glBegin(GL_POINTS)
     glVertex2f(posX.toFloat, posY.toFloat)
     glEnd()
-  def DrawPixelV(position: Vector2, color: Color): Unit =
+  def pixel(position: Vector2, color: Color): Unit =
     glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
     glPointSize(1.0f)
 
     glBegin(GL_POINTS)
     glVertex2f(position.x, position.y)
     glEnd()
-  def DrawLine(startPosX: Int, startPosY: Int, endPosX: Int, endPosY: Int, color: Color): Unit =
+  def line(startPosX: Int, startPosY: Int, endPosX: Int, endPosY: Int, color: Color): Unit =
     glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
 
     glBegin(GL_LINES)
     glVertex2f(startPosX.toFloat, startPosY.toFloat)
     glVertex2f(endPosX.toFloat, endPosY.toFloat)
     glEnd()
-  def DrawLineV(startPos: Vector2, endPos: Vector2, color: Color): Unit =
+  def line(startPos: Vector2, endPos: Vector2, color: Color): Unit =
     glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
 
     glBegin(GL_LINES)
     glVertex2f(startPos.x, startPos.y)
     glVertex2f(endPos.x, endPos.y)
     glEnd()
-  def DrawLineEx(startPos: Vector2, endPos: Vector2, thick: Float, color: Color): Unit =
+  def lineThick(startPos: Vector2, endPos: Vector2, thick: Float, color: Color): Unit =
     glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
 
     val dx = endPos.x - startPos.x
@@ -51,7 +51,7 @@ object Basics:
     glVertex2f(endPos.x - perpX, endPos.y - perpY)
     glVertex2f(endPos.x + perpX, endPos.y + perpY)
     glEnd()
-  def DrawLineStrip(points: Array[Vector2], color: Color): Unit =
+  def lineStrip(points: Array[Vector2], color: Color): Unit =
     if points.length < 2 then return
 
     glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
@@ -60,7 +60,7 @@ object Basics:
     for point <- points do
       glVertex2f(point.x, point.y)
     glEnd()
-  def DrawLineBezier(startPos: Vector2, endPos: Vector2, thick: Float, color: Color): Unit =
+  def lineBezier(startPos: Vector2, endPos: Vector2, thick: Float, color: Color): Unit =
     glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
 
     val dx = endPos.x - startPos.x
@@ -89,8 +89,8 @@ object Basics:
       points(i) = Vector2(x, y)
 
     for i <- 0 until segments do
-      DrawLineEx(points(i), points(i + 1), thick, color)
-  def DrawCircle(centerX: Int, centerY: Int, radius: Float, color: Color): Unit =
+      lineThick(points(i), points(i + 1), thick, color)
+  def circle(centerX: Int, centerY: Int, radius: Float, color: Color): Unit =
     glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
 
     val segments = 36
@@ -105,7 +105,22 @@ object Basics:
       glVertex2f(x, y)
 
     glEnd()
-  def DrawCircleSector(center: Vector2, radius: Float, startAngle: Float, endAngle: Float, segments: Int, color: Color): Unit =
+  def circle(center: Vector2, radius: Float, color: Color): Unit =
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    val segments = 36
+
+    glBegin(GL_TRIANGLE_FAN)
+    glVertex2f(center.x, center.y)
+
+    for i <- 0 to segments do
+      val angle = (i * 2.0f * math.Pi / segments).toFloat
+      val x = center.x + radius * math.cos(angle).toFloat
+      val y = center.y + radius * math.sin(angle).toFloat
+      glVertex2f(x, y)
+
+    glEnd()
+  def circleSector(center: Vector2, radius: Float, startAngle: Float, endAngle: Float, segments: Int, color: Color): Unit =
     if segments < 3 then return
 
     glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
@@ -125,7 +140,7 @@ object Basics:
       glVertex2f(x, y)
 
     glEnd()
-  def DrawCircleSectorLines(center: Vector2, radius: Float, startAngle: Float, endAngle: Float, segments: Int, color: Color): Unit =
+  def circleSectorOutline(center: Vector2, radius: Float, startAngle: Float, endAngle: Float, segments: Int, color: Color): Unit =
     if segments < 3 then return
     glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
 
@@ -149,7 +164,7 @@ object Basics:
     glVertex2f(center.x, center.y)
     glVertex2f(center.x + radius * math.cos(endRad).toFloat, center.y + radius * math.sin(endRad).toFloat)
     glEnd()
-  def DrawCircleGradient(centerX: Int, centerY: Int, radius: Float, inner: Color, outer: Color): Unit =
+  def circleGradient(centerX: Int, centerY: Int, radius: Float, inner: Color, outer: Color): Unit =
     val segments = 36
 
     glBegin(GL_TRIANGLE_FAN)
@@ -166,22 +181,7 @@ object Basics:
       glVertex2f(x, y)
 
     glEnd()
-  def DrawCircleV(center: Vector2, radius: Float, color: Color): Unit =
-    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
-
-    val segments = 36
-
-    glBegin(GL_TRIANGLE_FAN)
-    glVertex2f(center.x, center.y)
-
-    for i <- 0 to segments do
-      val angle = (i * 2.0f * math.Pi / segments).toFloat
-      val x = center.x + radius * math.cos(angle).toFloat
-      val y = center.y + radius * math.sin(angle).toFloat
-      glVertex2f(x, y)
-
-    glEnd()
-  def DrawCircleLines(centerX: Int, centerY: Int, radius: Float, color: Color): Unit =
+  def circleOutline(centerX: Int, centerY: Int, radius: Float, color: Color): Unit =
     glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
 
     val segments = 36
@@ -195,7 +195,7 @@ object Basics:
       glVertex2f(x, y)
 
     glEnd()
-  def DrawCircleLinesV(center: Vector2, radius: Float, color: Color): Unit =
+  def circleOutline(center: Vector2, radius: Float, color: Color): Unit =
     glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
 
     val segments = 36
@@ -209,7 +209,7 @@ object Basics:
       glVertex2f(x, y)
 
     glEnd()
-  def DrawEllipse(centerX: Int, centerY: Int, radiusH: Float, radiusV: Float, color: Color): Unit =
+  def ellipse(centerX: Int, centerY: Int, radiusH: Float, radiusV: Float, color: Color): Unit =
     glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
 
     val segments = 36
@@ -224,7 +224,7 @@ object Basics:
       glVertex2f(x, y)
 
     glEnd()
-  def DrawEllipseLines(centerX: Int, centerY: Int, radiusH: Float, radiusV: Float, color: Color): Unit =
+  def ellipseOutlines(centerX: Int, centerY: Int, radiusH: Float, radiusV: Float, color: Color): Unit =
     glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
 
     val segments = 36
@@ -238,7 +238,7 @@ object Basics:
       glVertex2f(x, y)
 
     glEnd()
-  def DrawRing(center: Vector2, innerRadius: Float, outerRadius: Float, startAngle: Float, endAngle: Float, segments: Int, color: Color): Unit =
+  def ring(center: Vector2, innerRadius: Float, outerRadius: Float, startAngle: Float, endAngle: Float, segments: Int, color: Color): Unit =
     if segments < 3 then return
     if innerRadius >= outerRadius then return
 
@@ -265,7 +265,7 @@ object Basics:
       glVertex2f(outerX, outerY)
 
     glEnd()
-  def DrawRingLines(center: Vector2, innerRadius: Float, outerRadius: Float, startAngle: Float, endAngle: Float, segments: Int, color: Color): Unit =
+  def ringOutlines(center: Vector2, innerRadius: Float, outerRadius: Float, startAngle: Float, endAngle: Float, segments: Int, color: Color): Unit =
     if segments < 3 then return
     if innerRadius >= outerRadius then return
 
@@ -292,7 +292,7 @@ object Basics:
       val y = center.y + outerRadius * math.sin(angle).toFloat
       glVertex2f(x, y)
     glEnd()
-  def DrawRectangle(posX: Int, posY: Int, width: Int, height: Int, color: Color): Unit =
+  def rectangle(posX: Int, posY: Int, width: Int, height: Int, color: Color): Unit =
     glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
 
     glBegin(GL_QUADS)
@@ -301,7 +301,7 @@ object Basics:
     glVertex2f((posX + width).toFloat, (posY + height).toFloat)
     glVertex2f(posX.toFloat, (posY + height).toFloat)
     glEnd()
-  def DrawRectangleV(pos: Vector2, size: Vector2, color: Color): Unit =
+  def rectangle(pos: Vector2, size: Vector2, color: Color): Unit =
     glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
 
     glBegin(GL_QUADS)
@@ -310,7 +310,7 @@ object Basics:
     glVertex2f((pos.x + size.x), (pos.y + size.y))
     glVertex2f(pos.x, (pos.y + size.y))
     glEnd()
-  def DrawRectangleRec(rectangle: Rectangle, color: Color): Unit =
+  def rectangle(rectangle: Rectangle, color: Color): Unit =
     glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
 
     glBegin(GL_QUADS)
@@ -319,7 +319,7 @@ object Basics:
     glVertex2f((rectangle.x + rectangle.width), (rectangle.y + rectangle.height))
     glVertex2f(rectangle.x, (rectangle.y + rectangle.height))
     glEnd()
-  def DrawRectanglePro(rectangle: Rectangle, origin: Vector2, rotation: Float, color: Color): Unit =
+  def rectangleRotated(rectangle: Rectangle, origin: Vector2, rotation: Float, color: Color): Unit =
     glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
 
     glPushMatrix()
@@ -336,7 +336,7 @@ object Basics:
     glEnd()
 
     glPopMatrix()
-  def DrawRectangleGradientV(posX: Int, posY: Int, width: Int, height: Int, top: Color, bottom: Color): Unit =
+  def rectangleGradientV(posX: Int, posY: Int, width: Int, height: Int, top: Color, bottom: Color): Unit =
     glBegin(GL_QUADS)
 
     glColor4f(top.r / 255.0f, top.g / 255.0f, top.b / 255.0f, top.a / 255.0f)
@@ -352,7 +352,7 @@ object Basics:
     glVertex2f(posX.toFloat, (posY + height).toFloat)
 
     glEnd()
-  def DrawRectangleGradientH(posX: Int, posY: Int, width: Int, height: Int, left: Color, right: Color): Unit =
+  def rectangleGradientH(posX: Int, posY: Int, width: Int, height: Int, left: Color, right: Color): Unit =
     glBegin(GL_QUADS)
 
     glColor4f(left.r / 255.0f, left.g / 255.0f, left.b / 255.0f, left.a / 255.0f)
@@ -368,7 +368,7 @@ object Basics:
     glVertex2f(posX.toFloat, (posY + height).toFloat)
 
     glEnd()
-  def DrawRectangleGradientEx(rectangle: Rectangle, topLeft: Color, bottomLeft: Color, topRight: Color, bottomRight: Color): Unit =
+  def rectangleGradient(rectangle: Rectangle, topLeft: Color, bottomLeft: Color, topRight: Color, bottomRight: Color): Unit =
     glBegin(GL_QUADS)
 
     glColor4f(topLeft.r / 255.0f, topLeft.g / 255.0f, topLeft.b / 255.0f, topLeft.a / 255.0f)

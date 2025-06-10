@@ -15,20 +15,16 @@ object Window:
   var isWindowInitialized: Boolean = false
   var shouldClose: Boolean = false
   var windowResizedThisFrame: Boolean = false
-
   var glfwInitialized: Boolean = false
-
   var windowedX: Int = 0
   var windowedY: Int = 0
   var windowedWidth: Int = 0
   var windowedHeight: Int = 0
-
   var isBorderlessWindowed: Boolean = false
-
   var eventWaitingEnabled: Boolean = false
 
   // WINDOW RELATED FUNCTIONS
-  def InitWindow(width: Int, height: Int, title: String): Unit =
+  def create(width: Int, height: Int, title: String): Unit =
     if isWindowInitialized then
       throw new RuntimeException("Window already initialized!")
 
@@ -94,7 +90,7 @@ object Window:
 
     isWindowInitialized = true
     println(s"S2D: Window initialized - ${width}x${height} '${title}'")
-  def CloseWindow(): Unit =
+  def close(): Unit =
     if isWindowInitialized then
       glfwDestroyWindow(windowHandle)
       windowHandle = NULL
@@ -104,31 +100,31 @@ object Window:
     if glfwInitialized then
       glfwTerminate()
       glfwInitialized = false
-  def WindowShouldClose(): Boolean =
+  def shouldCloseWindow(): Boolean =
     if !isWindowInitialized then return true
     shouldClose || glfwWindowShouldClose(windowHandle)
-  def IsWindowReady(): Boolean = isWindowInitialized
-  def IsWindowFullscreen(): Boolean =
+  def isReady: Boolean = isWindowInitialized
+  def isFullscreen: Boolean =
     if !isWindowInitialized then return false
     glfwGetWindowMonitor(windowHandle) != NULL
-  def IsWindowHidden(): Boolean =
+  def isHidden: Boolean =
     if !isWindowInitialized then return false
     glfwGetWindowAttrib(windowHandle, GLFW_VISIBLE) == GLFW_FALSE
-  def IsWindowMinimized(): Boolean =
+  def isMinimized: Boolean =
     if !isWindowInitialized then return false
     glfwGetWindowAttrib(windowHandle, GLFW_ICONIFIED) == GLFW_TRUE
-  def IsWindowMaximized(): Boolean =
+  def isMaximized: Boolean =
     if !isWindowInitialized then return false
     glfwGetWindowAttrib(windowHandle, GLFW_MAXIMIZED) == GLFW_TRUE
-  def IsWindowFocused(): Boolean =
+  def isFocused: Boolean =
     if !isWindowInitialized then return false
     glfwGetWindowAttrib(windowHandle, GLFW_FOCUSED) == GLFW_TRUE
-  def IsWindowResized(): Boolean =
+  def isResized: Boolean =
     if !isWindowInitialized then return false
     val wasResized = windowResizedThisFrame
     windowResizedThisFrame = false
     wasResized
-  def IsWindowState(flag: WindowFlag): Boolean =
+  def hasState(flag: WindowFlag): Boolean =
     if !isWindowInitialized then return false
 
     flag match
@@ -141,7 +137,7 @@ object Window:
       case WindowFlag.Focused => glfwGetWindowAttrib(windowHandle, GLFW_FOCUSED) == GLFW_TRUE
       case WindowFlag.Visible => glfwGetWindowAttrib(windowHandle, GLFW_VISIBLE) == GLFW_TRUE
       case WindowFlag.Fullscreen => glfwGetWindowMonitor(windowHandle) != NULL
-  def SetWindowState(flags: WindowFlag*): Unit =
+  def setState(flags: WindowFlag*): Unit =
     if !isWindowInitialized then return
 
     val combinedFlags = WindowFlag.combine(flags: _*)
@@ -169,7 +165,7 @@ object Window:
 
     if WindowFlag.contains(combinedFlags, WindowFlag.Visible)then
       glfwShowWindow(windowHandle)
-  def ClearWindowState(flags: WindowFlag*): Unit =
+  def clearState(flags: WindowFlag*): Unit =
     if !isWindowInitialized then return
 
     val combinedFlags = WindowFlag.combine(flags: _*)
@@ -194,10 +190,10 @@ object Window:
 
     if WindowFlag.contains(combinedFlags, WindowFlag.Visible) then
       glfwHideWindow(windowHandle)
-  def ToggleFullscreen(): Unit =
+  def toggleFullscreen(): Unit =
     if !isWindowInitialized then return
 
-    if IsWindowFullscreen() then
+    if isFullscreen then
       glfwSetWindowMonitor(windowHandle, NULL, windowedX, windowedY, windowedWidth, windowedHeight, GLFW_DONT_CARE)
     else
       val xPos = Array(0)
@@ -215,7 +211,7 @@ object Window:
       val monitor = glfwGetPrimaryMonitor()
       val videoMode = glfwGetVideoMode(monitor)
       glfwSetWindowMonitor(windowHandle, monitor, 0, 0, videoMode.width(), videoMode.height(), videoMode.refreshRate())
-  def ToggleBorderlessWindowed(): Unit =
+  def toggleBorderless(): Unit =
     if !isWindowInitialized then return
 
     if isBorderlessWindowed then
@@ -240,20 +236,20 @@ object Window:
       val videoMode = glfwGetVideoMode(monitor)
       glfwSetWindowMonitor(windowHandle, NULL, 0, 0, videoMode.width(), videoMode.height(), GLFW_DONT_CARE)
       isBorderlessWindowed = true
-  def MaximizeWindow(): Unit =
+  def maximize(): Unit =
     if !isWindowInitialized then return
 
     if glfwGetWindowAttrib(windowHandle, GLFW_RESIZABLE) == GLFW_TRUE then
       glfwMaximizeWindow(windowHandle)
-  def MinimizeWindow(): Unit =
+  def minimize(): Unit =
     if !isWindowInitialized then return
 
     glfwIconifyWindow(windowHandle)
-  def RestoreWindow(): Unit =
+  def restore(): Unit =
     if !isWindowInitialized then return
 
     glfwRestoreWindow(windowHandle)
-  def SetWindowIcon(image: Image): Unit =
+  def setIcon(image: Image): Unit =
     if !isWindowInitialized then return
 
     val glfwImage = GLFWImage.malloc()
@@ -268,7 +264,7 @@ object Window:
 
     imageBuffer.free()
     glfwImage.free()
-  def SetWindowIcons(images: Array[Image]): Unit =
+  def setIcons(images: Array[Image]): Unit =
     if !isWindowInitialized then return
     if images.isEmpty then return
 
@@ -290,16 +286,16 @@ object Window:
     }
 
     imageBuffer.free()
-  def SetWindowTitle(title: String): Unit =
+  def setTitle(title: String): Unit =
     if !isWindowInitialized then return
 
     glfwSetWindowTitle(windowHandle, title)
     windowTitle = title
-  def SetWindowPosition(x: Int, y: Int): Unit =
+  def setPosition(x: Int, y: Int): Unit =
     if !isWindowInitialized then return
 
     glfwSetWindowPos(windowHandle, x, y)
-  def SetWindowMonitor(monitor: Int): Unit =
+  def setMonitor(monitor: Int): Unit =
     if !isWindowInitialized then return
 
     val monitors = glfwGetMonitors()
@@ -311,57 +307,57 @@ object Window:
     if videoMode != null then
       glfwSetWindowMonitor(windowHandle, targetMonitor, 0, 0,
         videoMode.width(), videoMode.height(), videoMode.refreshRate())
-  def SetWindowMinSize(width: Int, height: Int): Unit =
+  def setMinSize(width: Int, height: Int): Unit =
     if !isWindowInitialized then return
 
     glfwSetWindowSizeLimits(windowHandle, width, height, GLFW_DONT_CARE, GLFW_DONT_CARE)
-  def SetWindowMaxSize(width: Int, height: Int): Unit =
+  def setMaxSize(width: Int, height: Int): Unit =
     if !isWindowInitialized then return
 
     glfwSetWindowSizeLimits(windowHandle, GLFW_DONT_CARE, GLFW_DONT_CARE, width, height)
-  def SetWindowSize(width: Int, height: Int): Unit =
+  def setSize(width: Int, height: Int): Unit =
     if !isWindowInitialized then return
 
     glfwSetWindowSize(windowHandle, width, height)
     windowWidth = width
     windowHeight = height
-  def SetWindowOpacity(opacity: Float): Unit =
+  def setOpacity(opacity: Float): Unit =
     if !isWindowInitialized then return
 
     val clampedOpacity = Math.max(0.0f, Math.min(1.0f, opacity))
     glfwSetWindowOpacity(windowHandle, opacity)
-  def SetWindowFocused(): Unit =
+  def setFocused(): Unit =
     if !isWindowInitialized then return
 
     glfwFocusWindow(windowHandle)
-  def SetClipboardText(text: String): Unit =
+  def setClipboard(text: String): Unit =
     if !isWindowInitialized then return
 
     glfwSetClipboardString(windowHandle, text)
-  def GetWindowHandle(): Long =
+  def handle: Long =
     if !isWindowInitialized then return NULL
 
     windowHandle
-  def GetScreenWidth(): Int = windowWidth
-  def GetScreenHeight(): Int = windowHeight
-  def GetRenderWidth(): Int =
+  def width: Int = windowWidth
+  def height: Int = windowHeight
+  def renderWidth: Int =
     if !isWindowInitialized then return 0
 
     val width = Array(0)
     val height = Array(0)
     glfwGetFramebufferSize(windowHandle, width, height)
     width(0)
-  def GetRenderHeight(): Int =
+  def renderHeight: Int =
     if !isWindowInitialized then return 0
 
     val width = Array(0)
     val height = Array(0)
     glfwGetFramebufferSize(windowHandle, width, height)
     height(0)
-  def GetMonitorCount(): Int =
+  def monitorCount: Int =
     val monitors = glfwGetMonitors()
     if monitors == null then 0 else monitors.remaining()
-  def GetCurrentMonitor(): Int =
+  def currentMonitor: Int =
     if !isWindowInitialized then return 0
 
     val windowX = Array(0)
@@ -395,7 +391,7 @@ object Window:
     }
 
     0 // default to primary monitor
-  def GetMonitorPosition(monitor: Int): Vector2 =
+  def monitorPosition(monitor: Int): Vector2 =
     val monitors = glfwGetMonitors()
     if monitors == null || monitor < 0 || monitor >= monitors.remaining() then
       return Vector2(0.0f, 0.0f)
@@ -406,7 +402,7 @@ object Window:
 
     glfwGetMonitorPos(targetMonitor, xPos, yPos)
     Vector2(xPos(0).toFloat, yPos(0).toFloat)
-  def GetMonitorWidth(monitor: Int): Int =
+  def monitorWidth(monitor: Int): Int =
     val monitors = glfwGetMonitors()
     if monitors == null || monitor < 0 || monitor >= monitors.remaining() then
       return 0
@@ -415,7 +411,7 @@ object Window:
     val videoMode = glfwGetVideoMode(targetMonitor)
 
     if videoMode != null then videoMode.width() else 0
-  def GetMonitorHeight(monitor: Int): Int =
+  def monitorHeight(monitor: Int): Int =
     val monitors = glfwGetMonitors()
     if monitors == null || monitor < 0 || monitor >= monitors.remaining() then
       return 0
@@ -424,7 +420,7 @@ object Window:
     val videoMode = glfwGetVideoMode(targetMonitor)
 
     if videoMode != null then videoMode.height() else 0
-  def GetMonitorPhysicalWidth(monitor: Int): Int =
+  def monitorPhysicalWidth(monitor: Int): Int =
     val monitors = glfwGetMonitors()
     if monitors == null || monitor < 0 || monitor >= monitors.remaining() then
       return 0
@@ -435,7 +431,7 @@ object Window:
 
     glfwGetMonitorPhysicalSize(targetMonitor, widthMM, heightMM)
     widthMM(0)
-  def GetMonitorPhysicalHeight(monitor: Int): Int =
+  def monitorPhysicalHeight(monitor: Int): Int =
     val monitors = glfwGetMonitors()
     if monitors == null || monitor < 0 || monitor >= monitors.remaining() then
       return 0
@@ -446,7 +442,7 @@ object Window:
 
     glfwGetMonitorPhysicalSize(targetMonitor, widthMM, heightMM)
     heightMM(0)
-  def GetMonitorRefreshRate(monitor: Int): Int =
+  def monitorRefreshRate(monitor: Int): Int =
     val monitors = glfwGetMonitors()
     if monitors == null || monitor < 0 || monitor >= monitors.remaining() then
       return 0
@@ -455,7 +451,7 @@ object Window:
     val videoMode = glfwGetVideoMode(targetMonitor)
 
     if videoMode != null then videoMode.refreshRate() else 0
-  def GetWindowPosition(): Vector2 =
+  def position: Vector2 =
     if !isWindowInitialized then return Vector2(0.0f, 0.0f)
 
     val xPos = Array(0)
@@ -463,7 +459,7 @@ object Window:
 
     glfwGetWindowPos(windowHandle, xPos, yPos)
     Vector2(xPos(0).toFloat, yPos(0).toFloat)
-  def GetWindowScaleDPI(): Vector2 =
+  def scaleDPI: Vector2 =
     if !isWindowInitialized then return Vector2(1.0f, 1.0f)
 
     val xScale = Array(0.0f)
@@ -471,7 +467,7 @@ object Window:
 
     glfwGetWindowContentScale(windowHandle, xScale, yScale)
     Vector2(xScale(0), yScale(0))
-  def GetMonitorName(monitor: Int): String =
+  def monitorName(monitor: Int): String =
     val monitors = glfwGetMonitors()
     if monitors == null || monitor < 0 || monitor >= monitors.remaining() then
       return ""
@@ -480,10 +476,10 @@ object Window:
     val name = glfwGetMonitorName(targetMonitor)
 
     if name != null then name else ""
-  def GetClipboardText(): String =
+  def getClipboard: String =
     val clipboardContent = glfwGetClipboardString(windowHandle)
     if clipboardContent != null then clipboardContent else ""
-  def EnableEventWaiting(): Unit =
+  def enableEventWaiting(): Unit =
     eventWaitingEnabled = true
-  def DisableEventWaiting(): Unit =
+  def disableEventWaiting(): Unit =
     eventWaitingEnabled = false
