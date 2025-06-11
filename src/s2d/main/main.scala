@@ -1,12 +1,14 @@
 import S2D.core.Window
 import S2D.core.Drawing
 import S2D.shapes.Basics
-import S2D.textures.Textures
+import S2D.textures.{Images, Textures}
 import S2D.types.*
+
+import java.nio.file.{Files, Paths}
 
 @main
 def main(): Unit =
-  Window.create(800, 600, "S2D Framework Says Hi!")
+  Window.create(800, 600, "S2D Framework - Images Module Test")
 
   val camera2D = Camera2D(
     offset = Vector2(0.0f, 0.0f),
@@ -14,63 +16,105 @@ def main(): Unit =
     rotation = 0.0f,
     zoom = 1.0f
   )
+  
+  val imageOpt = Images.load("assets/player_still.png")
 
-  val textureOpt = Textures.load("assets/player_still.png")
+  imageOpt match
+    case Some(image) =>
+      val textureOpt = Textures.loadFromImage(image)
 
-  textureOpt match
-    case Some(texture) => println(s"Texture loaded")
-    case None => println("Failed to load texture")
+      textureOpt match
+        case Some(texture) =>
+          val extractedImageOpt = Images.loadFromTexture(texture)
 
-  val rectanglePos = Vector2(100.0, 100.0f)
-  val rectanglePos2 = Vector2(300.0, 300.0f)
-  val rectangleSize = Vector2(200.0f, 150.0f)
+          extractedImageOpt match
+            case Some(extractedImage) =>
+              if Images.exportImage(extractedImage, "output_test.png") then
+                println("Image exported as PNG")
+              else
+                println("Failed to export as PNG")
 
-  var rotation = 0.0f
-  var scale = 1.0f
-  var scaleDirection = 1
+              if Images.exportImage(extractedImage, "output_test.jpg") then
+                println("Image exported as JPG")
+              else
+                println("Failed to export as JPG")
+              if Images.exportImage(extractedImage, "output_test.bmp") then
+                println("Image exported as BMP")
+              else
+                println("Failed to export as BMP")
 
-  while !Window.shouldCloseWindow() do
-    Drawing.beginFrame()
-    Drawing.clear(Color.fromHex("#6495ED").getOrElse(Color.Blue))
+              Images.exportToMemory(extractedImage, "png") match
+                case Some((data, size)) =>
+                  Images.loadFromMemory("png", data, size) match
+                    case Some(memoryImage) =>
+                      Images.unloadImage(memoryImage)
+                    case None =>
+                      println("Failed to load image from memory")
+                case None =>
+                  println("Failed to export to memory")
 
-    Drawing.beginCamera(camera2D)
-      val rect = Rectangle.fromCenter(rectanglePos + rectangleSize / 2, rectangleSize)
-      val roundedRect = Rectangle.fromCenter(rectanglePos2 + rectangleSize / 2, rectangleSize)
+              if Images.exportAsCode(extractedImage, "image_data.scala") then
+                try
+                  val codeContent = Files.readString(Paths.get("image_data.scala"))
+                  codeContent.split("\n").take(5).foreach(line => println(s"    $line"))
+                catch
+                  case _: Exception => println("Could not read generated file")
+              else
+                println("Failed to export as code")
 
-      val baseColor = Color.Red
-      val animatedColor = baseColor.lerp(Color.Yellow, (math.sin(System.currentTimeMillis() / 1000.0) + 1.0).toFloat / 2.0f)
+              Images.unloadImage(extractedImage)
+            case None =>
+              println("Failed to extract image from texture")
 
-      Drawing.beginBlend(BlendMode.Alpha)
-      Basics.rectangle(rect, animatedColor)
-      Basics.rectangleRoundedOutlineThick(roundedRect, 0.5f, 5, 10, animatedColor)
+          var screenshotTaken = false
+          var frameCount = 0
 
-    textureOpt match
-      case Some(texture) =>
-        rotation += 1.0f
-        if rotation >= 360.0f then rotation = 0.0f
+          while !Window.shouldCloseWindow() do
+            Drawing.beginFrame()
+            Drawing.clear(Color.fromHex("#2C3E50").getOrElse(Color.Blue))
 
-        scale += 0.01f * scaleDirection
-        if scale >= 1.5f then scaleDirection = -1
-        if scale <= 0.5f then scaleDirection = 1
+            Drawing.beginCamera(camera2D)
+            val rect1 = Rectangle(100.0f, 100.0f, 150.0f, 100.0f)
+            val rect2 = Rectangle(300.0f, 150.0f, 200.0f, 150.0f)
 
-        Textures.draw(texture, 50, 50, Color.White)
-        Textures.draw(texture, Vector2(200.0f, 50.0f), Color.White)
-        Textures.drawEx(texture, Vector2(400.0f, 50.0f), rotation, scale, Color.White)
-        Textures.draw(texture, Vector2(50.0f, 200.0f), animatedColor)
+            val time = System.currentTimeMillis() / 1000.0
+            val animatedColor = Color.Red.lerp(Color.Yellow, (math.sin(time) + 1.0).toFloat / 2.0f)
 
-        val sourceRect = Rectangle(0.0f, 0.0f, texture.width.toFloat, texture.height.toFloat)
-        val destRect = Rectangle(400.0f, 200.0f, 100.0f, 100.0f)
-        val origin = Vector2(50.0f, 50.0f)
-        Textures.drawPro(texture, sourceRect, destRect, origin, rotation * 0.5f, Color.fromNormalized(1.0f, 1.0f, 1.0f, 0.8f))
-      case None =>
-        val placeHolderRect = Rectangle(50.0f, 50.0f, 100.0f, 100.0f)
-        Basics.rectangle(placeHolderRect, Color.Red)
+            Drawing.beginBlend(BlendMode.Alpha)
+            Basics.rectangle(rect1, animatedColor)
+            Basics.rectangleRounded(rect2, 0.3f, 8, Color.Green)
 
-    Drawing.endBlend()
+            Textures.draw(texture, 50, 300, Color.White)
 
-    Drawing.endCamera()
+            Drawing.endBlend()
 
-    Drawing.endFrame()
+            Drawing.endCamera()
 
-  textureOpt.foreach(Textures.unload)
+            Drawing.endFrame()
+
+            frameCount += 1
+
+          Textures.unload(texture)
+        case None =>
+          println("Failed to create texture from image")
+
+      Images.unloadImage(image)
+    case None =>
+      var screenshotTaken = false
+      var frameCount = 0
+
+      while !Window.shouldCloseWindow() do
+        Drawing.beginFrame()
+        Drawing.clear(Color.fromHex("#3498DB").getOrElse(Color.Blue))
+
+        Drawing.beginCamera(camera2D)
+        val rect = Rectangle(200.0f, 200.0f, 200.0f, 100.0f)
+        Basics.rectangle(rect, Color.Red)
+        Basics.rectangleOutline(Rectangle(180.0f, 180.0f, 240.0f, 140.0f), Color.White)
+        Drawing.endCamera()
+
+        Drawing.endFrame()
+
+        frameCount += 1
+
   Window.close()
