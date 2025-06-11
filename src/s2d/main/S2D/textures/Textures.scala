@@ -264,7 +264,7 @@ object Textures:
       glBindTexture(GL_TEXTURE_2D, 0)
     catch
       case _: Exception =>
-  def texture(texture: Texture2D, posX: Int, posY: Int, tint: Color): Unit =
+  def draw(texture: Texture2D, posX: Int, posY: Int, tint: Color): Unit =
     if texture.id == 0 then return
 
     glEnable(GL_TEXTURE_2D)
@@ -287,9 +287,9 @@ object Textures:
 
     glBindTexture(GL_TEXTURE_2D, 0)
     glDisable(GL_TEXTURE_2D)
-  def texture(texture: Texture2D, position: Vector2, tint: Color): Unit =
-    this.texture(texture, position.x.toInt, position.y.toInt, tint)
-  def textureEx(texture: Texture2D, position: Vector2, rotation: Float, scale: Float, tint: Color): Unit =
+  def draw(texture: Texture2D, position: Vector2, tint: Color): Unit =
+    draw(texture, position.x.toInt, position.y.toInt, tint)
+  def drawEx(texture: Texture2D, position: Vector2, rotation: Float, scale: Float, tint: Color): Unit =
     if texture.id == 0 then return
 
     glEnable(GL_TEXTURE_2D)
@@ -321,7 +321,7 @@ object Textures:
     glPopMatrix()
     glBindTexture(GL_TEXTURE_2D, 0)
     glDisable(GL_TEXTURE_2D)
-  def textureRec(texture: Texture2D, source: Rectangle, position: Vector2, tint: Color): Unit =
+  def drawRec(texture: Texture2D, source: Rectangle, position: Vector2, tint: Color): Unit =
     if texture.id == 0 then return
     if source.width <= 0 || source.height <= 0 then return
 
@@ -350,7 +350,7 @@ object Textures:
 
     glBindTexture(GL_TEXTURE_2D, 0)
     glDisable(GL_TEXTURE_2D)
-  def texturePro(texture: Texture2D, source: Rectangle, dest: Rectangle, origin: Vector2, rotation: Float, tint: Color): Unit =
+  def drawPro(texture: Texture2D, source: Rectangle, dest: Rectangle, origin: Vector2, rotation: Float, tint: Color): Unit =
     if texture.id == 0 then return
     if source.width <= 0 || source.height <= 0 then return
     if dest.width <= 0 || dest.height <= 0 then return

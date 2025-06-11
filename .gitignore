@@ -202,3 +202,7 @@
 /project/*
 /.target/*
 /.project/*
+/.assets/*
+/assets/*
+/.assets/*
+/.assets/*
