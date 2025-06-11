@@ -7,7 +7,7 @@ lazy val lwjglNatives = "natives-windows"
 
 lazy val root = (project in file("."))
   .settings(
-    name := "src/s2d/S2D",
+    name := "S2D",
     organization := "com.github.FinochioM",
     publishMavenStyle := true,
     libraryDependencies ++= Seq(
