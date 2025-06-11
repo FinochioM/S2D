@@ -1,6 +1,6 @@
 package S2D.textures
 
-import S2D.types.{Color, Image, PixelFormat, Rectangle, RenderTexture2D, Texture2D, Vector2}
+import S2D.types.*
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.opengl.GL12.*
 import org.lwjgl.opengl.GL30.*

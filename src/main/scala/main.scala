@@ -1,5 +1,4 @@
-import S2D.core.Window
-import S2D.core.Drawing
+import S2D.core.{Drawing, Window}
 import S2D.shapes.Basics
 import S2D.types.*
 

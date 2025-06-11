@@ -1,8 +1,8 @@
 package S2D.core
 
+import S2D.core.Window.*
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.system.MemoryUtil.*
-import S2D.core.Window.*
 
 object Cursor:
   // CURSOR RELATED FUNCTIONS

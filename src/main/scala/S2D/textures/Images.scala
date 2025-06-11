@@ -202,8 +202,8 @@ object Images:
       case _: Exception => None
   def loadFromScreen(): Option[Image] =
     try
-      import org.lwjgl.opengl.GL11.*
       import S2D.core.Window
+      import org.lwjgl.opengl.GL11.*
 
       if !Window.isReady then return None
 
