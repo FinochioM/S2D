@@ -1,20 +1,28 @@
-import S2D.core.Window
+import S2D.core.{Window, Drawing}
 import S2D.types.*
 import scalanative.unsafe.*
 import scalanative.unsigned.*
 
-@main def testWindow(): Unit =
-  Window.create(800, 600, "Test Window")
+@main
+def main(): Unit =
+  Window.create(800, 600, "S2D Framework - Images Module Test")
 
-  Thread.sleep(1000)
+  val camera2D = Camera2D(
+    offset = Vector2(0.0f, 0.0f),
+    target = Vector2(0.0f, 0.0f),
+    rotation = 0.0f,
+    zoom = 1.0f
+  )
 
-  println(Window.position)
+  while !Window.shouldCloseWindow() do
+    Drawing.beginFrame()
+    Drawing.clear(Color.fromHex("#3498DB").getOrElse(Color.Blue))
 
-  Thread.sleep(1000)
+    Drawing.beginCamera(camera2D)
 
-  println(Window.monitorName(0))
-
-  Thread.sleep(1000)
+    Drawing.endCamera()
+    Drawing.endFrame()
+  end while
 
   Window.close()
-end testWindow
+end main
