@@ -8,10 +8,11 @@ import scalanative.unsigned.*
 
   Thread.sleep(1000)
 
-  println(Window.monitorWidth(0))
-  println(Window.monitorHeight(0))
-  println(Window.monitorPhysicalWidth(0))
-  println(Window.monitorPhysicalHeight(0))
+  println(Window.position)
+
+  Thread.sleep(1000)
+
+  println(Window.monitorName(0))
 
   Thread.sleep(1000)
 

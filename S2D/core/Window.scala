@@ -468,3 +468,69 @@ object Window:
       else
         0
     }
+
+  def monitorRefreshRate(monitor: Int): Int =
+    val numDisplays = SDL_GetNumVideoDisplays()
+    if monitor < 0 || monitor >= numDisplays then return 0
+
+    Zone {
+      val displayMode = stackalloc[SDL_DisplayMode]()
+
+      if SDL_GetDesktopDisplayMode(monitor, displayMode) == 0 then
+        displayMode.refresh_rate
+      else
+        0
+    }
+
+  def position: Vector2 =
+    if !isWindowInitialized then return Vector2(0.0f, 0.0f)
+
+    Zone {
+      val xPos = stackalloc[CInt]()
+      val yPos = stackalloc[CInt]()
+
+      SDL_GetWindowPosition(windowHandle, xPos, yPos)
+      Vector2((!xPos).toFloat, (!yPos).toFloat)
+    }
+
+  def scaleDPI: Vector2 =
+    if !isWindowInitialized then return Vector2(1.0f, 1.0f)
+
+    val currentDisplay = SDL_GetWindowDisplayIndex(windowHandle)
+    if currentDisplay < 0 then return Vector2(1.0f, 1.0f)
+
+    Zone {
+      val ddpi = stackalloc[CFloat]()
+      val hdpi = stackalloc[CFloat]()
+      val vdpi = stackalloc[CFloat]()
+
+      if SDL_GetDisplayDPI(currentDisplay, ddpi, hdpi, vdpi) == 0 then
+        val standardDPI = 96.0f
+        val scaleX = !hdpi / standardDPI
+        val scaleY = !vdpi / standardDPI
+        Vector2(scaleX, scaleY)
+      else
+        Vector2(1.0f, 1.0f)
+    }
+
+  def monitorName(monitor: Int): String =
+    val numDisplays = SDL_GetNumVideoDisplays()
+    if monitor < 0 || monitor >= numDisplays then return ""
+
+    val name = SDL_GetDisplayName(monitor)
+    if name != null then fromCString(name) else ""
+
+  def getClipboardComplete: String =
+    val clipboardText = SDL_GetClipboardText()
+    if clipboardText != null then
+      val result = fromCString(clipboardText)
+      SDL_free(clipboardText.asInstanceOf[Ptr[Byte]])
+      result
+    else
+      ""
+
+  def enableEventWaiting(): Unit =
+    eventWaitingEnabled = true
+
+  def disableEventWaiting(): Unit =
+    eventWaitingEnabled = false

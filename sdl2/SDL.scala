@@ -678,5 +678,7 @@ object SDL {
                                Bmask: UInt, Amask: UInt): Ptr[SDL_Surface] = extern
   def SDL_SetWindowOpacity(window: Ptr[SDL_Window], opacity: CFloat): CInt = extern
   def SDL_SetClipboardText(text: CString): CInt = extern
+  def SDL_GetClipboardText(): CString = extern
+  def SDL_free(mem: Ptr[Byte]): Unit = extern
 }
 
