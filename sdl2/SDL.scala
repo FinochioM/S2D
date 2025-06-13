@@ -676,5 +676,7 @@ object SDL {
   def SDL_CreateRGBSurfaceFrom(pixels: Ptr[Byte], width: CInt, height: CInt,
                                depth: CInt, pitch: CInt, Rmask: UInt, Gmask: UInt,
                                Bmask: UInt, Amask: UInt): Ptr[SDL_Surface] = extern
+  def SDL_SetWindowOpacity(window: Ptr[SDL_Window], opacity: CFloat): CInt = extern
+  def SDL_SetClipboardText(text: CString): CInt = extern
 }
 

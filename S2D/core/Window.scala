@@ -302,3 +302,47 @@ object Window:
       if SDL_GetDisplayBounds(monitor, displayBounds) == 0 then
         SDL_SetWindowPosition(windowHandle, displayBounds.x, displayBounds.y)
     }
+
+  def setMinSize(width: Int, height: Int): Unit =
+    if !isWindowInitialized then return
+
+    SDL_SetWindowMinimumSize(windowHandle, width, height)
+
+  def setMaxSize(width: Int, height: Int): Unit =
+    if !isWindowInitialized then return
+
+    SDL_SetWindowMaximumSize(windowHandle, width, height)
+
+  def setSize(width: Int, height: Int): Unit =
+    if !isWindowInitialized then return
+
+    SDL_SetWindowSize(windowHandle, width, height)
+    windowWidth = width
+    windowHeight = height
+
+  def setFocused(): Unit =
+    if !isWindowInitialized then return
+
+    SDL_RaiseWindow(windowHandle)
+
+  def setOpacity(opacity: Float): Unit =
+    if !isWindowInitialized then return
+
+    val clampedOpacity = Math.max(0.0f, Math.min(1.0f, opacity))
+    SDL_SetWindowOpacity(windowHandle, clampedOpacity)
+
+  def setClipboard(text: String): Unit =
+    if !isWindowInitialized then return
+
+    Zone {
+      val textCStr = toCString(text)
+        SDL_SetClipboardText(textCStr)
+    }
+
+  def handle: Ptr[SDL_Window] =
+    if !isWindowInitialized then null
+    else windowHandle
+
+  def width: Int = windowWidth
+
+  def height: Int = windowHeight
