@@ -7,9 +7,11 @@ import scalanative.unsigned.*
   Window.create(800, 600, "Test Window")
 
   Thread.sleep(1000)
-  Window.setOpacity(0.5f)
-  Thread.sleep(1000)
-  Window.setOpacity(1.0f)
+
+  println(Window.monitorWidth(0))
+  println(Window.monitorHeight(0))
+  println(Window.monitorPhysicalWidth(0))
+  println(Window.monitorPhysicalHeight(0))
 
   Thread.sleep(1000)
 

@@ -346,3 +346,125 @@ object Window:
   def width: Int = windowWidth
 
   def height: Int = windowHeight
+
+  def renderWidth: Int =
+    if !isWindowInitialized then return 0
+
+    Zone {
+      val width = stackalloc[CInt]()
+      val height = stackalloc[CInt]()
+      SDL_GL_GetDrawableSize(windowHandle, width, height)
+      !width
+    }
+
+  def renderHeight: Int =
+    if !isWindowInitialized then return 0
+
+    Zone {
+      val width = stackalloc[CInt]()
+      val height = stackalloc[CInt]()
+      SDL_GL_GetDrawableSize(windowHandle, width, height)
+      !height
+    }
+
+  def monitorCount: Int =
+    SDL_GetNumVideoDisplays()
+
+  def currentMonitor: Int =
+    if !isWindowInitialized then return 0
+
+    Zone {
+      val windowX = stackalloc[CInt]()
+      val windowY = stackalloc[CInt]()
+      val windowWidth = stackalloc[CInt]()
+      val windowHeight = stackalloc[CInt]()
+
+      SDL_GetWindowPosition(windowHandle, windowX, windowY)
+      SDL_GetWindowSize(windowHandle, windowWidth, windowHeight)
+
+      val windowCenterX = !windowX + !windowWidth / 2
+      val windowCenterY = !windowY + !windowHeight / 2
+
+      val numDisplays = SDL_GetNumVideoDisplays()
+      if numDisplays <= 0 then return 0
+
+      for (i <- 0 until numDisplays) {
+        val displayBounds = stackalloc[SDL_Rect]()
+
+        if SDL_GetDisplayBounds(i, displayBounds) == 0 then
+          val monitorRight = displayBounds.x + displayBounds.w
+          val monitorBottom = displayBounds.y + displayBounds.h
+
+          if windowCenterX >= displayBounds.x && windowCenterX < monitorRight &&
+            windowCenterY >= displayBounds.y && windowCenterY < monitorBottom then
+            return i
+      }
+
+      0 // default to primary monitor
+    }
+
+  def monitorWidth(monitor: Int): Int =
+    val numDisplays = SDL_GetNumVideoDisplays()
+    if monitor < 0 || monitor >= numDisplays then return 0
+
+    Zone {
+      val displayMode = stackalloc[SDL_DisplayMode]()
+
+      if SDL_GetDesktopDisplayMode(monitor, displayMode) == 0 then
+        displayMode.w
+      else
+        0
+    }
+
+  def monitorHeight(monitor: Int): Int =
+    val numDisplays = SDL_GetNumVideoDisplays()
+    if monitor < 0 || monitor >= numDisplays then return 0
+
+    Zone {
+      val displayMode = stackalloc[SDL_DisplayMode]()
+
+      if SDL_GetDesktopDisplayMode(monitor, displayMode) == 0 then
+        displayMode.h
+      else
+        0
+    }
+
+  def monitorPhysicalWidth(monitor: Int): Int =
+    val numDisplays = SDL_GetNumVideoDisplays()
+    if monitor < 0 || monitor >= numDisplays then return 0
+
+    Zone {
+      val ddpi = stackalloc[CFloat]()
+      val hdpi = stackalloc[CFloat]()
+      val vdpi = stackalloc[CFloat]()
+
+      if SDL_GetDisplayDPI(monitor, ddpi, hdpi, vdpi) == 0 then
+        val displayMode = stackalloc[SDL_DisplayMode]()
+        if SDL_GetDesktopDisplayMode(monitor, displayMode) == 0 then
+          // pixels to millimeters: (pixels * 25.4) / DPI
+          ((displayMode.w * 25.4) / !hdpi).toInt
+        else
+          0
+      else
+        0
+    }
+
+  def monitorPhysicalHeight(monitor: Int): Int =
+    val numDisplays = SDL_GetNumVideoDisplays()
+    if monitor < 0 || monitor >= numDisplays then return 0
+
+    Zone {
+      val ddpi = stackalloc[CFloat]()
+      val hdpi = stackalloc[CFloat]()
+      val vdpi = stackalloc[CFloat]()
+
+      if SDL_GetDisplayDPI(monitor, ddpi, hdpi, vdpi) == 0 then
+        val displayMode = stackalloc[SDL_DisplayMode]()
+        if SDL_GetDesktopDisplayMode(monitor, displayMode) == 0 then
+          // pixels to millimeters: (pixels * 25.4) / DPI
+          ((displayMode.h * 25.4) / !vdpi).toInt
+        else
+          0
+      else
+        0
+    }
