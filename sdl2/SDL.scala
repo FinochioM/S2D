@@ -599,12 +599,12 @@ object SDL {
   def SDL_GetWindowMaximumSize(window: Ptr[SDL_Window], w: Ptr[CInt], h: Ptr[CInt]): Unit = extern
   def SDL_SetWindowBordered(window: Ptr[SDL_Window], bordered: SDL_bool): Unit = extern
 
-  def SDL_ShowWIndow(window: Ptr[SDL_Window]): Unit = extern
-  def SDL_HideWIndow(window: Ptr[SDL_Window]): Unit = extern
-  def SDL_RaiseWIndow(window: Ptr[SDL_Window]): Unit = extern
-  def SDL_MaximizeWIndow(window: Ptr[SDL_Window]): Unit = extern
-  def SDL_MinimizeWIndow(window: Ptr[SDL_Window]): Unit = extern
-  def SDL_RestoreWIndow(window: Ptr[SDL_Window]): Unit = extern
+  def SDL_ShowWindow(window: Ptr[SDL_Window]): Unit = extern
+  def SDL_HideWindow(window: Ptr[SDL_Window]): Unit = extern
+  def SDL_RaiseWindow(window: Ptr[SDL_Window]): Unit = extern
+  def SDL_MaximizeWindow(window: Ptr[SDL_Window]): Unit = extern
+  def SDL_MinimizeWindow(window: Ptr[SDL_Window]): Unit = extern
+  def SDL_RestoreWindow(window: Ptr[SDL_Window]): Unit = extern
   def SDL_SetWindowFullscreen(window: Ptr[SDL_Window], flags: UInt): CInt = extern
 
   def SDL_GetWindowSurface(window: Ptr[SDL_Window]): Ptr[SDL_Surface] = extern
@@ -672,5 +672,9 @@ object SDL {
   def SDL_WasInit(flags: UInt): UInt = extern
   def SDL_Quit(): Unit = extern
 
+  // MANUAL ADDITIONS
+  def SDL_CreateRGBSurfaceFrom(pixels: Ptr[Byte], width: CInt, height: CInt,
+                               depth: CInt, pitch: CInt, Rmask: UInt, Gmask: UInt,
+                               Bmask: UInt, Amask: UInt): Ptr[SDL_Surface] = extern
 }
 

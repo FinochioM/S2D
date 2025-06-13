@@ -157,13 +157,13 @@ object Window:
       SDL_MaximizeWindow(windowHandle)
 
     if WindowFlag.contains(combinedFlags, WindowFlag.Minimized) then
-      SDL_MinimizeWIndow(windowHandle)
+      SDL_MinimizeWindow(windowHandle)
 
     if WindowFlag.contains(combinedFlags, WindowFlag.Focused) then
-      SDL_RaiseWIndow(windowHandle)
+      SDL_RaiseWindow(windowHandle)
 
     if WindowFlag.contains(combinedFlags, WindowFlag.Visible) then
-      SDL_ShowWIndow(windowHandle)
+      SDL_ShowWindow(windowHandle)
 
     // I dont know about Transparent and AlwaysOnTop on SDL2.
 
@@ -175,13 +175,13 @@ object Window:
     // Resizable and Undecorated cannot be changed once the window is created.
 
     if WindowFlag.contains(combinedFlags, WindowFlag.Maximized) then
-      SDL_RestoreWIndow(windowHandle)
+      SDL_RestoreWindow(windowHandle)
 
     if WindowFlag.contains(combinedFlags, WindowFlag.Minimized) then
-      SDL_RestoreWIndow(windowHandle)
+      SDL_RestoreWindow(windowHandle)
 
     if WindowFlag.contains(combinedFlags, WindowFlag.Visible) then
-      SDL_HideWIndow(windowHandle)
+      SDL_HideWindow(windowHandle)
 
     // I dont know about Transparent and AlwaysOnTop on SDL2.
 
@@ -240,14 +240,65 @@ object Window:
 
     val flags = SDL_GetWindowFlags(windowHandle)
     if (flags & SDL_WINDOW_RESIZABLE) != 0.toUInt then
-      SDL_MaximzeWIndow(windowHandle)
+      SDL_MaximizeWindow(windowHandle)
 
   def minimize(): Unit =
     if !isWindowInitialized then return
 
-    SDL_MinimizeWIndow(windowHandle)
+    SDL_MinimizeWindow(windowHandle)
 
   def restore(): Unit =
     if !isWindowInitialized then return
 
-    SDL_RestoreWIndow(windowHandle)
+    SDL_RestoreWindow(windowHandle)
+
+  def setIcon(image: Image): Unit =
+    if !isWindowInitialized then return
+
+    Zone {
+      val surface = SDL_CreateRGBSurfaceFrom(
+        image.data,
+        image.width,
+        image.height,
+        32,
+        image.width * 4,
+        0x000000ff.toUInt,
+        0x0000ff00.toUInt,
+        0x00ff0000.toUInt,
+        0xff000000.toUInt
+      )
+
+      if surface != null then
+        SDL_SetWindowIcon(windowHandle, surface)
+        SDL_FreeSurface(surface)
+      else
+        println("Failed to create SDL surface for window icon")
+    }
+
+  def setTitle(title: String): Unit =
+    if !isWindowInitialized then return
+
+    Zone {
+      val titleCStr = toCString(title)
+      SDL_SetWindowTitle(windowHandle, titleCStr)
+    }
+
+    windowTitle = title
+
+  def setPosition(x: Int, y: Int): Unit =
+    if !isWindowInitialized then return
+
+    SDL_SetWindowPosition(windowHandle, x, y)
+
+  def setMonitor(monitor: Int): Unit =
+    if !isWindowInitialized then return
+
+    val numDisplays = SDL_GetNumVideoDisplays()
+    if monitor < 0 || monitor >= numDisplays then return
+
+    Zone {
+      val displayBounds = stackalloc[SDL_Rect]()
+
+      if SDL_GetDisplayBounds(monitor, displayBounds) == 0 then
+        SDL_SetWindowPosition(windowHandle, displayBounds.x, displayBounds.y)
+    }

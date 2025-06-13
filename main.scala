@@ -1,12 +1,19 @@
 import S2D.core.Window
+import S2D.types.*
+import scalanative.unsafe.*
+import scalanative.unsigned.*
 
-@main
-def main(): Unit =
-  Window.create(800, 600, "S2D Framework - Images Module Test")
+@main def testWindow(): Unit =
+  Window.create(800, 600, "Test Window")
 
-  while !Window.shouldCloseWindow() do
-    println("Window is open, running main loop...")
-  end while
+  Thread.sleep(1000)
+  Window.setMonitor(1)
+
+  Thread.sleep(1000)
+  Window.setMonitor(0)
+
+  Thread.sleep(1000)
+  Window.setMonitor(2)
 
   Window.close()
-end main
+end testWindow
