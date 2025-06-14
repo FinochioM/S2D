@@ -3,7 +3,7 @@ package gl
 import scalanative.unsafe._
 import scalanative.unsigned._
 
-object Extras {
+object GLExtras {
   import GL._
 
   /*

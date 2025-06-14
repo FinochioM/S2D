@@ -6,3 +6,6 @@
 .scala-build
 .sbt
 .idea/
+project/
+target/
+build.sbt

@@ -5,7 +5,7 @@ import S2D.types.*
 import sdl2.SDL._
 import sdl2.Extras._
 import gl.GL._
-import gl.Extras._
+import gl.GLExtras._
 import scalanative.unsafe._
 import scalanative.unsigned._
 
