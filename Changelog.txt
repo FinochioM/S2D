@@ -2,6 +2,17 @@ S2D Changelog File.
 In this file you can find the changes made to every version of the library.
 
 06/2025
+v_1.0.1:
+- Started the migration of the backend from Scala JVM to Scala Native.
+- Added core module with Window, Cursor and Drawing classes.
+- Added empty shapes and textures packages.
+- Added types package with BlendMode, Camera2D, Color, Image, RenderTexture2D, Shader, Texture2D, Vector2, WindowFlag classes.
+- Added sdl2 package with SDL2 bindings for Scala Native.
+- Added gl package with OpenGL bindings for Scala Native.
+- Switched from sbt to Scala-CLI for the main building system.
+- Re-added Readme, LICENSE, changelog and library expansion files to the repository.
+- Setup ScalaFMT for code formatting.
+
 v_1.0.0:
 - Refactored the structure of the library, the usage is now "ClassName.functionName"
 - Support for basic window management (create, close, fullscreen, focus, etc)

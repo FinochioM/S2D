@@ -1,6 +1,6 @@
 # S2D
 
-A simple 2D graphics library for Scala 3, built on top of LWJGL and OpenGL. S2D provides an easy-to-use API for creating 2D games and graphics applications.
+A simple 2D graphics library for Scala-Native, built on top of SDL2 and OpenGL. S2D provides an easy-to-use API for creating 2D games and graphics applications.
 
 ## Changelog & TO-DO
 You can take a look at what packages/functions I will add in the future in the _[LIBRARY_EXPANSION.TXT](https://github.com/FinochioM/S2D/blob/master/LIBRARY_EXPANSION.txt)_ file.
@@ -17,6 +17,8 @@ Don't forget to give the repo a star! Thanks again!
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
+
+_Take into account that the project is built with Scala-CLI and you will need to manually link SDL2 and OpenGL_
 
 ## Basic Example
 
@@ -76,11 +78,7 @@ lazy val root = (project in file("."))
     libraryDependencies += "io.github.finochiom" %% "s2d" % "1.0.0"
   )
 ```
-
-**Requirements:**
-- JDK 21 or higher
-- Scala 3.3.6
-- sbt 1.10.0
+_Version 1.0.0 of S2D uses LWJGL as the backend, so it will NOT work with Scala Native, from 1.0.1 on it uses SDL2_
 
 ## License
 S2D is licensed under the *zlib* license. Read the [LICENSE](https://github.com/FinochioM/S2D/blob/master/LICENSE) for more information.
