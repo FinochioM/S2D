@@ -61,7 +61,7 @@ def main(): Unit =
 
 ## Build and Installation
 You can install S2D directly from Maven Central. This is the link to the library:
-</br> https://central.sonatype.com/artifact/io.github.finochiom/s2d_3
+</br> https://central.sonatype.com/artifact/io.github.finochiom/s2d_native0.5_3
 
 _Another way of using S2D is through jitpack._
 </br> _Just go to https://jitpack.io/#FinochioM/S2D and follow their instructions._
