@@ -1,0 +1,37 @@
+S2D Changelog File.
+In this file you can find the changes made to every version of the library.
+
+06/2025
+v_1.0.0:
+- Refactored the structure of the library, the usage is now "ClassName.functionName"
+- Support for basic window management (create, close, fullscreen, focus, etc)
+- Support for 2D shapes rendering (rectangles, triangles, circles, etc)
+- Support for image loading and texture rendering.
+- Basic 2D camera system with zoom, rotation and offset.
+- Current Packages:
+ -- Core Package
+    S2D.core.Window
+    S2D.core.Cursor
+    S2D.core.Drawing
+
+ -- Shapes Package*
+    S2D.shapes.Basics
+    S2D.shapes.Setup
+
+ -- Textures Package*
+    S2D.textures.Images
+    S2D.textures.Textures
+
+ -- Types Package*
+    S2D.types.BlendMode
+    S2D.types.Camera2D
+    S2D.types.Color
+    S2D.types.Image
+    S2D.types.KeyCode
+    S2D.types.PixelFormat
+    S2D.types.Rectangle
+    S2D.types.RenderTexture2D
+    S2D.types.Shader
+    S2D.types.Texture2D
+    S2D.types.Vector2
+    S2D.types.WindowFlag

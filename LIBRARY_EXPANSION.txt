@@ -1,0 +1,38 @@
+S2D Library Expansion file.
+In here I will add whatever ideas I come up with and also anything that could make the library better.
+If you want to help improve the library you can also make a push request or just let me know what you would like to see in S2D.
+
+Currently Available Packages:
+
+CORE PACKAGE:
+- Shader functions.
+- Screen-Space-Related functions.
+- Timing-related functions.
+- Custom frame control functions.
+- Random values functions.
+- Files management functions.
+- Files system functions.
+- Encoding functions.
+
+SHAPES PACKAGE:
+- Splines functions.
+- Basic shapes collision functions.
+
+TEXTURES PACKAGE:
+- Image generation functions.
+- Image manipulation functions.
+- Image drawing functions.
+- Texture configuration functions.
+- Color/Pixel related functions.
+
+Future Packages:
+
+INPUT PACKAGE:
+- Create Input package.
+- Mouse functions.
+- Gamepad functions.
+- Keyboard functions.
+
+CAMERA PACKAGE.
+FONT PACKAGE.
+AUDIO PACKAGE.
