@@ -5,7 +5,7 @@
 
 //> using publish.computeVersion git:tag
 //> using publish.developers "FinochioM|Matias Finochio|https://github.com/FinochioM"
-//> using publish.license zlib
+//> using publish.license zlib|https://zlib.net/zlib_license.html
 //> using publish.name S2D
 //> using publish.organization io.github.finochiom
 //> using publish.repository central

@@ -2,6 +2,10 @@ S2D Changelog File.
 In this file you can find the changes made to every version of the library.
 
 06/2025
+v_0.1.3-SNAPSHOT:
+- Added new SDL_Image and SDL_ImageExtras files.
+- Updated project.scala file.
+
 v_0.1.2-SNAPSHOT:
 - Finished core package migration (Cursor, Window & Drawing)
 - Finished shapes package migration (Setup & Basics)
