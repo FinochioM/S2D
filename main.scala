@@ -37,9 +37,10 @@ def main(): Unit =
     Basics.ellipse(400, 300, 200, 100, Color.Red)
     Basics.ellipseOutlines(400, 300, 200, 100, Color.Red)
     Basics.rectangle(rect, Color.Red)
+    Basics.rectangleRounded(rect, 0.5, 10, Color.Red)
      */
 
-    Basics.rectangleRounded(rect, 0.5, 10, Color.Red)
+    Basics.rectangleRoundedOutline(rect, 0.5, 10, Color.Red)
 
     Drawing.endCamera()
     Drawing.endFrame()

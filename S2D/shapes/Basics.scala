@@ -857,4 +857,68 @@ object Basics:
     glEnd()
   end rectangleRounded
 
+  def rectangleRoundedOutline(rectangle: Rectangle, roundness: Float, segments: Int, color: Color): Unit =
+    if segments < 3 then return
+    if roundness <= 0.0f then
+      rectangleOutline(rectangle, color)
+      return
+
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    val maxRadius = math.min(rectangle.width, rectangle.height) / 2.0f
+    val cornerRadius = (roundness * maxRadius).min(maxRadius)
+
+    val angleStep = (math.Pi / 2.0f) / segments.toFloat
+
+    glBegin(GL_LINES.toUInt)
+    glVertex2f(rectangle.x + cornerRadius, rectangle.y)
+    glVertex2f(rectangle.x + rectangle.width - cornerRadius, rectangle.y)
+    glEnd()
+
+    glBegin(GL_LINE_STRIP.toUInt)
+    for i <- 0 to segments do
+      val angle = (3 * math.Pi / 2.0f) + (i * angleStep)
+      val x = rectangle.x + rectangle.width - cornerRadius + cornerRadius * math.cos(angle).toFloat
+      val y = rectangle.y + cornerRadius + cornerRadius * math.sin(angle).toFloat
+      glVertex2f(x, y)
+    glEnd()
+
+    glBegin(GL_LINES.toUInt)
+    glVertex2f(rectangle.x + rectangle.width, rectangle.y + cornerRadius)
+    glVertex2f(rectangle.x + rectangle.width, rectangle.y + rectangle.height - cornerRadius)
+    glEnd()
+
+    glBegin(GL_LINE_STRIP.toUInt)
+    for i <- 0 to segments do
+      val angle = (i * angleStep)
+      val x = rectangle.x + rectangle.width - cornerRadius + cornerRadius * math.cos(angle).toFloat
+      val y = rectangle.y + rectangle.height - cornerRadius + cornerRadius * math.sin(angle).toFloat
+      glVertex2f(x, y)
+    glEnd()
+
+    glBegin(GL_LINES.toUInt)
+    glVertex2f(rectangle.x + rectangle.width - cornerRadius, rectangle.y + rectangle.height)
+    glVertex2f(rectangle.x + cornerRadius, rectangle.y + rectangle.height)
+    glEnd()
+
+    glBegin(GL_LINE_STRIP.toUInt)
+    for i <- 0 to segments do
+      val angle = (math.Pi / 2.0f) + (i * angleStep)
+      val x = rectangle.x + cornerRadius + cornerRadius * math.cos(angle).toFloat
+      val y = rectangle.y + rectangle.height - cornerRadius + cornerRadius * math.sin(angle).toFloat
+      glVertex2f(x, y)
+    glEnd()
+
+    glBegin(GL_LINES.toUInt)
+    glVertex2f(rectangle.x, rectangle.y + rectangle.height - cornerRadius)
+    glVertex2f(rectangle.x, rectangle.y + cornerRadius)
+    glEnd()
+
+    glBegin(GL_LINE_STRIP.toUInt)
+    for i <- 0 to segments do
+      val angle = math.Pi + (i * angleStep)
+      val x = rectangle.x + cornerRadius + cornerRadius * math.cos(angle).toFloat
+      val y = rectangle.y + cornerRadius + cornerRadius * math.sin(angle).toFloat
+      glVertex2f(x, y)
+    glEnd()
 end Basics
