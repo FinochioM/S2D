@@ -921,4 +921,106 @@ object Basics:
       val y = rectangle.y + cornerRadius + cornerRadius * math.sin(angle).toFloat
       glVertex2f(x, y)
     glEnd()
+
+  def rectangleRoundedOutlineThick(rectangle: Rectangle, roundness: Float, segments: Int, thick: Float, color: Color): Unit =
+    if segments < 3 then return
+    if roundness <= 0.0f then
+      rectangleOutlineThick(rectangle, thick, color)
+      return
+
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    val maxRadius = math.min(rectangle.width, rectangle.height) / 2.0f
+    val cornerRadius = (roundness * maxRadius).min(maxRadius)
+    val halfThick = thick / 2.0f
+
+    val angleStep = (math.Pi / 2.0f) / segments.toFloat
+
+    glBegin(GL_QUADS.toUInt)
+    glVertex2f(rectangle.x + cornerRadius, rectangle.y - halfThick)
+    glVertex2f(rectangle.x + rectangle.width - cornerRadius, rectangle.y - halfThick)
+    glVertex2f(rectangle.x + rectangle.width - cornerRadius, rectangle.y + halfThick)
+    glVertex2f(rectangle.x + cornerRadius, rectangle.y + halfThick)
+    glEnd()
+
+    glBegin(GL_QUADS.toUInt)
+    glVertex2f(rectangle.x + rectangle.width - halfThick, rectangle.y + cornerRadius)
+    glVertex2f(rectangle.x + rectangle.width + halfThick, rectangle.y + cornerRadius)
+    glVertex2f(rectangle.x + rectangle.width + halfThick, rectangle.y + rectangle.height - cornerRadius)
+    glVertex2f(rectangle.x + rectangle.width - halfThick, rectangle.y + rectangle.height - cornerRadius)
+    glEnd()
+
+    glBegin(GL_QUADS.toUInt)
+    glVertex2f(rectangle.x + rectangle.width - cornerRadius, rectangle.y + rectangle.height - halfThick)
+    glVertex2f(rectangle.x + cornerRadius, rectangle.y + rectangle.height - halfThick)
+    glVertex2f(rectangle.x + cornerRadius, rectangle.y + rectangle.height + halfThick)
+    glVertex2f(rectangle.x + rectangle.width - cornerRadius, rectangle.y + rectangle.height + halfThick)
+    glEnd()
+
+    glBegin(GL_QUADS.toUInt)
+    glVertex2f(rectangle.x - halfThick, rectangle.y + rectangle.height - cornerRadius)
+    glVertex2f(rectangle.x + halfThick, rectangle.y + rectangle.height - cornerRadius)
+    glVertex2f(rectangle.x + halfThick, rectangle.y + cornerRadius)
+    glVertex2f(rectangle.x - halfThick, rectangle.y + cornerRadius)
+    glEnd()
+
+    glBegin(GL_TRIANGLE_STRIP.toUInt)
+    for i <- 0 to segments do
+      val angle = (3 * math.Pi / 2.0f) + (i * angleStep)
+      val cosAngle = math.cos(angle).toFloat
+      val sinAngle = math.sin(angle).toFloat
+
+      val innerX = rectangle.x + rectangle.width - cornerRadius + (cornerRadius - halfThick) * cosAngle
+      val innerY = rectangle.y + cornerRadius + (cornerRadius - halfThick) * sinAngle
+      val outerX = rectangle.x + rectangle.width - cornerRadius + (cornerRadius + halfThick) * cosAngle
+      val outerY = rectangle.y + cornerRadius + (cornerRadius + halfThick) * sinAngle
+
+      glVertex2f(innerX, innerY)
+      glVertex2f(outerX, outerY)
+    glEnd()
+
+    glBegin(GL_TRIANGLE_STRIP.toUInt)
+    for i <- 0 to segments do
+      val angle = (i * angleStep)
+      val cosAngle = math.cos(angle).toFloat
+      val sinAngle = math.sin(angle).toFloat
+
+      val innerX = rectangle.x + rectangle.width - cornerRadius + (cornerRadius - halfThick) * cosAngle
+      val innerY = rectangle.y + rectangle.height - cornerRadius + (cornerRadius - halfThick) * sinAngle
+      val outerX = rectangle.x + rectangle.width - cornerRadius + (cornerRadius + halfThick) * cosAngle
+      val outerY = rectangle.y + rectangle.height - cornerRadius + (cornerRadius + halfThick) * sinAngle
+
+      glVertex2f(innerX, innerY)
+      glVertex2f(outerX, outerY)
+    glEnd()
+
+    glBegin(GL_TRIANGLE_STRIP.toUInt)
+    for i <- 0 to segments do
+      val angle = (math.Pi / 2.0f) + (i * angleStep)
+      val cosAngle = math.cos(angle).toFloat
+      val sinAngle = math.sin(angle).toFloat
+
+      val innerX = rectangle.x + cornerRadius + (cornerRadius - halfThick) * cosAngle
+      val innerY = rectangle.y + rectangle.height - cornerRadius + (cornerRadius - halfThick) * sinAngle
+      val outerX = rectangle.x + cornerRadius + (cornerRadius + halfThick) * cosAngle
+      val outerY = rectangle.y + rectangle.height - cornerRadius + (cornerRadius + halfThick) * sinAngle
+
+      glVertex2f(innerX, innerY)
+      glVertex2f(outerX, outerY)
+    glEnd()
+
+    glBegin(GL_TRIANGLE_STRIP.toUInt)
+    for i <- 0 to segments do
+      val angle = math.Pi + (i * angleStep)
+      val cosAngle = math.cos(angle).toFloat
+      val sinAngle = math.sin(angle).toFloat
+
+      val innerX = rectangle.x + cornerRadius + (cornerRadius - halfThick) * cosAngle
+      val innerY = rectangle.y + cornerRadius + (cornerRadius - halfThick) * sinAngle
+      val outerX = rectangle.x + cornerRadius + (cornerRadius + halfThick) * cosAngle
+      val outerY = rectangle.y + cornerRadius + (cornerRadius + halfThick) * sinAngle
+
+      glVertex2f(innerX, innerY)
+      glVertex2f(outerX, outerY)
+    glEnd()
 end Basics
