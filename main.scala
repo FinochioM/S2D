@@ -22,7 +22,15 @@ def main(): Unit =
     Drawing.beginCamera(camera2D)
 
     // Basics.line(400, 300, 200, 500, Color.Red)
-    Basics.lineThick(Vector2(200, 500), Vector2(400, 300), 10.0f, Color.Green)
+    // Basics.lineThick(Vector2(200, 500), Vector2(400, 300), 10.0f, Color.Green)
+    Basics.circle(Vector2(400, 300), 100.0f, Color.Red)
+    Basics.circleGradient(600, 400, 100.0f, Color.Red, Color.Green)
+    Basics.circleOutline(
+      200,
+      200,
+      100.0f,
+      Color.fromHex("#FF5733").getOrElse(Color.Red)
+    )
 
     Drawing.endCamera()
     Drawing.endFrame()

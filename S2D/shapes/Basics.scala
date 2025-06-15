@@ -96,3 +96,129 @@ object Basics:
 
     for i <- 0 until segments do
       lineThick(points(i), points(i + 1), thick, color)
+
+  def circle(centerX: Int, centerY: Int, radius: Float, color: Color): Unit =
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    val segments = 36
+
+    glBegin(GL_TRIANGLE_FAN.toUInt)
+    glVertex2f(centerX.toFloat, centerY.toFloat)
+
+    for i <- 0 to segments do
+      val angle = (i * 2.0f * math.Pi / segments).toFloat
+      val x = centerX + radius * math.cos(angle).toFloat
+      val y = centerY + radius * math.sin(angle).toFloat
+      glVertex2f(x, y)
+
+    glEnd()
+
+  def circle(center: Vector2, radius: Float, color: Color): Unit =
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    val segments = 36
+
+    glBegin(GL_TRIANGLE_FAN.toUInt)
+    glVertex2f(center.x, center.y)
+
+    for i <- 0 to segments do
+      val angle = (i * 2.0f * math.Pi / segments).toFloat
+      val x = center.x + radius * math.cos(angle).toFloat
+      val y = center.y + radius * math.sin(angle).toFloat
+      glVertex2f(x, y)
+
+    glEnd()
+
+  def circleSector(center: Vector2, radius: Float, startAngle: Float, endAngle: Float, segments: Int, color: Color): Unit =
+    if segments < 3 then return
+
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    val startRad = math.toRadians(startAngle).toFloat
+    val endRad = math.toRadians(endAngle).toFloat
+
+    val angleStep = (endRad - startRad) / segments.toFloat
+
+    glBegin(GL_TRIANGLE_FAN.toUInt)
+    glVertex2f(center.x, center.y)
+
+    for i <- 0 to segments do
+      val angle = startRad + (i * angleStep)
+      val x = center.x + radius * math.cos(angle).toFloat
+      val y = center.y + radius * math.sin(angle).toFloat
+      glVertex2f(x, y)
+
+    glEnd()
+
+  def circleSectorOutline(center: Vector2, radius: Float, startAngle: Float, endAngle: Float, segments: Int, color: Color): Unit =
+    if segments < 3 then return
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    val startRad = math.toRadians(startAngle).toFloat
+    val endRad = math.toRadians(endAngle).toFloat
+
+    val angleStep = (endRad - startRad) / segments.toFloat
+
+    glBegin(GL_LINE_STRIP.toUInt)
+    for i <- 0 to segments do
+      val angle = startRad + (i * angleStep)
+      val x = center.x + radius * math.cos(angle).toFloat
+      val y = center.y + radius * math.sin(angle).toFloat
+      glVertex2f(x, y)
+    glEnd()
+
+    glBegin(GL_LINES.toUInt)
+    glVertex2f(center.x, center.y)
+    glVertex2f(center.x + radius * math.cos(startRad).toFloat, center.y + radius * math.sin(startRad).toFloat)
+
+    glVertex2f(center.x, center.y)
+    glVertex2f(center.x + radius * math.cos(endRad).toFloat, center.y + radius * math.sin(endRad).toFloat)
+    glEnd()
+
+  def circleGradient(centerX: Int, centerY: Int, radius: Float, inner: Color, outer: Color): Unit =
+    val segments = 36
+
+    glBegin(GL_TRIANGLE_FAN.toUInt)
+
+    glColor4f(inner.r / 255.0f, inner.g / 255.0f, inner.b / 255.0f, inner.a / 255.0f)
+    glVertex2f(centerX.toFloat, centerY.toFloat)
+
+    glColor4f(outer.r / 255.0f, outer.g / 255.0f, outer.b / 255.0f, outer.a / 255.0f)
+
+    for i <- 0 to segments do
+      val angle = (i * 2.0f * math.Pi / segments).toFloat
+      val x = centerX + radius * math.cos(angle).toFloat
+      val y = centerY + radius * math.sin(angle).toFloat
+      glVertex2f(x, y)
+
+    glEnd()
+
+  def circleOutline(centerX: Int, centerY: Int, radius: Float, color: Color): Unit =
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    val segments = 36
+
+    glBegin(GL_LINE_LOOP.toUInt)
+
+    for i <- 0 until segments do
+      val angle = (i * 2.0f * math.Pi / segments).toFloat
+      val x = centerX + radius * math.cos(angle).toFloat
+      val y = centerY + radius * math.sin(angle).toFloat
+      glVertex2f(x, y)
+
+    glEnd()
+
+  def circleOutline(center: Vector2, radius: Float, color: Color): Unit =
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    val segments = 36
+
+    glBegin(GL_LINE_LOOP.toUInt)
+
+    for i <- 0 until segments do
+      val angle = (i * 2.0f * math.Pi / segments).toFloat
+      val x = center.x + radius * math.cos(angle).toFloat
+      val y = center.y + radius * math.sin(angle).toFloat
+      glVertex2f(x, y)
+
+    glEnd()
