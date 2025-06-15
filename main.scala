@@ -1,4 +1,5 @@
 import S2D.core.{Window, Drawing}
+import S2D.shapes.Basics
 import S2D.types.*
 import scalanative.unsafe.*
 import scalanative.unsigned.*
@@ -19,6 +20,9 @@ def main(): Unit =
     Drawing.clear(Color.fromHex("#3498DB").getOrElse(Color.Blue))
 
     Drawing.beginCamera(camera2D)
+
+    // Basics.line(400, 300, 200, 500, Color.Red)
+    Basics.lineThick(Vector2(200, 500), Vector2(400, 300), 10.0f, Color.Green)
 
     Drawing.endCamera()
     Drawing.endFrame()
