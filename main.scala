@@ -41,9 +41,9 @@ def main(): Unit =
     Basics.rectangleRoundedOutline(rect, 0.5, 10, Color.Red)
     Basics.rectangleRoundedOutlineThick(rect, 0.5, 10, 5, Color.Red)
     Basics.triangle(Vector2(300, 200), Vector2(300, 400), Vector2(500, 400), Color.Red)
+    Basics.polygon(Vector2(400, 300), 6, 100, 0, Color.Red)
      */
 
-    Basics.polygon(Vector2(400, 300), 6, 100, 0, Color.Red)
 
     Drawing.endCamera()
     Drawing.endFrame()
