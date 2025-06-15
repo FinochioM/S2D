@@ -222,3 +222,34 @@ object Basics:
       glVertex2f(x, y)
 
     glEnd()
+
+  def ellipse(centerX: Int, centerY: Int, radiusH: Float, radiusV: Float, color: Color): Unit =
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    val segments = 36
+
+    glBegin(GL_TRIANGLE_FAN.toUInt)
+    glVertex2f(centerX.toFloat, centerY.toFloat)
+
+    for i <- 0 to segments do
+      val angle = (i * 2.0f * math.Pi / segments).toFloat
+      val x = centerX + radiusH * math.cos(angle).toFloat
+      val y = centerY + radiusV * math.sin(angle).toFloat
+      glVertex2f(x, y)
+
+    glEnd()
+
+  def ellipseOutlines(centerX: Int, centerY: Int, radiusH: Float, radiusV: Float, color: Color): Unit =
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
+
+    val segments = 36
+
+    glBegin(GL_LINE_LOOP.toUInt)
+
+    for i <- 0 to segments do
+      val angle = (i * 2.0f * math.Pi / segments).toFloat
+      val x = centerX + radiusH * math.cos(angle).toFloat
+      val y = centerY + radiusV * math.sin(angle).toFloat
+      glVertex2f(x, y)
+
+    glEnd()

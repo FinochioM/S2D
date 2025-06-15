@@ -20,9 +20,10 @@ def main(): Unit =
     Drawing.clear(Color.fromHex("#3498DB").getOrElse(Color.Blue))
 
     Drawing.beginCamera(camera2D)
-
-    // Basics.line(400, 300, 200, 500, Color.Red)
-    // Basics.lineThick(Vector2(200, 500), Vector2(400, 300), 10.0f, Color.Green)
+    /*
+    Old Tests.
+    Basics.line(400, 300, 200, 500, Color.Red)
+    Basics.lineThick(Vector2(200, 500), Vector2(400, 300), 10.0f, Color.Green)
     Basics.circle(Vector2(400, 300), 100.0f, Color.Red)
     Basics.circleGradient(600, 400, 100.0f, Color.Red, Color.Green)
     Basics.circleOutline(
@@ -31,6 +32,9 @@ def main(): Unit =
       100.0f,
       Color.fromHex("#FF5733").getOrElse(Color.Red)
     )
+    Basics.ellipse(400, 300, 200, 100, Color.Red)
+    Basics.ellipseOutlines(400, 300, 200, 100, Color.Red)
+     */
 
     Drawing.endCamera()
     Drawing.endFrame()

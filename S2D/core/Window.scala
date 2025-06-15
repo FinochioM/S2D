@@ -8,6 +8,7 @@ import gl.GL._
 import gl.GLExtras._
 import scalanative.unsafe._
 import scalanative.unsigned._
+import scala.util.boundary, boundary.break
 
 object Window:
   var windowHandle: Ptr[SDL_Window] = null
@@ -372,36 +373,34 @@ object Window:
 
   def currentMonitor: Int =
     if !isWindowInitialized then return 0
+    boundary:
+      Zone {
+        val windowX = stackalloc[CInt]()
+        val windowY = stackalloc[CInt]()
+        val windowWidth = stackalloc[CInt]()
+        val windowHeight = stackalloc[CInt]()
 
-    Zone {
-      val windowX = stackalloc[CInt]()
-      val windowY = stackalloc[CInt]()
-      val windowWidth = stackalloc[CInt]()
-      val windowHeight = stackalloc[CInt]()
+        SDL_GetWindowPosition(windowHandle, windowX, windowY)
+        SDL_GetWindowSize(windowHandle, windowWidth, windowHeight)
 
-      SDL_GetWindowPosition(windowHandle, windowX, windowY)
-      SDL_GetWindowSize(windowHandle, windowWidth, windowHeight)
+        val windowCenterX = !windowX + !windowWidth / 2
+        val windowCenterY = !windowY + !windowHeight / 2
 
-      val windowCenterX = !windowX + !windowWidth / 2
-      val windowCenterY = !windowY + !windowHeight / 2
+        val numDisplays = SDL_GetNumVideoDisplays()
+        if numDisplays <= 0 then return 0
 
-      val numDisplays = SDL_GetNumVideoDisplays()
-      if numDisplays <= 0 then return 0
+        for (i <- 0 until numDisplays) do
+          val displayBounds = stackalloc[SDL_Rect]()
 
-      for (i <- 0 until numDisplays) {
-        val displayBounds = stackalloc[SDL_Rect]()
+          if SDL_GetDisplayBounds(i, displayBounds) == 0 then
+            val monitorRight = displayBounds.x + displayBounds.w
+            val monitorBottom = displayBounds.y + displayBounds.h
 
-        if SDL_GetDisplayBounds(i, displayBounds) == 0 then
-          val monitorRight = displayBounds.x + displayBounds.w
-          val monitorBottom = displayBounds.y + displayBounds.h
+            if windowCenterX >= displayBounds.x && windowCenterX < monitorRight &&
+              windowCenterY >= displayBounds.y && windowCenterY < monitorBottom then break(i)
 
-          if windowCenterX >= displayBounds.x && windowCenterX < monitorRight &&
-            windowCenterY >= displayBounds.y && windowCenterY < monitorBottom then
-            return i
+        break(0) // default to primary monitor
       }
-
-      0 // default to primary monitor
-    }
 
   def monitorWidth(monitor: Int): Int =
     val numDisplays = SDL_GetNumVideoDisplays()
