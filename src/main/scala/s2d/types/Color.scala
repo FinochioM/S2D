@@ -1,4 +1,4 @@
-package S2D.types
+package s2d.types
 
 case class Color(r: Int, g: Int, b: Int, a: Int = 255):
   require(r >= 0 && r <= 255, s"Red component must be 0-255, got $r")

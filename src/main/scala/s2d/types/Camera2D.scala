@@ -1,4 +1,4 @@
-package S2D.types
+package s2d.types
 
 case class Camera2D(
     offset: Vector2,

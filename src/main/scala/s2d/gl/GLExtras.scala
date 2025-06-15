@@ -1,4 +1,4 @@
-package gl
+package s2d.gl
 
 import scalanative.unsafe.*
 import scalanative.unsigned.*

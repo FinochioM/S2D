@@ -1,4 +1,4 @@
-package S2D.types
+package s2d.types
 
 enum BlendMode:
   case Alpha

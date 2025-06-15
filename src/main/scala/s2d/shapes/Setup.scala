@@ -1,6 +1,6 @@
-package S2D.shapes
+package s2d.shapes
 
-import S2D.types.{Rectangle, Texture2D}
+import s2d.types.{Rectangle, Texture2D}
 
 object Setup:
   var shapesTexture: Texture2D = Texture2D(0, 0, 0, 0, 0) // EMPTY TEXTURE

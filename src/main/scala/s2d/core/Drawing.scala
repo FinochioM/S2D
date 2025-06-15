@@ -1,11 +1,11 @@
-package S2D.core
+package s2d.core
 
-import gl.GL.*
-import gl.GLExtras.*
-import S2D.types.*
-import sdl2.SDL.*
-import sdl2.Extras.*
-import S2D.core.Window
+import s2d.gl.GL.*
+import s2d.gl.GLExtras.*
+import s2d.types.*
+import s2d.sdl2.SDL.*
+import s2d.sdl2.Extras.*
+import s2d.core.Window
 import scalanative.unsafe.*
 import scalanative.unsigned.*
 

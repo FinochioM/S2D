@@ -1,11 +1,11 @@
-package S2D.core
+package s2d.core
 
-import S2D.types.*
+import s2d.types.*
 
-import sdl2.SDL.*
-import sdl2.Extras.*
-import gl.GL.*
-import gl.GLExtras.*
+import s2d.sdl2.SDL.*
+import s2d.sdl2.Extras.*
+import s2d.gl.GL.*
+import s2d.gl.GLExtras.*
 import scalanative.unsafe.*
 import scalanative.unsigned.*
 import scala.util.boundary, boundary.break

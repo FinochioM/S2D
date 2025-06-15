@@ -1,4 +1,4 @@
-package S2D.types
+package s2d.types
 
 enum WindowFlag(val value: Int):
   case Resizable extends WindowFlag(0x00000001)

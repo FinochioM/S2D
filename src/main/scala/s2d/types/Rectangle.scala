@@ -1,4 +1,4 @@
-package S2D.types
+package s2d.types
 
 case class Rectangle(x: Float, y: Float, width: Float, height: Float):
   require(width >= 0, s"Width must be non-negative, got $width")

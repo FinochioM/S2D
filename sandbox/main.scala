@@ -1,6 +1,13 @@
-import S2D.core.{Window, Drawing}
-import S2D.shapes.Basics
-import S2D.types.*
+//> using scala 3.3.6
+//> using platform scala-native
+//> using nativeVersion 0.5.8
+//> using scalacOptions -Wconf:msg=indented:silent
+
+package sandbox
+
+import s2d.types.{Camera2D, Color, Rectangle, Vector2}
+import s2d.core.{Window, Drawing}
+import s2d.shapes.Basics
 import scalanative.unsafe.*
 import scalanative.unsigned.*
 

@@ -2,3 +2,4 @@
 //> using platform scala-native
 //> using nativeVersion 0.5.8
 //> using scalacOptions -Wconf:msg=indented:silent
+//> using exclude sandbox/*
