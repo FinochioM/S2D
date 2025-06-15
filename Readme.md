@@ -23,9 +23,9 @@ _NOTE: Take into account that the project is built with Scala-CLI and you will n
 ## Basic Example
 
 ```scala
-import S2D.core.{Drawing, Window}
-import S2D.shapes.Basics
-import S2D.types.*
+import s2d.core.{Drawing, Window}
+import s2d.shapes.Basics
+import s2d.types.*
 
 @main
 def main(): Unit =
