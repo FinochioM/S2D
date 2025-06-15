@@ -32,18 +32,24 @@ case class Rectangle(x: Float, y: Float, width: Float, height: Float):
 
     if newLeft < newRight && newTop < newBottom then
       Some(Rectangle(newLeft, newTop, newRight - newLeft, newBottom - newTop))
-    else
-      None
+    else None
+  end intersection
   def union(other: Rectangle): Rectangle =
     val newLeft = math.min(x, other.x)
     val newTop = math.min(y, other.y)
     val newRight = math.max(right, other.right)
     val newBottom = math.max(bottom, other.bottom)
     Rectangle(newLeft, newTop, newRight - newLeft, newBottom - newTop)
+  end union
   def expand(amount: Float): Rectangle =
     Rectangle(x - amount, y - amount, width + 2 * amount, height + 2 * amount)
   def expand(horizontal: Float, vertical: Float): Rectangle =
-    Rectangle(x - horizontal, y - vertical, width + 2 * horizontal, height + 2 * vertical)
+    Rectangle(
+      x - horizontal,
+      y - vertical,
+      width + 2 * horizontal,
+      height + 2 * vertical
+    )
   def moveTo(newX: Float, newY: Float): Rectangle =
     copy(x = newX, y = newY)
   def moveTo(position: Vector2): Rectangle =
@@ -56,6 +62,7 @@ case class Rectangle(x: Float, y: Float, width: Float, height: Float):
     Rectangle(x, y, width * factor, height * factor)
   def scale(widthFactor: Float, heightFactor: Float): Rectangle =
     Rectangle(x, y, width * widthFactor, height * heightFactor)
+end Rectangle
 
 object Rectangle:
   val Empty = Rectangle(0.0f, 0.0f, 0.0f, 0.0f)
@@ -66,7 +73,14 @@ object Rectangle:
     val right = math.max(point1.x, point2.x)
     val bottom = math.max(point1.y, point2.y)
     Rectangle(left, top, right - left, bottom - top)
+  end fromPoints
   def fromCenter(center: Vector2, size: Vector2): Rectangle =
     Rectangle(center.x - size.x / 2, center.y - size.y / 2, size.x, size.y)
-  def fromCenter(centerX: Float, centerY: Float, width: Float, height: Float): Rectangle =
+  def fromCenter(
+      centerX: Float,
+      centerY: Float,
+      width: Float,
+      height: Float
+  ): Rectangle =
     Rectangle(centerX - width / 2, centerY - height / 2, width, height)
+end Rectangle

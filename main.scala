@@ -15,6 +15,8 @@ def main(): Unit =
     zoom = 1.0f
   )
 
+  val rect = Rectangle(400, 300, 100, 200)
+
   while !Window.shouldCloseWindow() do
     Drawing.beginFrame()
     Drawing.clear(Color.fromHex("#3498DB").getOrElse(Color.Blue))
@@ -34,7 +36,10 @@ def main(): Unit =
     )
     Basics.ellipse(400, 300, 200, 100, Color.Red)
     Basics.ellipseOutlines(400, 300, 200, 100, Color.Red)
+    Basics.rectangle(rect, Color.Red)
      */
+
+    Basics.rectangleRounded(rect, 0.5, 10, Color.Red)
 
     Drawing.endCamera()
     Drawing.endFrame()

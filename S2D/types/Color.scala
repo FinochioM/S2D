@@ -12,7 +12,8 @@ case class Color(r: Int, g: Int, b: Int, a: Int = 255):
   def aNorm: Float = a / 255.0f
 
   def withAlpha(newAlpha: Int): Color = copy(a = newAlpha.max(0).min(255))
-  def withAlpha(newAlpha: Float): Color = copy(a = (newAlpha * 255).toInt.max(0).min(255))
+  def withAlpha(newAlpha: Float): Color =
+    copy(a = (newAlpha * 255).toInt.max(0).min(255))
 
   def lerp(other: Color, t: Float): Color =
     val clampedT = t.max(0.0f).min(1.0f)
@@ -20,8 +21,9 @@ case class Color(r: Int, g: Int, b: Int, a: Int = 255):
       (r + (other.r - r) * clampedT).toInt,
       (g + (other.g - g) * clampedT).toInt,
       (b + (other.b - b) * clampedT).toInt,
-      (a + (other.a - a) * clampedT).toInt,
+      (a + (other.a - a) * clampedT).toInt
     )
+  end lerp
 
   def brighten(factor: Float): Color =
     Color(
@@ -35,6 +37,7 @@ case class Color(r: Int, g: Int, b: Int, a: Int = 255):
 
   def toHex: String = f"#$r%02x$g%02x$b%02x" // Fixed typo: was $g%02x$g%02x
   def toHexWithAlpha: String = f"#$r%02x$g%02x$b%02x$a%02x"
+end Color
 
 object Color:
   val White = Color(255, 255, 255)
@@ -71,5 +74,7 @@ object Color:
           val a = Integer.parseInt(cleanHex.substring(6, 8), 16)
           Some(Color(r, g, b, a))
         case _ => None
-    catch
-      case _: NumberFormatException => None
+    catch case _: NumberFormatException => None
+    end try
+  end fromHex
+end Color

@@ -1,77 +1,73 @@
 package sdl2
 
-import scalanative.unsafe._
-import scalanative.unsigned._
-  
-import SDL._
+import scalanative.unsafe.*
+import scalanative.unsigned.*
 
-object Extras {
+import SDL.*
+
+object Extras:
 
   /*
    * Definitions are ordered according to dependencies among the
    * header files.
    */
 
-  /***************************************
-   ************ SDL_log.h ****************
-   ***************************************/
+  /** ************************************* SDL_log.h ****************
+    */
 
-    /* Start SDL_LogCategory */
-    val SDL_LOG_CATEGORY_APPLICATION = 0
-    val SDL_LOG_CATEGORY_ERROR = 1
-    val SDL_LOG_CATEGORY_ASSERT = 2
-    val SDL_LOG_CATEGORY_SYSTEM = 3
-    val SDL_LOG_CATEGORY_AUDIO = 4
-    val SDL_LOG_CATEGORY_VIDEO = 5
-    val SDL_LOG_CATEGORY_RENDER = 6
-    val SDL_LOG_CATEGORY_INPUT = 7
-    val SDL_LOG_CATEGORY_TEST = 8
-    /* End SDL_LogCategory */
+  /* Start SDL_LogCategory */
+  val SDL_LOG_CATEGORY_APPLICATION = 0
+  val SDL_LOG_CATEGORY_ERROR = 1
+  val SDL_LOG_CATEGORY_ASSERT = 2
+  val SDL_LOG_CATEGORY_SYSTEM = 3
+  val SDL_LOG_CATEGORY_AUDIO = 4
+  val SDL_LOG_CATEGORY_VIDEO = 5
+  val SDL_LOG_CATEGORY_RENDER = 6
+  val SDL_LOG_CATEGORY_INPUT = 7
+  val SDL_LOG_CATEGORY_TEST = 8
+  /* End SDL_LogCategory */
 
-    /* Start SDL_LogPriority */
-    val SDL_LOG_PRIORITY_VERBOSE = 1
-    val SDL_LOG_PRIORITY_DEBUG = 2
-    val SDL_LOG_PRIORITY_INFO = 3
-    val SDL_LOG_PRIORITY_WARN = 4
-    val SDL_LOG_PRIORITY_ERROR = 5
-    val SDL_LOG_PRIORITY_CRITICAL = 6
-    /* End SDL_LogPriority */
+  /* Start SDL_LogPriority */
+  val SDL_LOG_PRIORITY_VERBOSE = 1
+  val SDL_LOG_PRIORITY_DEBUG = 2
+  val SDL_LOG_PRIORITY_INFO = 3
+  val SDL_LOG_PRIORITY_WARN = 4
+  val SDL_LOG_PRIORITY_ERROR = 5
+  val SDL_LOG_PRIORITY_CRITICAL = 6
+  /* End SDL_LogPriority */
 
-  /***************************************
-   ************ SDL_error_c.h *************
-   ***************************************/
+  /** ************************************* SDL_error_c.h *************
+    */
 
-  implicit class SDL_errorOps(val self: Ptr[SDL_error]) extends AnyVal {
+  implicit class SDL_errorOps(val self: Ptr[SDL_error]) extends AnyVal:
     def error: CInt = self._1
     def str: CString = self._2.asInstanceOf[CString]
 
     def error_=(v: CInt): Unit = self._1 = v
     // def str: CString = self._2.asInstanceOf[CString]
-  }
+  end SDL_errorOps
 
-  /***************************************
-   ************ SDL_stdinc.h *************
-   ***************************************/
+  /** ************************************* SDL_stdinc.h *************
+    */
 
-  //def SDL_reinterpret_cast[A,B](expression: A): B = expression.asInstanceOf[B]
-  //def SDL_static_cast[A,B](expression: A): B = expression.asInstanceOf[B]
-  //def SDL_const_cast[A,B](expression: A): B = expression.asInstanceOf[B]
+  // def SDL_reinterpret_cast[A,B](expression: A): B = expression.asInstanceOf[B]
+  // def SDL_static_cast[A,B](expression: A): B = expression.asInstanceOf[B]
+  // def SDL_const_cast[A,B](expression: A): B = expression.asInstanceOf[B]
 
-/* Define a four character code as a Uint32 */
+  /* Define a four character code as a Uint32 */
   def SDL_FOURCC(a: CChar, b: CChar, c: CChar, d: CChar): UInt =
-    (a.toUByte << 0 ).toUInt |
-    (b.toUByte << 8 ).toUInt |
-    (c.toUByte << 16).toUInt |
-    (d.toUByte << 24).toUInt
+    (a.toUByte << 0).toUInt |
+      (b.toUByte << 8).toUInt |
+      (c.toUByte << 16).toUInt |
+      (d.toUByte << 24).toUInt
 
   /* Start SDL_bool */
   val SDL_FALSE = 0.toUInt
-  val SDL_TRUE  = 1.toUInt
+  val SDL_TRUE = 1.toUInt
   /* End SDL_bool */
 
-  /**************************************
-   ************ SDL_error.h *************
-   **************************************/
+  /** ************************************ SDL_error.h *************
+    */
 
   /* Start enum SDL_errorcode */
   val SDL_ENOMEM: UInt = 0.toUInt
@@ -81,7 +77,7 @@ object Extras {
   val SDL_UNSUPPORTED: UInt = 4.toUInt
   val SDL_LASTERROR: UInt = 5.toUInt
   /* End enum SDL_errorcode */
-/*
+  /*
   def SDL_SetError(fmt: CString, args: CVarArg*): CInt = Zone { implicit z =>
     import SDL._
     val ERR_MAX_STRLEN = 128.toULong
@@ -102,26 +98,23 @@ object Extras {
 
     return -1;
   }
-*/
+   */
   def SDL_OutOfMemory(): CInt = SDL_Error(SDL_ENOMEM)
   def SDL_Unsupported(): CInt = SDL_Error(SDL_UNSUPPORTED)
   // def SDL_InvalidParamError(param: CString): CInt = SDL_SetError(c"Parameter '%s' is invalid", param)
 
+  /** ************************************ SDL_atomic.h *************
+    */
 
-  /**************************************
-   *********** SDL_atomic.h *************
-   **************************************/
-
-  implicit class SDL_atomic_tOps(val self: Ptr[SDL_atomic_t]) extends AnyVal {
+  implicit class SDL_atomic_tOps(val self: Ptr[SDL_atomic_t]) extends AnyVal:
     def value: CInt = self._1
-  }
 
   def SDL_AtomicIncRef(a: Ptr[SDL_atomic_t]): CInt = SDL_AtomicAdd(a, 1)
-  def SDL_AtomicDecRef(a: Ptr[SDL_atomic_t]): SDL_bool = if(SDL_AtomicAdd(a, -1) == 1) SDL_TRUE else SDL_FALSE
+  def SDL_AtomicDecRef(a: Ptr[SDL_atomic_t]): SDL_bool =
+    if SDL_AtomicAdd(a, -1) == 1 then SDL_TRUE else SDL_FALSE
 
-  /**************************************
-   ************ SDL_mutex.h *************
-   **************************************/
+  /** ************************************ SDL_mutex.h *************
+    */
 
   val SDL_MUTEX_TIMEDOUT: CInt = 1
   val SDL_MUTEX_MAXWAIT: UInt = ~(0.toUInt)
@@ -129,9 +122,8 @@ object Extras {
   def SDL_mutexP(m: Ptr[SDL_mutex]): CInt = SDL_LockMutex(m)
   def SDL_mutexV(m: Ptr[SDL_mutex]): CInt = SDL_UnlockMutex(m)
 
-  /**************************************
-   *********** SDL_thread.h *************
-   **************************************/
+  /** ************************************ SDL_thread.h *************
+    */
 
   /* Start enum SDL_ThreadPriority */
   val SDL_THREAD_PRIORITY_LOW: CInt = 0
@@ -139,9 +131,8 @@ object Extras {
   val SDL_THREAD_PRIORITY_HIGH: CInt = 2
   /* End enum SDL_ThreadPriority */
 
-  /**************************************
-   ************ SDL_rwops.h *************
-   **************************************/
+  /** ************************************ SDL_rwops.h *************
+    */
 
   val SDL_RWOPS_UNKNOWN: UByte = 0.toUByte
   val SDL_RWOPS_WINFILE: UByte = 1.toUByte
@@ -150,25 +141,23 @@ object Extras {
   val SDL_RWOPS_MEMORY: UByte = 4.toUByte
   val SDL_RWOPS_MEMORY_RO: UByte = 5.toUByte
 
-  //TODO
-  //implicit class SDL_RWopsOps(val self: Ptr[SDL_RWops]) extends AnyVal
-  
+  // TODO
+  // implicit class SDL_RWopsOps(val self: Ptr[SDL_RWops]) extends AnyVal
+
   val RW_SEEK_SET: UByte = 0.toUByte
   val RW_SEEK_CUR: UByte = 1.toUByte
   val RW_SEEK_END: UByte = 2.toUByte
 
-  //TODO: macros with exact rwops structure
-  //#define SDL_RWsize(ctx)         (ctx)->size(ctx)
-  //#define SDL_RWseek(ctx, offset, whence) (ctx)->seek(ctx, offset, whence)
-  //#define SDL_RWtell(ctx)         (ctx)->seek(ctx, 0, RW_SEEK_CUR)
-  //#define SDL_RWread(ctx, ptr, size, n)   (ctx)->read(ctx, ptr, size, n)
-  //#define SDL_RWwrite(ctx, ptr, size, n)  (ctx)->write(ctx, ptr, size, n)
-  //#define SDL_RWclose(ctx)        (ctx)->close(ctx)
+  // TODO: macros with exact rwops structure
+  // #define SDL_RWsize(ctx)         (ctx)->size(ctx)
+  // #define SDL_RWseek(ctx, offset, whence) (ctx)->seek(ctx, offset, whence)
+  // #define SDL_RWtell(ctx)         (ctx)->seek(ctx, 0, RW_SEEK_CUR)
+  // #define SDL_RWread(ctx, ptr, size, n)   (ctx)->read(ctx, ptr, size, n)
+  // #define SDL_RWwrite(ctx, ptr, size, n)  (ctx)->write(ctx, ptr, size, n)
+  // #define SDL_RWclose(ctx)        (ctx)->close(ctx)
 
-
-  /**************************************
-   ********** SDL_blendmode.h ***********
-   **************************************/
+  /** ************************************ SDL_blendmode.h ***********
+    */
 
   /* Start enum SDL_BlendMode */
   val SDL_BLENDMODE_NONE: UInt = 0x00000000.toUInt
@@ -176,22 +165,21 @@ object Extras {
   val SDL_BLENDMODE_ADD: UInt = 0x00000002.toUInt
   val SDL_BLENDMODE_MOD: UInt = 0x00000004.toUInt
   /* End enum SDL_BlendMode */
- 
-  /***************************************
-   ************ SDL_pixels.h *************
-   ***************************************/
+
+  /** ************************************* SDL_pixels.h *************
+    */
 
   val SDL_ALPHA_OPAQUE: UByte = 255.toUByte
   val SDL_ALPHA_TRANSPARENT: UByte = 0.toUByte
 
-  val SDL_PIXELTYPE_UNKNOWN: UByte =  0.toUByte
-  val SDL_PIXELTYPE_INDEX1: UByte =   1.toUByte
-  val SDL_PIXELTYPE_INDEX4: UByte =   2.toUByte
-  val SDL_PIXELTYPE_INDEX8: UByte =   3.toUByte
-  val SDL_PIXELTYPE_PACKED8: UByte =  4.toUByte
+  val SDL_PIXELTYPE_UNKNOWN: UByte = 0.toUByte
+  val SDL_PIXELTYPE_INDEX1: UByte = 1.toUByte
+  val SDL_PIXELTYPE_INDEX4: UByte = 2.toUByte
+  val SDL_PIXELTYPE_INDEX8: UByte = 3.toUByte
+  val SDL_PIXELTYPE_PACKED8: UByte = 4.toUByte
   val SDL_PIXELTYPE_PACKED16: UByte = 5.toUByte
   val SDL_PIXELTYPE_PACKED32: UByte = 6.toUByte
-  val SDL_PIXELTYPE_ARRAYU8: UByte =  7.toUByte
+  val SDL_PIXELTYPE_ARRAYU8: UByte = 7.toUByte
   val SDL_PIXELTYPE_ARRAYU16: UByte = 8.toUByte
   val SDL_PIXELTYPE_ARRAYU32: UByte = 9.toUByte
   val SDL_PIXELTYPE_ARRAYF16: UByte = 10.toUByte
@@ -229,134 +217,325 @@ object Extras {
   val SDL_PACKEDLAYOUT_2101010: UByte = 7.toUByte
   val SDL_PACKEDLAYOUT_1010102: UByte = 8.toUByte
 
-  def SDL_DEFINE_PIXELFOURCC(a: CChar, b: CChar, c: CChar, d: CChar): UInt = SDL_FOURCC(a, b, c, d)
+  def SDL_DEFINE_PIXELFOURCC(a: CChar, b: CChar, c: CChar, d: CChar): UInt =
+    SDL_FOURCC(a, b, c, d)
 
-  def SDL_DEFINE_PIXELFORMAT(type_ : UByte, order: UByte, layout: UByte, bits: UByte, bytes: UByte): UInt =
+  def SDL_DEFINE_PIXELFORMAT(
+      type_ : UByte,
+      order: UByte,
+      layout: UByte,
+      bits: UByte,
+      bytes: UByte
+  ): UInt =
     ((1 << 28).toUInt | (type_ << 24) | (order << 20) | (layout << 16) | (bits << 8) | (bytes << 0)).toUInt
 
-  def SDL_PIXELFLAG(format: UInt): UByte = ((format.toInt >> 28) & 0x0F).toUByte
-  def SDL_PIXELTYPE(format: UInt): UByte = ((format.toInt >> 24) & 0x0F).toUByte
-  def SDL_PIXELORDER(format: UInt): UByte = ((format.toInt >> 20) & 0x0F).toUByte
-  def SDL_PIXELLAYOUT(format: UInt): UByte = ((format.toInt >> 16) & 0x0F).toUByte
-  def SDL_BITSPERPIXEL(format: UInt): UByte = ((format.toInt >> 8) & 0xFF).toUByte
+  def SDL_PIXELFLAG(format: UInt): UByte = ((format.toInt >> 28) & 0x0f).toUByte
+  def SDL_PIXELTYPE(format: UInt): UByte = ((format.toInt >> 24) & 0x0f).toUByte
+  def SDL_PIXELORDER(format: UInt): UByte =
+    ((format.toInt >> 20) & 0x0f).toUByte
+  def SDL_PIXELLAYOUT(format: UInt): UByte =
+    ((format.toInt >> 16) & 0x0f).toUByte
+  def SDL_BITSPERPIXEL(format: UInt): UByte =
+    ((format.toInt >> 8) & 0xff).toUByte
   def SDL_BYTESPERPIXEL(format: UInt): UByte =
-    if(SDL_ISPIXELFORMAT_FOURCC(format)) {
-      if(format == SDL_PIXELFORMAT_YUY2 || format == SDL_PIXELFORMAT_UYVY || format == SDL_PIXELFORMAT_YVYU)
-        2.toUByte
-      else 
-        1.toUByte
-    } else ((format >> 0).toInt & 0xFF).toUByte
+    if SDL_ISPIXELFORMAT_FOURCC(format) then
+      if format == SDL_PIXELFORMAT_YUY2 || format == SDL_PIXELFORMAT_UYVY || format == SDL_PIXELFORMAT_YVYU
+      then 2.toUByte
+      else 1.toUByte
+    else ((format >> 0).toInt & 0xff).toUByte
 
   def SDL_ISPIXELFORMAT_INDEXED(format: UInt): Boolean =
-    SDL_ISPIXELFORMAT_FOURCC(format) && (
-      (SDL_PIXELTYPE(format) == SDL_PIXELTYPE_INDEX1) ||
+    SDL_ISPIXELFORMAT_FOURCC(format) && ((SDL_PIXELTYPE(
+      format
+    ) == SDL_PIXELTYPE_INDEX1) ||
       (SDL_PIXELTYPE(format) == SDL_PIXELTYPE_INDEX4) ||
       (SDL_PIXELTYPE(format) == SDL_PIXELTYPE_INDEX8))
 
   def SDL_ISPIXELFORMAT_ALPHA(format: UInt): Boolean =
-    !SDL_ISPIXELFORMAT_FOURCC(format) && (
-      (SDL_PIXELORDER(format) == SDL_PACKEDORDER_ARGB) ||
+    !SDL_ISPIXELFORMAT_FOURCC(format) && ((SDL_PIXELORDER(
+      format
+    ) == SDL_PACKEDORDER_ARGB) ||
       (SDL_PIXELORDER(format) == SDL_PACKEDORDER_RGBA) ||
       (SDL_PIXELORDER(format) == SDL_PACKEDORDER_ABGR) ||
       (SDL_PIXELORDER(format) == SDL_PACKEDORDER_BGRA))
 
-  def SDL_ISPIXELFORMAT_FOURCC(format: UInt): Boolean = (format != 0.toUInt) && (SDL_PIXELFLAG(format) != 1.toUByte)
+  def SDL_ISPIXELFORMAT_FOURCC(format: UInt): Boolean =
+    (format != 0.toUInt) && (SDL_PIXELFLAG(format) != 1.toUByte)
 
   /* Begin PIXELFORMAT (anonymous) enum */
   val SDL_PIXELFORMAT_UNKNOWN: UInt = 0.toUInt
   val SDL_PIXELFORMAT_INDEX1LSB: UInt =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_INDEX1, SDL_BITMAPORDER_4321, 0.toUByte, 1.toUByte, 0.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_INDEX1,
+      SDL_BITMAPORDER_4321,
+      0.toUByte,
+      1.toUByte,
+      0.toUByte
+    )
   val SDL_PIXELFORMAT_INDEX1MSB: UInt =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_INDEX1, SDL_BITMAPORDER_1234, 0.toUByte, 1.toUByte, 0.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_INDEX1,
+      SDL_BITMAPORDER_1234,
+      0.toUByte,
+      1.toUByte,
+      0.toUByte
+    )
   val SDL_PIXELFORMAT_INDEX4LSB: UInt =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_INDEX4, SDL_BITMAPORDER_4321, 0.toUByte, 4.toUByte, 0.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_INDEX4,
+      SDL_BITMAPORDER_4321,
+      0.toUByte,
+      4.toUByte,
+      0.toUByte
+    )
   val SDL_PIXELFORMAT_INDEX4MSB: UInt =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_INDEX4, SDL_BITMAPORDER_1234, 0.toUByte, 4.toUByte, 0.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_INDEX4,
+      SDL_BITMAPORDER_1234,
+      0.toUByte,
+      4.toUByte,
+      0.toUByte
+    )
   val SDL_PIXELFORMAT_INDEX8: UInt =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_INDEX8, 0.toUByte, 0.toUByte, 8.toUByte, 1.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_INDEX8,
+      0.toUByte,
+      0.toUByte,
+      8.toUByte,
+      1.toUByte
+    )
   val SDL_PIXELFORMAT_RGB332: UInt =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_PACKED8, SDL_PACKEDORDER_XRGB, SDL_PACKEDLAYOUT_332, 8.toUByte, 1.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_PACKED8,
+      SDL_PACKEDORDER_XRGB,
+      SDL_PACKEDLAYOUT_332,
+      8.toUByte,
+      1.toUByte
+    )
   val SDL_PIXELFORMAT_RGB444: UInt =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_PACKED16, SDL_PACKEDORDER_XRGB, SDL_PACKEDLAYOUT_4444, 12.toUByte, 2.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_PACKED16,
+      SDL_PACKEDORDER_XRGB,
+      SDL_PACKEDLAYOUT_4444,
+      12.toUByte,
+      2.toUByte
+    )
   val SDL_PIXELFORMAT_RGB555: UInt =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_PACKED16, SDL_PACKEDORDER_XRGB, SDL_PACKEDLAYOUT_1555, 15.toUByte, 2.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_PACKED16,
+      SDL_PACKEDORDER_XRGB,
+      SDL_PACKEDLAYOUT_1555,
+      15.toUByte,
+      2.toUByte
+    )
   val SDL_PIXELFORMAT_BGR555: UInt =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_PACKED16, SDL_PACKEDORDER_XBGR, SDL_PACKEDLAYOUT_1555, 15.toUByte, 2.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_PACKED16,
+      SDL_PACKEDORDER_XBGR,
+      SDL_PACKEDLAYOUT_1555,
+      15.toUByte,
+      2.toUByte
+    )
   val SDL_PIXELFORMAT_ARGB4444: UInt =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_PACKED16, SDL_PACKEDORDER_ARGB, SDL_PACKEDLAYOUT_4444, 16.toUByte, 2.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_PACKED16,
+      SDL_PACKEDORDER_ARGB,
+      SDL_PACKEDLAYOUT_4444,
+      16.toUByte,
+      2.toUByte
+    )
   val SDL_PIXELFORMAT_RGBA4444: UInt =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_PACKED16, SDL_PACKEDORDER_RGBA, SDL_PACKEDLAYOUT_4444, 16.toUByte, 2.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_PACKED16,
+      SDL_PACKEDORDER_RGBA,
+      SDL_PACKEDLAYOUT_4444,
+      16.toUByte,
+      2.toUByte
+    )
   val SDL_PIXELFORMAT_ABGR4444 =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_PACKED16, SDL_PACKEDORDER_ABGR, SDL_PACKEDLAYOUT_4444, 16.toUByte, 2.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_PACKED16,
+      SDL_PACKEDORDER_ABGR,
+      SDL_PACKEDLAYOUT_4444,
+      16.toUByte,
+      2.toUByte
+    )
   val SDL_PIXELFORMAT_BGRA4444 =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_PACKED16, SDL_PACKEDORDER_BGRA, SDL_PACKEDLAYOUT_4444, 16.toUByte, 2.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_PACKED16,
+      SDL_PACKEDORDER_BGRA,
+      SDL_PACKEDLAYOUT_4444,
+      16.toUByte,
+      2.toUByte
+    )
   val SDL_PIXELFORMAT_ARGB1555: UInt =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_PACKED16, SDL_PACKEDORDER_ARGB, SDL_PACKEDLAYOUT_4444, 16.toUByte, 2.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_PACKED16,
+      SDL_PACKEDORDER_ARGB,
+      SDL_PACKEDLAYOUT_4444,
+      16.toUByte,
+      2.toUByte
+    )
   val SDL_PIXELFORMAT_RGBA5551: UInt =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_PACKED16, SDL_PACKEDORDER_RGBA, SDL_PACKEDLAYOUT_5551, 16.toUByte, 2.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_PACKED16,
+      SDL_PACKEDORDER_RGBA,
+      SDL_PACKEDLAYOUT_5551,
+      16.toUByte,
+      2.toUByte
+    )
   val SDL_PIXELFORMAT_ABGR1555: UInt =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_PACKED16, SDL_PACKEDORDER_ABGR, SDL_PACKEDLAYOUT_1555, 16.toUByte, 2.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_PACKED16,
+      SDL_PACKEDORDER_ABGR,
+      SDL_PACKEDLAYOUT_1555,
+      16.toUByte,
+      2.toUByte
+    )
   val SDL_PIXELFORMAT_BGRA5551: UInt =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_PACKED16, SDL_PACKEDORDER_BGRA, SDL_PACKEDLAYOUT_5551, 16.toUByte, 2.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_PACKED16,
+      SDL_PACKEDORDER_BGRA,
+      SDL_PACKEDLAYOUT_5551,
+      16.toUByte,
+      2.toUByte
+    )
   val SDL_PIXELFORMAT_RGB565: UInt =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_PACKED16, SDL_PACKEDORDER_XRGB, SDL_PACKEDLAYOUT_565, 16.toUByte, 2.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_PACKED16,
+      SDL_PACKEDORDER_XRGB,
+      SDL_PACKEDLAYOUT_565,
+      16.toUByte,
+      2.toUByte
+    )
   val SDL_PIXELFORMAT_BGR565: UInt =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_PACKED16, SDL_PACKEDORDER_XBGR, SDL_PACKEDLAYOUT_565, 16.toUByte, 2.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_PACKED16,
+      SDL_PACKEDORDER_XBGR,
+      SDL_PACKEDLAYOUT_565,
+      16.toUByte,
+      2.toUByte
+    )
   val SDL_PIXELFORMAT_RGB24: UInt =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_ARRAYU8, SDL_ARRAYORDER_RGB, 0.toUByte, 24.toUByte, 3.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_ARRAYU8,
+      SDL_ARRAYORDER_RGB,
+      0.toUByte,
+      24.toUByte,
+      3.toUByte
+    )
   val SDL_PIXELFORMAT_BGR24: UInt =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_ARRAYU8, SDL_ARRAYORDER_BGR, 0.toUByte, 24.toUByte, 3.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_ARRAYU8,
+      SDL_ARRAYORDER_BGR,
+      0.toUByte,
+      24.toUByte,
+      3.toUByte
+    )
   val SDL_PIXELFORMAT_RGB888: UInt =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_PACKED32, SDL_PACKEDORDER_XRGB, SDL_PACKEDLAYOUT_8888, 24.toUByte, 4.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_PACKED32,
+      SDL_PACKEDORDER_XRGB,
+      SDL_PACKEDLAYOUT_8888,
+      24.toUByte,
+      4.toUByte
+    )
   val SDL_PIXELFORMAT_RGBX8888: UInt =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_PACKED32, SDL_PACKEDORDER_RGBX, SDL_PACKEDLAYOUT_8888, 24.toUByte, 4.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_PACKED32,
+      SDL_PACKEDORDER_RGBX,
+      SDL_PACKEDLAYOUT_8888,
+      24.toUByte,
+      4.toUByte
+    )
   val SDL_PIXELFORMAT_BGR888: UInt =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_PACKED32, SDL_PACKEDORDER_XBGR, SDL_PACKEDLAYOUT_8888, 24.toUByte, 4.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_PACKED32,
+      SDL_PACKEDORDER_XBGR,
+      SDL_PACKEDLAYOUT_8888,
+      24.toUByte,
+      4.toUByte
+    )
   val SDL_PIXELFORMAT_BGRX8888: UInt =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_PACKED32, SDL_PACKEDORDER_BGRX, SDL_PACKEDLAYOUT_8888, 24.toUByte, 4.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_PACKED32,
+      SDL_PACKEDORDER_BGRX,
+      SDL_PACKEDLAYOUT_8888,
+      24.toUByte,
+      4.toUByte
+    )
   val SDL_PIXELFORMAT_ARGB8888: UInt =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_PACKED32, SDL_PACKEDORDER_ARGB, SDL_PACKEDLAYOUT_8888, 32.toUByte, 4.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_PACKED32,
+      SDL_PACKEDORDER_ARGB,
+      SDL_PACKEDLAYOUT_8888,
+      32.toUByte,
+      4.toUByte
+    )
   val SDL_PIXELFORMAT_RGBA8888: UInt =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_PACKED32, SDL_PACKEDORDER_RGBA, SDL_PACKEDLAYOUT_8888, 32.toUByte, 4.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_PACKED32,
+      SDL_PACKEDORDER_RGBA,
+      SDL_PACKEDLAYOUT_8888,
+      32.toUByte,
+      4.toUByte
+    )
   val SDL_PIXELFORMAT_ABGR8888: UInt =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_PACKED32, SDL_PACKEDORDER_ABGR, SDL_PACKEDLAYOUT_8888, 32.toUByte, 4.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_PACKED32,
+      SDL_PACKEDORDER_ABGR,
+      SDL_PACKEDLAYOUT_8888,
+      32.toUByte,
+      4.toUByte
+    )
   val SDL_PIXELFORMAT_BGRA8888: UInt =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_PACKED32, SDL_PACKEDORDER_BGRA, SDL_PACKEDLAYOUT_8888, 32.toUByte, 4.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_PACKED32,
+      SDL_PACKEDORDER_BGRA,
+      SDL_PACKEDLAYOUT_8888,
+      32.toUByte,
+      4.toUByte
+    )
   val SDL_PIXELFORMAT_ARGB2101010: UInt =
-        SDL_DEFINE_PIXELFORMAT(SDL_PIXELTYPE_PACKED32, SDL_PACKEDORDER_ARGB, SDL_PACKEDLAYOUT_2101010, 32.toUByte, 4.toUByte)
+    SDL_DEFINE_PIXELFORMAT(
+      SDL_PIXELTYPE_PACKED32,
+      SDL_PACKEDORDER_ARGB,
+      SDL_PACKEDLAYOUT_2101010,
+      32.toUByte,
+      4.toUByte
+    )
 
-  val SDL_PIXELFORMAT_YV12: UInt =  SDL_DEFINE_PIXELFOURCC('Y', 'V', '1', '2')
+  val SDL_PIXELFORMAT_YV12: UInt = SDL_DEFINE_PIXELFOURCC('Y', 'V', '1', '2')
   val SDL_PIXELFORMAT_IYUV: UInt = SDL_DEFINE_PIXELFOURCC('I', 'Y', 'U', 'V')
   val SDL_PIXELFORMAT_YUY2: UInt = SDL_DEFINE_PIXELFOURCC('Y', 'U', 'Y', '2')
   val SDL_PIXELFORMAT_UYVY: UInt = SDL_DEFINE_PIXELFOURCC('U', 'Y', 'V', 'Y')
   val SDL_PIXELFORMAT_YVYU: UInt = SDL_DEFINE_PIXELFOURCC('Y', 'V', 'Y', 'U')
   /* End PIXELFORMAT (anonymous) enum */
 
-  def SDL_Color(r: UByte, g: UByte, b: UByte, a: UByte): UInt = {
+  def SDL_Color(r: UByte, g: UByte, b: UByte, a: UByte): UInt =
     // TODO: I assume little-endianness, but what happen when this is not?
-    (a<<24) | (b<<16) | (g<<8) | r
-  }
+    (a << 24) | (b << 16) | (g << 8) | r
 
-  implicit class SDL_ColorOps(val self: Ptr[SDL_Color]) extends AnyVal {
-    def init(r: UByte, g: UByte, b: UByte, a: UByte): Ptr[SDL_Color] = {
+  implicit class SDL_ColorOps(val self: Ptr[SDL_Color]) extends AnyVal:
+    def init(r: UByte, g: UByte, b: UByte, a: UByte): Ptr[SDL_Color] =
       !(self) = SDL_Color(r, g, b, a)
       self
-    }
-    def r: UByte = ((!self)&0xFF.toUInt).toUByte
-    def g: UByte = (((!self)>>8)&0xFF.toUInt).toUByte
-    def b: UByte = (((!self)>>16)&0xFF.toUInt).toUByte
-    def a: UByte = (((!self)>>24)&0xFF.toUInt).toUByte
-  }
+    def r: UByte = ((!self) & 0xff.toUInt).toUByte
+    def g: UByte = (((!self) >> 8) & 0xff.toUInt).toUByte
+    def b: UByte = (((!self) >> 16) & 0xff.toUInt).toUByte
+    def a: UByte = (((!self) >> 24) & 0xff.toUInt).toUByte
+  end SDL_ColorOps
   type SDL_Colour = SDL_Color
 
-  implicit class SDL_PaletteOps(val self: Ptr[SDL_Palette]) extends AnyVal {
+  implicit class SDL_PaletteOps(val self: Ptr[SDL_Palette]) extends AnyVal:
     def ncolors: CInt = self._1
     def colors: Ptr[SDL_Color] = self._2
     def version: UInt = self._3
     def refcount: CInt = self._4
-  }
+  end SDL_PaletteOps
 
-  implicit class SDL_PixelFormatOps(val self: Ptr[SDL_PixelFormat]) extends AnyVal {
+  implicit class SDL_PixelFormatOps(val self: Ptr[SDL_PixelFormat])
+      extends AnyVal:
     def format: UInt = self._1
     def palette: Ptr[SDL_Palette] = self._2
     def BitsPerPixel: UByte = self._3
@@ -376,96 +555,96 @@ object Extras {
     def Ashift: UByte = self._17
     def refcount: CInt = self._18
     def next: Ptr[SDL_PixelFormat] = self._19.asInstanceOf[Ptr[SDL_PixelFormat]]
-  }
+  end SDL_PixelFormatOps
 
-  /**************************************
-   ************ SDL_events.h ************
-   **************************************/
+  /** ************************************ SDL_events.h ************
+    */
 
   val SDL_RELEASED: UByte = 0.toUByte
   val SDL_PRESSED: UByte = 1.toUByte
 
   /* Start SDL_EventType */
-  val SDL_FIRSTEVENT               = 0.toUInt
+  val SDL_FIRSTEVENT = 0.toUInt
 
   /* Application events */
-  val SDL_QUIT                     = 0x100.toUInt
-  val SDL_APP_TERMINATING          = (0x100 + 1).toUInt
-  val SDL_APP_LOWMEMORY            = (0x100 + 2).toUInt
-  val SDL_APP_WILLENTERBACKGROUND  = (0x100 + 3).toUInt
-  val SDL_APP_DIDENTERBACKGROUND   = (0x100 + 4).toUInt
-  val SDL_APP_WILLENTERFOREGROUND  = (0x100 + 5).toUInt
-  val SDL_APP_DIDENTERFOREGROUND   = (0x100 + 6).toUInt
+  val SDL_QUIT = 0x100.toUInt
+  val SDL_APP_TERMINATING = (0x100 + 1).toUInt
+  val SDL_APP_LOWMEMORY = (0x100 + 2).toUInt
+  val SDL_APP_WILLENTERBACKGROUND = (0x100 + 3).toUInt
+  val SDL_APP_DIDENTERBACKGROUND = (0x100 + 4).toUInt
+  val SDL_APP_WILLENTERFOREGROUND = (0x100 + 5).toUInt
+  val SDL_APP_DIDENTERFOREGROUND = (0x100 + 6).toUInt
 
   /* Window events */
-  val SDL_WINDOWEVENT              = 0x200.toUInt
-  val SDL_SYSWMEVENT               = (0x200 + 1).toUInt
+  val SDL_WINDOWEVENT = 0x200.toUInt
+  val SDL_SYSWMEVENT = (0x200 + 1).toUInt
 
   /* Keyboard events */
-  val SDL_KEYDOWN                  = 0x300.toUInt
-  val SDL_KEYUP                    = (0x300 + 1).toUInt
-  val SDL_TEXTEDITING              = (0x300 + 2).toUInt
-  val SDL_TEXTINPUT                = (0x300 + 3).toUInt
-  val SDL_KEYMAPCHANGED            = (0x300 + 4).toUInt
+  val SDL_KEYDOWN = 0x300.toUInt
+  val SDL_KEYUP = (0x300 + 1).toUInt
+  val SDL_TEXTEDITING = (0x300 + 2).toUInt
+  val SDL_TEXTINPUT = (0x300 + 3).toUInt
+  val SDL_KEYMAPCHANGED = (0x300 + 4).toUInt
 
   /* Mouse events */
-  val SDL_MOUSEMOTION              = 0x400.toUInt
-  val SDL_MOUSEBUTTONDOWN          = (0x400 + 1).toUInt
-  val SDL_MOUSEBUTTONUP            = (0x400 + 2).toUInt
-  val SDL_MOUSEWHEEL               = (0x400 + 3).toUInt
+  val SDL_MOUSEMOTION = 0x400.toUInt
+  val SDL_MOUSEBUTTONDOWN = (0x400 + 1).toUInt
+  val SDL_MOUSEBUTTONUP = (0x400 + 2).toUInt
+  val SDL_MOUSEWHEEL = (0x400 + 3).toUInt
 
   /* Joystick events */
-  val SDL_JOYAXISMOTION            = 0x600.toUInt
-  val SDL_JOYBALLMOTION            = (0x600 + 1).toUInt
-  val SDL_JOYHATMOTION             = (0x600 + 2).toUInt
-  val SDL_JOYBUTTONDOWN            = (0x600 + 3).toUInt
-  val SDL_JOYBUTTONUP              = (0x600 + 4).toUInt
-  val SDL_JOYDEVICEADDED           = (0x600 + 5).toUInt
-  val SDL_JOYDEVICEREMOVED         = (0x600 + 6).toUInt
+  val SDL_JOYAXISMOTION = 0x600.toUInt
+  val SDL_JOYBALLMOTION = (0x600 + 1).toUInt
+  val SDL_JOYHATMOTION = (0x600 + 2).toUInt
+  val SDL_JOYBUTTONDOWN = (0x600 + 3).toUInt
+  val SDL_JOYBUTTONUP = (0x600 + 4).toUInt
+  val SDL_JOYDEVICEADDED = (0x600 + 5).toUInt
+  val SDL_JOYDEVICEREMOVED = (0x600 + 6).toUInt
 
   /* Game controller events */
-  val SDL_CONTROLLERAXISMOTION     = 0x650.toUInt
-  val SDL_CONTROLLERBUTTONDOWN     = (0x650 + 1).toUInt
-  val SDL_CONTROLLERBUTTONUP       = (0x650 + 2).toUInt
-  val SDL_CONTROLLERDEVICEADDED    = (0x650 + 3).toUInt
-  val SDL_CONTROLLERDEVICEREMOVED  = (0x650 + 4).toUInt
+  val SDL_CONTROLLERAXISMOTION = 0x650.toUInt
+  val SDL_CONTROLLERBUTTONDOWN = (0x650 + 1).toUInt
+  val SDL_CONTROLLERBUTTONUP = (0x650 + 2).toUInt
+  val SDL_CONTROLLERDEVICEADDED = (0x650 + 3).toUInt
+  val SDL_CONTROLLERDEVICEREMOVED = (0x650 + 4).toUInt
   val SDL_CONTROLLERDEVICEREMAPPED = (0x650 + 5).toUInt
 
   /* Touch events */
-  val SDL_FINGERDOWN               = 0x700.toUInt
-  val SDL_FINGERUP                 = (0x700 + 1).toUInt
-  val SDL_FINGERMOTION             = (0x700 + 2).toUInt
+  val SDL_FINGERDOWN = 0x700.toUInt
+  val SDL_FINGERUP = (0x700 + 1).toUInt
+  val SDL_FINGERMOTION = (0x700 + 2).toUInt
 
   /* Gesture events */
-  val SDL_DOLLARGESTURE            = 0x800.toUInt
-  val SDL_DOLLARRECORD             = (0x800 + 1).toUInt
-  val SDL_MULTIGESTURE             = (0x800 + 2).toUInt
+  val SDL_DOLLARGESTURE = 0x800.toUInt
+  val SDL_DOLLARRECORD = (0x800 + 1).toUInt
+  val SDL_MULTIGESTURE = (0x800 + 2).toUInt
 
   /* Clipboard events */
-  val SDL_CLIPBOARDUPDATE          = 0x900.toUInt
+  val SDL_CLIPBOARDUPDATE = 0x900.toUInt
 
   /* Drag and drop events */
-  val SDL_DROPFILE                 = 0x1000.toUInt
+  val SDL_DROPFILE = 0x1000.toUInt
 
   /* Audio hotplug events */
-  val SDL_AUDIODEVICEADDED         = 0x1100.toUInt
-  val SDL_AUDIODEVICEREMOVED       = (0x1100 + 1).toUInt
+  val SDL_AUDIODEVICEADDED = 0x1100.toUInt
+  val SDL_AUDIODEVICEREMOVED = (0x1100 + 1).toUInt
 
   /* Render events */
-  val SDL_RENDER_TARGETS_RESET     = 0x2000.toUInt
-  val SDL_RENDER_DEVICE_RESET      = (0x2000 + 1).toUInt
+  val SDL_RENDER_TARGETS_RESET = 0x2000.toUInt
+  val SDL_RENDER_DEVICE_RESET = (0x2000 + 1).toUInt
 
-  val SDL_USEREVENT                = 0x8000.toUInt
-  val SDL_LASTEVENT                = 0xFFFF.toUInt
+  val SDL_USEREVENT = 0x8000.toUInt
+  val SDL_LASTEVENT = 0xffff.toUInt
 
   /* End SDL_EventType */
 
-  implicit class SDL_CommonEventOps(val self: Ptr[SDL_CommonEvent]) extends AnyVal {
+  implicit class SDL_CommonEventOps(val self: Ptr[SDL_CommonEvent])
+      extends AnyVal:
     def type_ : UInt = self._1
     def timestamp: UInt = self._2
-  }
 
-  implicit class SDL_WindowEventOps(val self: Ptr[SDL_WindowEvent]) extends AnyVal {
+  implicit class SDL_WindowEventOps(val self: Ptr[SDL_WindowEvent])
+      extends AnyVal:
     def type_ : UInt = self._1
     def timestamp: UInt = self._2
     def windowID: UInt = self._3
@@ -475,9 +654,10 @@ object Extras {
     def padding3: UByte = self._7
     def data1: Int = self._8
     def data2: Int = self._9
-  }
+  end SDL_WindowEventOps
 
-  implicit class SDL_KeyboardEventOps(val self: Ptr[SDL_KeyboardEvent]) extends AnyVal {
+  implicit class SDL_KeyboardEventOps(val self: Ptr[SDL_KeyboardEvent])
+      extends AnyVal:
     def type_ : UInt = self._1
     def timestamp: UInt = self._2
     def windowID: UInt = self._3
@@ -486,31 +666,34 @@ object Extras {
     def padding2: UByte = self._6
     def padding3: UByte = self._7
 
-    //TODO: trigger unreachable exception with NirNameEncoding.printGlobal in scala-native
+    // TODO: trigger unreachable exception with NirNameEncoding.printGlobal in scala-native
     def keysym: Ptr[SDL_Keysym] = self._8.toPtr
 
-    //def keycode: SDL_Keycode = !(self._8._2)
-  }
+    // def keycode: SDL_Keycode = !(self._8._2)
+  end SDL_KeyboardEventOps
 
   val SDL_TEXTEDITINGEVENT_TEXT_SIZE = 32
-  implicit class SDL_TextEditingEventOps(val self: Ptr[SDL_TextEditingEvent]) extends AnyVal {
+  implicit class SDL_TextEditingEventOps(val self: Ptr[SDL_TextEditingEvent])
+      extends AnyVal:
     def type_ : UInt = self._1
     def timestamp: UInt = self._2
     def windowID: UInt = self._3
     def text: CArray[CChar, _32] = self._4
     def start: Int = self._5
     def length: Int = self._6
-  }
+  end SDL_TextEditingEventOps
 
   val SDL_TEXTINPUTEVENT_TEXT_SIZE = 32
-  implicit class SDL_TextInputEventOps(val self: Ptr[SDL_TextInputEvent]) extends AnyVal {
+  implicit class SDL_TextInputEventOps(val self: Ptr[SDL_TextInputEvent])
+      extends AnyVal:
     def type_ : UInt = self._1
     def timestamp: UInt = self._2
     def windowID: UInt = self._3
     def text: CArray[CChar, _32] = self._4
-  }
+  end SDL_TextInputEventOps
 
-  implicit class SDL_MouseMotionEventOps(val self: Ptr[SDL_MouseMotionEvent]) extends AnyVal {
+  implicit class SDL_MouseMotionEventOps(val self: Ptr[SDL_MouseMotionEvent])
+      extends AnyVal:
     def type_ : UInt = self._1
     def timestamp: UInt = self._2
     def windowID: UInt = self._3
@@ -520,9 +703,10 @@ object Extras {
     def y: Int = self._7
     def xrel: Int = self._8
     def yrel: Int = self._9
-  }
+  end SDL_MouseMotionEventOps
 
-  implicit class SDL_MouseButtonEventOps(val self: Ptr[SDL_MouseButtonEvent]) extends AnyVal {
+  implicit class SDL_MouseButtonEventOps(val self: Ptr[SDL_MouseButtonEvent])
+      extends AnyVal:
     def type_ : UInt = self._1
     def timestamp: UInt = self._2
     def windowID: UInt = self._3
@@ -533,7 +717,7 @@ object Extras {
     def padding1: UByte = self._8
     def x: Int = self._9
     def y: Int = self._10
-  }
+  end SDL_MouseButtonEventOps
 
   /* TODO: insert all missing ops */
 
@@ -541,66 +725,70 @@ object Extras {
    * which is the same type (CStruct2). If we provide them as below, they would
    * create ambiguous implicit conversions!
    */
-  //implicit class SDL_QuitEventOps(val self: Ptr[SDL_QuitEvent]) extends AnyVal {
+  // implicit class SDL_QuitEventOps(val self: Ptr[SDL_QuitEvent]) extends AnyVal {
   //  def type_ : UInt = self._1
   //  def timestamp: UInt = self._2
-  //}
-  //implicit class SDL_OSEventOps(val self: Ptr[SDL_OSEvent]) extends AnyVal {
+  // }
+  // implicit class SDL_OSEventOps(val self: Ptr[SDL_OSEvent]) extends AnyVal {
   //  def type_ : UInt = self._1
   //  def timestamp: UInt = self._2
-  //}
+  // }
 
-  implicit class SDL_UserEventOps(val self: Ptr[SDL_UserEvent]) extends AnyVal {
+  implicit class SDL_UserEventOps(val self: Ptr[SDL_UserEvent]) extends AnyVal:
     def type_ : UInt = self._1
     def timestamp: UInt = self._2
     def windowID: UInt = self._3
     def code: Int = self._4
     def data1: Ptr[Byte] = self._5
     def data2: Ptr[Byte] = self._6
-  }
+  end SDL_UserEventOps
 
-  implicit class SDL_SysWMEventOps(val self: Ptr[SDL_SysWMEvent]) extends AnyVal {
+  implicit class SDL_SysWMEventOps(val self: Ptr[SDL_SysWMEvent])
+      extends AnyVal:
     def type_ : UInt = self._1
     def timestamp: UInt = self._2
     def msg: Ptr[SDL_SysWMmsg] = self._3
-  }
+  end SDL_SysWMEventOps
 
-  implicit class SDL_EventOps(val self: Ptr[SDL_Event]) extends AnyVal {
+  implicit class SDL_EventOps(val self: Ptr[SDL_Event]) extends AnyVal:
     def type_ : UInt = self._1
-  
+
     def common: Ptr[SDL_CommonEvent] = self.asInstanceOf[Ptr[SDL_CommonEvent]]
     def window: Ptr[SDL_WindowEvent] = self.asInstanceOf[Ptr[SDL_WindowEvent]]
     def key: Ptr[SDL_KeyboardEvent] = self.asInstanceOf[Ptr[SDL_KeyboardEvent]]
-    def edit: Ptr[SDL_TextEditingEvent] = self.asInstanceOf[Ptr[SDL_TextEditingEvent]]
-    def text: Ptr[SDL_TextInputEvent] = self.asInstanceOf[Ptr[SDL_TextInputEvent]]
-    def motion: Ptr[SDL_MouseMotionEvent] = self.asInstanceOf[Ptr[SDL_MouseMotionEvent]]
-    def button: Ptr[SDL_MouseButtonEvent] = self.asInstanceOf[Ptr[SDL_MouseButtonEvent]]
-    //def wheel: Ptr[SDL_MouseWheelEvent] = self.asInstanceOf[Ptr[SDL_MouseWheelEvent]]
-    //def jaxis: Ptr[SDL_JoyAxisEvent] = self.asInstanceOf[Ptr[SDL_JoyAxisEvent]]
-    //def jball: Ptr[SDL_JoyBallEvent] = self.asInstanceOf[Ptr[SDL_JoyBallEvent]]
-    //def jhat: Ptr[SDL_JoyHatEvent] = self.asInstanceOf[Ptr[SDL_JoyHatEvent]]
-    //def jbutton: Ptr[SDL_JoyButtonEvent] = self.asInstanceOf[Ptr[SDL_JoyButtonEvent]]
-    //def jdevice: Ptr[SDL_JoyDeviceEvent] = self.asInstanceOf[Ptr[SDL_JoyDeviceEvent]]
-    //def caxis: Ptr[SDL_ControllerAxisEvent] = self.asInstanceOf[Ptr[SDL_ControllerAxisEvent]]
-    //def cbutton: Ptr[SDL_ControllerButtonEvent] = self.asInstanceOf[Ptr[SDL_ControllerButtonEvent]]
-    //def cdevice: Ptr[SDL_ControllerDeviceEvent] = self.asInstanceOf[Ptr[SDL_ControllerDeviceEvent]]
-    //def adevice: Ptr[SDL_AudioDeviceEvent] = self.asInstanceOf[Ptr[SDL_AudioDeviceEvent]]
+    def edit: Ptr[SDL_TextEditingEvent] =
+      self.asInstanceOf[Ptr[SDL_TextEditingEvent]]
+    def text: Ptr[SDL_TextInputEvent] =
+      self.asInstanceOf[Ptr[SDL_TextInputEvent]]
+    def motion: Ptr[SDL_MouseMotionEvent] =
+      self.asInstanceOf[Ptr[SDL_MouseMotionEvent]]
+    def button: Ptr[SDL_MouseButtonEvent] =
+      self.asInstanceOf[Ptr[SDL_MouseButtonEvent]]
+    // def wheel: Ptr[SDL_MouseWheelEvent] = self.asInstanceOf[Ptr[SDL_MouseWheelEvent]]
+    // def jaxis: Ptr[SDL_JoyAxisEvent] = self.asInstanceOf[Ptr[SDL_JoyAxisEvent]]
+    // def jball: Ptr[SDL_JoyBallEvent] = self.asInstanceOf[Ptr[SDL_JoyBallEvent]]
+    // def jhat: Ptr[SDL_JoyHatEvent] = self.asInstanceOf[Ptr[SDL_JoyHatEvent]]
+    // def jbutton: Ptr[SDL_JoyButtonEvent] = self.asInstanceOf[Ptr[SDL_JoyButtonEvent]]
+    // def jdevice: Ptr[SDL_JoyDeviceEvent] = self.asInstanceOf[Ptr[SDL_JoyDeviceEvent]]
+    // def caxis: Ptr[SDL_ControllerAxisEvent] = self.asInstanceOf[Ptr[SDL_ControllerAxisEvent]]
+    // def cbutton: Ptr[SDL_ControllerButtonEvent] = self.asInstanceOf[Ptr[SDL_ControllerButtonEvent]]
+    // def cdevice: Ptr[SDL_ControllerDeviceEvent] = self.asInstanceOf[Ptr[SDL_ControllerDeviceEvent]]
+    // def adevice: Ptr[SDL_AudioDeviceEvent] = self.asInstanceOf[Ptr[SDL_AudioDeviceEvent]]
     def quit: Ptr[SDL_QuitEvent] = self.asInstanceOf[Ptr[SDL_QuitEvent]]
     def user: Ptr[SDL_UserEvent] = self.asInstanceOf[Ptr[SDL_UserEvent]]
     def syswm: Ptr[SDL_SysWMEvent] = self.asInstanceOf[Ptr[SDL_SysWMEvent]]
-    //def tfinger: Ptr[SDL_TouchFingerEvent] = self.asInstanceOf[Ptr[SDL_TouchFingerEvent]]
-    //def mgesture: Ptr[SDL_MultiGestureEvent] = self.asInstanceOf[Ptr[SDL_MultiGestureEvent]]
-    //def dgesture: Ptr[SDL_DollarGestureEvent] = self.asInstanceOf[Ptr[SDL_DollarGestureEvent]]
-    //def drop: Ptr[SDL_DropEvent] = self.asInstanceOf[Ptr[SDL_DropEvent]]
+    // def tfinger: Ptr[SDL_TouchFingerEvent] = self.asInstanceOf[Ptr[SDL_TouchFingerEvent]]
+    // def mgesture: Ptr[SDL_MultiGestureEvent] = self.asInstanceOf[Ptr[SDL_MultiGestureEvent]]
+    // def dgesture: Ptr[SDL_DollarGestureEvent] = self.asInstanceOf[Ptr[SDL_DollarGestureEvent]]
+    // def drop: Ptr[SDL_DropEvent] = self.asInstanceOf[Ptr[SDL_DropEvent]]
 
     def padding: Ptr[Byte] = self.asInstanceOf[Ptr[Byte]]
+  end SDL_EventOps
 
-  }
-  
   /* Start SDL_eventaction */
-  val SDL_ADDEVENT  = 0.toUInt
+  val SDL_ADDEVENT = 0.toUInt
   val SDL_PEEKEVENT = 1.toUInt
-  val SDL_GETEVENT  = 2.toUInt
+  val SDL_GETEVENT = 2.toUInt
   /* End SDL_eventaction */
 
   val SDL_QUERY: CInt = -1
@@ -610,11 +798,8 @@ object Extras {
 
   def SDL_GetEventState(type_ : UInt): UByte = SDL_EventState(type_, SDL_QUERY)
 
-
-
-  /***************************************
-   ************ SDL_scancode.h *************
-   ***************************************/
+  /** ************************************* SDL_scancode.h *************
+    */
 
   /* Start SDL_Scancode */
   val SDL_SCANCODE_UNKNOWN: Int = 0
@@ -678,18 +863,18 @@ object Extras {
 
   val SDL_SCANCODE_CAPSLOCK: Int = 57
 
-  val SDL_SCANCODE_F1: Int= 58
-  val SDL_SCANCODE_F2: Int= 59
-  val SDL_SCANCODE_F3: Int= 60
-  val SDL_SCANCODE_F4: Int= 61
-  val SDL_SCANCODE_F5: Int= 62
-  val SDL_SCANCODE_F6: Int= 63
-  val SDL_SCANCODE_F7: Int= 64
-  val SDL_SCANCODE_F8: Int= 65
-  val SDL_SCANCODE_F9: Int= 66
-  val SDL_SCANCODE_F10: Int= 67
-  val SDL_SCANCODE_F11: Int= 68
-  val SDL_SCANCODE_F12: Int= 69
+  val SDL_SCANCODE_F1: Int = 58
+  val SDL_SCANCODE_F2: Int = 59
+  val SDL_SCANCODE_F3: Int = 60
+  val SDL_SCANCODE_F4: Int = 61
+  val SDL_SCANCODE_F5: Int = 62
+  val SDL_SCANCODE_F6: Int = 63
+  val SDL_SCANCODE_F7: Int = 64
+  val SDL_SCANCODE_F8: Int = 65
+  val SDL_SCANCODE_F9: Int = 66
+  val SDL_SCANCODE_F10: Int = 67
+  val SDL_SCANCODE_F11: Int = 68
+  val SDL_SCANCODE_F12: Int = 69
 
   val SDL_SCANCODE_PRINTSCREEN: Int = 70
   val SDL_SCANCODE_SCROLLLOCK: Int = 71
@@ -884,14 +1069,13 @@ object Extras {
   val SDL_NUM_SCANCODES: Int = 512
   /* End SDL_Scancode */
 
-
-  /***************************************
-   *********** SDL_keycode.h *************
-   ***************************************/
-  //keycodes must be defined after scancodes as they use their values
+  /** ************************************* SDL_keycode.h *************
+    */
+  // keycodes must be defined after scancodes as they use their values
 
   val SDLK_SCANCODE_MASK: Int = 1 << 30
-  def SDL_SCANCODE_TO_KEYCODE(scancode: SDL_Scancode): SDL_Keycode = scancode | SDLK_SCANCODE_MASK
+  def SDL_SCANCODE_TO_KEYCODE(scancode: SDL_Scancode): SDL_Keycode =
+    scancode | SDLK_SCANCODE_MASK
 
   /* Start SDL_Keycode */
   val SDLK_UNKNOWN: Int = 0
@@ -1061,10 +1245,16 @@ object Extras {
 
   val SDLK_KP_00 = SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_KP_00)
   val SDLK_KP_000 = SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_KP_000)
-  val SDLK_THOUSANDSSEPARATOR = SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_THOUSANDSSEPARATOR)
-  val SDLK_DECIMALSEPARATOR = SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_DECIMALSEPARATOR)
+  val SDLK_THOUSANDSSEPARATOR = SDL_SCANCODE_TO_KEYCODE(
+    SDL_SCANCODE_THOUSANDSSEPARATOR
+  )
+  val SDLK_DECIMALSEPARATOR = SDL_SCANCODE_TO_KEYCODE(
+    SDL_SCANCODE_DECIMALSEPARATOR
+  )
   val SDLK_CURRENCYUNIT = SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_CURRENCYUNIT)
-  val SDLK_CURRENCYSUBUNIT = SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_CURRENCYSUBUNIT)
+  val SDLK_CURRENCYSUBUNIT = SDL_SCANCODE_TO_KEYCODE(
+    SDL_SCANCODE_CURRENCYSUBUNIT
+  )
   val SDLK_KP_LEFTPAREN = SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_KP_LEFTPAREN)
   val SDLK_KP_RIGHTPAREN = SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_KP_RIGHTPAREN)
   val SDLK_KP_LEFTBRACE = SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_KP_LEFTBRACE)
@@ -1083,9 +1273,13 @@ object Extras {
   val SDLK_KP_LESS = SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_KP_LESS)
   val SDLK_KP_GREATER = SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_KP_GREATER)
   val SDLK_KP_AMPERSAND = SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_KP_AMPERSAND)
-  val SDLK_KP_DBLAMPERSAND = SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_KP_DBLAMPERSAND)
+  val SDLK_KP_DBLAMPERSAND = SDL_SCANCODE_TO_KEYCODE(
+    SDL_SCANCODE_KP_DBLAMPERSAND
+  )
   val SDLK_KP_VERTICALBAR = SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_KP_VERTICALBAR)
-  val SDLK_KP_DBLVERTICALBAR = SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_KP_DBLVERTICALBAR)
+  val SDLK_KP_DBLVERTICALBAR = SDL_SCANCODE_TO_KEYCODE(
+    SDL_SCANCODE_KP_DBLVERTICALBAR
+  )
   val SDLK_KP_COLON = SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_KP_COLON)
   val SDLK_KP_HASH = SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_KP_HASH)
   val SDLK_KP_SPACE = SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_KP_SPACE)
@@ -1105,7 +1299,7 @@ object Extras {
   val SDLK_KP_OCTAL = SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_KP_OCTAL)
   val SDLK_KP_DECIMAL = SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_KP_DECIMAL)
   val SDLK_KP_HEXADECIMAL = SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_KP_HEXADECIMAL)
-  
+
   val SDLK_LCTRL = SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_LCTRL)
   val SDLK_LSHIFT = SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_LSHIFT)
   val SDLK_LALT = SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_LALT)
@@ -1166,21 +1360,18 @@ object Extras {
   val KMOD_ALT = KMOD_LALT | KMOD_RALT
   val KMOD_GUI = KMOD_LGUI | KMOD_RGUI
 
-  /***************************************
-   *********** SDL_keyboard.h ************
-   ***************************************/
+  /** ************************************* SDL_keyboard.h ************
+    */
 
-  implicit class SDL_KeysymOps(val self: Ptr[SDL_Keysym]) extends AnyVal {
+  implicit class SDL_KeysymOps(val self: Ptr[SDL_Keysym]) extends AnyVal:
     def scancode: SDL_Scancode = self._1
     def sym: SDL_Keycode = self._2
     def mod: UShort = self._3
     def unused: UInt = self._4
-  }
-  
+  end SDL_KeysymOps
 
-  /**************************************
-   ************ SDL_mouse.h *************
-   **************************************/
+  /** ************************************ SDL_mouse.h *************
+    */
 
   /* Start SDL_SystemCursor */
   val SDL_SYSTEM_CURSOR_ARROW: CInt = 0
@@ -1215,52 +1406,50 @@ object Extras {
   val SDL_BUTTON_X1MASK: UInt = SDL_BUTTON(SDL_BUTTON_X1)
   val SDL_BUTTON_X2MASK: UInt = SDL_BUTTON(SDL_BUTTON_X2)
 
-  /**************************************
-   ************* SDL_rect.h *************
-   **************************************/
+  /** ************************************ SDL_rect.h *************
+    */
 
-  implicit class SDL_PointOps(val self: Ptr[SDL_Point]) extends AnyVal {
-    def init(x: CInt, y: CInt): Ptr[SDL_Point] = {
+  implicit class SDL_PointOps(val self: Ptr[SDL_Point]) extends AnyVal:
+    def init(x: CInt, y: CInt): Ptr[SDL_Point] =
       self._1 = x
       self._2 = y
       self
-    }
 
     def x: CInt = self._1
-    def x_=(nx: CInt): Unit = { self._1 = nx }
+    def x_=(nx: CInt): Unit = self._1 = nx
     def y: CInt = self._2
-    def y_=(ny: CInt): Unit = { self._2 = ny }
-  }
-  implicit class SDL_RectOps(val self: Ptr[SDL_Rect]) extends AnyVal {
-    def init(x: CInt, y: CInt, w: CInt, h: CInt): Ptr[SDL_Rect] = {
+    def y_=(ny: CInt): Unit = self._2 = ny
+  end SDL_PointOps
+  implicit class SDL_RectOps(val self: Ptr[SDL_Rect]) extends AnyVal:
+    def init(x: CInt, y: CInt, w: CInt, h: CInt): Ptr[SDL_Rect] =
       self._1 = x
       self._2 = y
       self._3 = w
       self._4 = h
       self
-    }
+    end init
 
     def x: CInt = self._1
-    def x_=(nx: CInt): Unit = { self._1 = nx }
+    def x_=(nx: CInt): Unit = self._1 = nx
     def y: CInt = self._2
-    def y_=(ny: CInt): Unit = { self._2 = ny }
+    def y_=(ny: CInt): Unit = self._2 = ny
     def w: CInt = self._3
-    def w_=(nw: CInt): Unit = { self._3 = nw }
+    def w_=(nw: CInt): Unit = self._3 = nw
     def h: CInt = self._4
-    def h_=(nh: CInt): Unit = { self._4 = nh }
-  }
+    def h_=(nh: CInt): Unit = self._4 = nh
+  end SDL_RectOps
 
   def SDL_RectEmpty(r: Ptr[SDL_Rect]): SDL_bool =
-    if(r == null || r.w <= 0 || r.h <= 0) SDL_TRUE else SDL_FALSE
+    if r == null || r.w <= 0 || r.h <= 0 then SDL_TRUE else SDL_FALSE
 
   def SDL_RectEquals(a: Ptr[SDL_Rect], b: Ptr[SDL_Rect]): SDL_bool =
-    if(a != null && b != null && a.x == b.x && a.y == b.y &&
-       a.w == b.w && a.h == b.h) SDL_TRUE else SDL_FALSE
+    if a != null && b != null && a.x == b.x && a.y == b.y &&
+      a.w == b.w && a.h == b.h
+    then SDL_TRUE
+    else SDL_FALSE
 
-
-  /**************************************
-   *********** SDL_surface.h ************
-   **************************************/
+  /** ************************************ SDL_surface.h ************
+    */
 
   val SDL_SWSURFACE: UInt = 0.toUInt
   val SDL_PREALLOC: UInt = 0x00000001.toUInt
@@ -1270,7 +1459,7 @@ object Extras {
   def SDL_MUSTLOCK(s: Ptr[SDL_Surface]): Boolean =
     (s.flags & SDL_RLEACCEL) != 0.toUInt
 
-  implicit class SDL_SurfaceOps(val self: Ptr[SDL_Surface]) extends AnyVal {
+  implicit class SDL_SurfaceOps(val self: Ptr[SDL_Surface]) extends AnyVal:
     def flags: UInt = self._1
     def format: Ptr[SDL_PixelFormat] = self._2
     def w: CInt = self._3
@@ -1282,11 +1471,10 @@ object Extras {
     def lock_data: Ptr[Byte] = self._9
     def clip_rect: Ptr[SDL_Rect] = self._10.toPtr
     def refcount: CInt = self._12
-  }
+  end SDL_SurfaceOps
 
-  /***************************************
-   ************ SDL_render.h *************
-   ***************************************/
+  /** ************************************* SDL_render.h *************
+    */
 
   /* Start enum SDL_RendererFlags */
   val SDL_RENDERER_SOFTWARE = 0x00000001.toUInt
@@ -1295,14 +1483,15 @@ object Extras {
   val SDL_RENDERER_TARGETTEXTURE = 0x00000008.toUInt
   /* End SDL_RendererFlags */
 
-  implicit class SDL_RendererInfoOps(val self: Ptr[SDL_RendererInfo]) extends AnyVal {
+  implicit class SDL_RendererInfoOps(val self: Ptr[SDL_RendererInfo])
+      extends AnyVal:
     def name: CString = self._1
     def flags: UInt = self._2
     def num_texture_formats: UInt = self._3
     def texture_formats: CArray[UInt, _16] = self._4
     def max_texture_width: CInt = self._5
     def max_texture_height: CInt = self._6
-  }
+  end SDL_RendererInfoOps
 
   /* Start enum SDL_TextureAccess */
   val SDL_TEXTUREACCESS_STATIC = 0.toUInt
@@ -1322,50 +1511,49 @@ object Extras {
   val SDL_FLIP_VERTICAL = 0x00000002.toUInt
   /* End SDL_RendererFlip */
 
-  /**************************************
-   *********** SDL_version.h ************
-   **************************************/
+  /** ************************************ SDL_version.h ************
+    */
 
-  implicit class SDL_versionOps(val self: Ptr[SDL_version]) extends AnyVal {
+  implicit class SDL_versionOps(val self: Ptr[SDL_version]) extends AnyVal:
     def major: UByte = self._1
-    def major_=(v: UByte): Unit = { self._1 = v }
+    def major_=(v: UByte): Unit = self._1 = v
     def minor: UByte = self._2
-    def minor_=(v: UByte): Unit = { self._2 = v }
+    def minor_=(v: UByte): Unit = self._2 = v
     def patch: UByte = self._3
-    def patch_=(v: UByte): Unit = { self._3 = v }
-  }
+    def patch_=(v: UByte): Unit = self._3 = v
+  end SDL_versionOps
 
-  //TODO: these should use some @extern annotation (is that @name?)
+  // TODO: these should use some @extern annotation (is that @name?)
   //      because their definitions varies from installation to installation
   val SDL_MAJOR_VERSION: UByte = 2.toUByte
   val SDL_MINOR_VERSION: UByte = 0.toUByte
   val SDL_PATCHLEVEL: UByte = 4.toUByte
 
-  def SDL_VERSION(version: Ptr[SDL_version]): Unit = {
+  def SDL_VERSION(version: Ptr[SDL_version]): Unit =
     version.major = SDL_MAJOR_VERSION
     version.minor = SDL_MINOR_VERSION
     version.patch = SDL_PATCHLEVEL
-  }
 
-  def SDL_VERSIONNUM(major: UByte, minor: UByte, patch: UByte): UInt = 
-    major*(1000.toUInt) + minor*(100.toUInt) + patch
+  def SDL_VERSIONNUM(major: UByte, minor: UByte, patch: UByte): UInt =
+    major * (1000.toUInt) + minor * (100.toUInt) + patch
 
-  def SDL_COMPILEDVERSION: UInt = SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL)
+  def SDL_COMPILEDVERSION: UInt =
+    SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL)
 
   def SDL_VERSION_ATLEAST(major: UByte, minor: UByte, patch: UByte): Boolean =
     SDL_COMPILEDVERSION >= SDL_VERSIONNUM(major, minor, patch)
 
-  /**************************************
-   ************ SDL_video.h *************
-   **************************************/
+  /** ************************************ SDL_video.h *************
+    */
 
-  implicit class SDL_DisplayModeOps(val self: Ptr[SDL_DisplayMode]) extends AnyVal {
+  implicit class SDL_DisplayModeOps(val self: Ptr[SDL_DisplayMode])
+      extends AnyVal:
     def format: UInt = self._1
     def w: CInt = self._2
     def h: CInt = self._3
     def refresh_rate: CInt = self._4
     def driverdata: Ptr[Byte] = self._5
-  }
+  end SDL_DisplayModeOps
 
   /* Start enum SDL_WindowFlags */
   val SDL_WINDOW_FULLSCREEN = 0x00000001.toUInt
@@ -1385,15 +1573,18 @@ object Extras {
   val SDL_WINDOW_MOUSE_CAPTURE = 0x00004000.toUInt
   /* End SDL_WindowFlags */
 
-  val SDL_WINDOWPOS_UNDEFINED_MASK = 0x1FFF0000
-  def SDL_WINDOWPOS_UNDEFINED_DISPLAY(x: CInt) = SDL_WINDOWPOS_UNDEFINED_MASK | x
+  val SDL_WINDOWPOS_UNDEFINED_MASK = 0x1fff0000
+  def SDL_WINDOWPOS_UNDEFINED_DISPLAY(x: CInt) =
+    SDL_WINDOWPOS_UNDEFINED_MASK | x
   val SDL_WINDOWPOS_UNDEFINED = SDL_WINDOWPOS_UNDEFINED_DISPLAY(0)
-  def SDL_WINDOWPOS_ISUNDEFINED(x: CInt) = (x & 0xFFFF0000) == SDL_WINDOWPOS_UNDEFINED_MASK
+  def SDL_WINDOWPOS_ISUNDEFINED(x: CInt) =
+    (x & 0xffff0000) == SDL_WINDOWPOS_UNDEFINED_MASK
 
-  val SDL_WINDOWPOS_CENTERED_MASK = 0x2FFF0000
+  val SDL_WINDOWPOS_CENTERED_MASK = 0x2fff0000
   def SDL_WINDOWPOS_CENTERED_DISPLAY(x: CInt) = SDL_WINDOWPOS_CENTERED_MASK | x
   val SDL_WINDOWPOS_CENTERED = SDL_WINDOWPOS_CENTERED_DISPLAY(0)
-  def SDL_WINDOWPOS_ISCENTERED(x: UInt) = (x & 0xFFFF0000.toUInt).toInt == SDL_WINDOWPOS_CENTERED_MASK
+  def SDL_WINDOWPOS_ISCENTERED(x: UInt) =
+    (x & 0xffff0000.toUInt).toInt == SDL_WINDOWPOS_CENTERED_MASK
 
   /* Start enum SDL_WindowEventId */
   val SDL_WINDOWEVENT_NONE = 0.toUByte
@@ -1442,21 +1633,21 @@ object Extras {
   /* End enum SDL_GLattr */
 
   /* Start enum SDL_GLprofile */
-  val SDL_GL_CONTEXT_PROFILE_CORE: UShort           = 0x0001.toUShort
-  val SDL_GL_CONTEXT_PROFILE_COMPATIBILITY: UShort  = 0x0002.toUShort
-  val SDL_GL_CONTEXT_PROFILE_ES: UShort             = 0x0004.toUShort
+  val SDL_GL_CONTEXT_PROFILE_CORE: UShort = 0x0001.toUShort
+  val SDL_GL_CONTEXT_PROFILE_COMPATIBILITY: UShort = 0x0002.toUShort
+  val SDL_GL_CONTEXT_PROFILE_ES: UShort = 0x0004.toUShort
   /* End enum SDL_GLprofile */
 
   /* Start enum SDL_GlcontextFlag */
-  val SDL_GL_CONTEXT_DEBUG_FLAG: UShort              = 0x0001.toUShort
+  val SDL_GL_CONTEXT_DEBUG_FLAG: UShort = 0x0001.toUShort
   val SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG: UShort = 0x0002.toUShort
-  val SDL_GL_CONTEXT_ROBUST_ACCESS_FLAG: UShort      = 0x0004.toUShort
-  val SDL_GL_CONTEXT_RESET_ISOLATION_FLAG: UShort    = 0x0008.toUShort
+  val SDL_GL_CONTEXT_ROBUST_ACCESS_FLAG: UShort = 0x0004.toUShort
+  val SDL_GL_CONTEXT_RESET_ISOLATION_FLAG: UShort = 0x0008.toUShort
   /* End enum SDL_GlcontextFlag */
 
   /* Start enum SDL_GLcontextReleaseFlag */
-  val SDL_GL_CONTEXT_RELEASE_BEHAVIOR_NONE: UShort   = 0x0000.toUShort
-  val SDL_GL_CONTEXT_RELEASE_BEHAVIOR_FLUSH: UShort  = 0x0001.toUShort
+  val SDL_GL_CONTEXT_RELEASE_BEHAVIOR_NONE: UShort = 0x0000.toUShort
+  val SDL_GL_CONTEXT_RELEASE_BEHAVIOR_FLUSH: UShort = 0x0001.toUShort
   /* End enum SDL_GLcontextReleaseFlag */
 
   /* Start SDL_HitTestResult */
@@ -1472,33 +1663,27 @@ object Extras {
   val SDL_HITTEST_RESIZE_LEFT: UInt = 9.toUInt
   /* Start SDL_HitTestResult */
 
-
-
-  /**************************************
-   *************** SDL.h ****************
-   **************************************/
+  /** ************************************ SDL.h ****************
+    */
 
   /* Start Macros for subsystem IDs */
-  val SDL_INIT_TIMER          = 0x00000001.toUInt
-  val SDL_INIT_AUDIO          = 0x00000010.toUInt
-  val SDL_INIT_VIDEO          = 0x00000020.toUInt
-  val SDL_INIT_JOYSTICK       = 0x00000200.toUInt
-  val SDL_INIT_HAPTIC         = 0x00001000.toUInt
+  val SDL_INIT_TIMER = 0x00000001.toUInt
+  val SDL_INIT_AUDIO = 0x00000010.toUInt
+  val SDL_INIT_VIDEO = 0x00000020.toUInt
+  val SDL_INIT_JOYSTICK = 0x00000200.toUInt
+  val SDL_INIT_HAPTIC = 0x00001000.toUInt
   val SDL_INIT_GAMECONTROLLER = 0x00002000.toUInt
-  val SDL_INIT_EVENTS         = 0x00004000.toUInt
-  val SDL_INIT_NOPARACHUTE    = 0x00100000.toUInt //only there for compatibility, maybe we could drop it?
-  val SDL_INIT_EVERYTHING = (
-                SDL_INIT_TIMER | SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_EVENTS |
-                SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC | SDL_INIT_GAMECONTROLLER)
+  val SDL_INIT_EVENTS = 0x00004000.toUInt
+  val SDL_INIT_NOPARACHUTE =
+    0x00100000.toUInt // only there for compatibility, maybe we could drop it?
+  val SDL_INIT_EVERYTHING =
+    (SDL_INIT_TIMER | SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_EVENTS |
+      SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC | SDL_INIT_GAMECONTROLLER)
   /* End Macros for subsystem IDs */
 
-
-
-  /*** Other ***/
-
+  /** * Other **
+    */
 
   def SDL_LoadBMP(file: CString): Ptr[SDL_Surface] =
     SDL_LoadBMP_RW(SDL_RWFromFile(file, c"rb"), 1)
-
-}
-
+end Extras

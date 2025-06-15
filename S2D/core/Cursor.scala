@@ -1,13 +1,13 @@
 package S2D.core
 
-import gl.GL._
-import gl.GLExtras._
+import gl.GL.*
+import gl.GLExtras.*
 import S2D.types.*
-import sdl2.SDL._
-import sdl2.Extras._
+import sdl2.SDL.*
+import sdl2.Extras.*
 import S2D.core.Window.*
-import scalanative.unsafe._
-import scalanative.unsigned._
+import scalanative.unsafe.*
+import scalanative.unsigned.*
 
 object Cursor:
   def show(): Unit =
@@ -54,3 +54,5 @@ object Cursor:
 
       x >= 0 && x < w && y >= 0 && y < h
     }
+  end isOnScreen
+end Cursor

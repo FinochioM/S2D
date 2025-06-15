@@ -1,13 +1,13 @@
 package S2D.core
 
-import gl.GL._
-import gl.GLExtras._
+import gl.GL.*
+import gl.GLExtras.*
 import S2D.types.*
-import sdl2.SDL._
-import sdl2.Extras._
+import sdl2.SDL.*
+import sdl2.Extras.*
 import S2D.core.Window
-import scalanative.unsafe._
-import scalanative.unsigned._
+import scalanative.unsafe.*
+import scalanative.unsigned.*
 
 object Drawing:
   def clear(color: Color): Unit =
@@ -31,20 +31,20 @@ object Drawing:
       if Window.eventWaitingEnabled then
         SDL_WaitEvent(event)
         processEvent(event)
-        while SDL_PollEvent(event) != 0 do
-            processEvent(event)
-      else
-        while SDL_PollEvent(event) != 0 do
-            processEvent(event)
+        while SDL_PollEvent(event) != 0 do processEvent(event)
+      else while SDL_PollEvent(event) != 0 do processEvent(event)
+      end if
     }
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+  end beginFrame
 
   def endFrame(): Unit =
     if !Window.isWindowInitialized then
       throw new RuntimeException("Window not initialized!")
 
     SDL_GL_SwapWindow(Window.windowHandle)
+  end endFrame
 
   def beginCamera(camera: Camera2D): Unit =
     if !Window.isWindowInitialized then return
@@ -53,7 +53,14 @@ object Drawing:
     glPushMatrix()
     glLoadIdentity()
 
-    glOrtho(0.0, Window.windowWidth.toDouble, Window.windowHeight.toDouble, 0.0, -1.0, 1.0)
+    glOrtho(
+      0.0,
+      Window.windowWidth.toDouble,
+      Window.windowHeight.toDouble,
+      0.0,
+      -1.0,
+      1.0
+    )
 
     glMatrixMode(GL_MODELVIEW)
     glPushMatrix()
@@ -63,6 +70,7 @@ object Drawing:
     glRotatef(camera.rotation, 0.0f, 0.0f, 1.0f)
     glScalef(camera.zoom, camera.zoom, 1.0f)
     glTranslatef(-camera.target.x, -camera.target.y, 0.0f)
+  end beginCamera
 
   def endCamera(): Unit =
     if !Window.isWindowInitialized then return
@@ -72,18 +80,21 @@ object Drawing:
 
     glMatrixMode(GL_MODELVIEW)
     glPopMatrix()
+  end endCamera
 
   def beginTexture(target: RenderTexture2D): Unit =
     if !Window.isWindowInitialized then return
 
     glBindFramebuffer(GL_FRAMEBUFFER, target.id.toUInt)
     glViewport(0, 0, target.texture.width.toUInt, target.texture.height.toUInt)
+  end beginTexture
 
   def endTexture(): Unit =
     if !Window.isWindowInitialized then return
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0.toUInt)
     glViewport(0, 0, Window.windowWidth.toUInt, Window.windowHeight.toUInt)
+  end endTexture
 
   def beginShader(shader: Shader): Unit =
     if !Window.isWindowInitialized then return
@@ -120,12 +131,15 @@ object Drawing:
       case _ =>
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glBlendEquation(GL_FUNC_ADD)
+    end match
+  end beginBlend
 
   def endBlend(): Unit =
     if !Window.isWindowInitialized then return
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
     glBlendEquation(GL_FUNC_ADD)
+  end endBlend
 
   def beginScissor(x: Int, y: Int, width: Int, height: Int): Unit =
     if !Window.isWindowInitialized then return
@@ -134,6 +148,7 @@ object Drawing:
 
     val flippedY = Window.windowHeight - (y + height)
     glScissor(x, flippedY, width.toUInt, height.toUInt)
+  end beginScissor
 
   def endScissor(): Unit =
     if !Window.isWindowInitialized then return
@@ -151,5 +166,7 @@ object Drawing:
             Window.shouldClose = true
           case _ =>
             ()
+        end match
       case _ =>
         ()
+end Drawing

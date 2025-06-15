@@ -9,3 +9,4 @@ enum BlendMode:
   case AlphaPremultiply
   case Custom
   case CustomSeparate
+end BlendMode

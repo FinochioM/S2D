@@ -2,12 +2,12 @@ package S2D.core
 
 import S2D.types.*
 
-import sdl2.SDL._
-import sdl2.Extras._
-import gl.GL._
-import gl.GLExtras._
-import scalanative.unsafe._
-import scalanative.unsigned._
+import sdl2.SDL.*
+import sdl2.Extras.*
+import gl.GL.*
+import gl.GLExtras.*
+import scalanative.unsafe.*
+import scalanative.unsigned.*
 import scala.util.boundary, boundary.break
 
 object Window:
@@ -38,7 +38,10 @@ object Window:
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION.toUInt, 3)
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION.toUInt, 3)
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK.toUInt, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY.toInt)
+    SDL_GL_SetAttribute(
+      SDL_GL_CONTEXT_PROFILE_MASK.toUInt,
+      SDL_GL_CONTEXT_PROFILE_COMPATIBILITY.toInt
+    )
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER.toUInt, 1)
 
     Zone {
@@ -81,6 +84,7 @@ object Window:
 
       isWindowInitialized = true
     }
+  end create
 
   def close(): Unit =
     if isWindowInitialized then
@@ -130,6 +134,7 @@ object Window:
     val wasResized = windowResizedThisFrame
     windowResizedThisFrame = true
     wasResized
+  end isResized
 
   def hasState(flag: WindowFlag): Boolean =
     if !isWindowInitialized then return false
@@ -137,20 +142,23 @@ object Window:
     val flags = SDL_GetWindowFlags(windowHandle)
 
     flag match
-      case WindowFlag.Resizable => (flags & SDL_WINDOW_RESIZABLE) != 0.toUInt
+      case WindowFlag.Resizable   => (flags & SDL_WINDOW_RESIZABLE) != 0.toUInt
       case WindowFlag.Undecorated => (flags & SDL_WINDOW_BORDERLESS) != 0.toUInt
       case WindowFlag.Transparent => false // I do not know if SDL has this.
       case WindowFlag.AlwaysOnTop => false // Same as Transparent.
-      case WindowFlag.Maximized => (flags & SDL_WINDOW_MAXIMIZED) != 0.toUInt
-      case WindowFlag.Minimized => (flags & SDL_WINDOW_MINIMIZED) != 0.toUInt
+      case WindowFlag.Maximized   => (flags & SDL_WINDOW_MAXIMIZED) != 0.toUInt
+      case WindowFlag.Minimized   => (flags & SDL_WINDOW_MINIMIZED) != 0.toUInt
       case WindowFlag.Focused => (flags & SDL_WINDOW_INPUT_FOCUS) != 0.toUInt
       case WindowFlag.Visible => (flags & SDL_WINDOW_SHOWN) != 0.toUInt
-      case WindowFlag.Fullscreen => (flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0.toUInt
+      case WindowFlag.Fullscreen =>
+        (flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0.toUInt
+    end match
+  end hasState
 
   def setState(flags: WindowFlag*): Unit =
     if !isWindowInitialized then return
 
-    val combinedFlags = WindowFlag.combine(flags: _*)
+    val combinedFlags = WindowFlag.combine(flags*)
 
     // Resizable and Undecorated cannot be changed once the window is created.
 
@@ -167,11 +175,12 @@ object Window:
       SDL_ShowWindow(windowHandle)
 
     // I dont know about Transparent and AlwaysOnTop on SDL2.
+  end setState
 
   def clearState(flags: WindowFlag*): Unit =
     if !isWindowInitialized then return
 
-    val combinedFlags = WindowFlag.combine(flags: _*)
+    val combinedFlags = WindowFlag.combine(flags*)
 
     // Resizable and Undecorated cannot be changed once the window is created.
 
@@ -185,6 +194,7 @@ object Window:
       SDL_HideWindow(windowHandle)
 
     // I dont know about Transparent and AlwaysOnTop on SDL2.
+  end clearState
 
   def toggleFullscreen(): Unit =
     if !isWindowInitialized then return
@@ -208,6 +218,8 @@ object Window:
       windowedHeight = !height
 
       SDL_SetWindowFullscreen(windowHandle, SDL_WINDOW_FULLSCREEN_DESKTOP)
+    end if
+  end toggleFullscreen
 
   def toggleBorderless(): Unit =
     if !isWindowInitialized then return
@@ -235,6 +247,8 @@ object Window:
 
       SDL_SetWindowFullscreen(windowHandle, SDL_WINDOW_FULLSCREEN_DESKTOP)
       isBorderlessWindowed = true
+    end if
+  end toggleBorderless
 
   def maximize(): Unit =
     if !isWindowInitialized then return
@@ -242,6 +256,7 @@ object Window:
     val flags = SDL_GetWindowFlags(windowHandle)
     if (flags & SDL_WINDOW_RESIZABLE) != 0.toUInt then
       SDL_MaximizeWindow(windowHandle)
+  end maximize
 
   def minimize(): Unit =
     if !isWindowInitialized then return
@@ -272,9 +287,9 @@ object Window:
       if surface != null then
         SDL_SetWindowIcon(windowHandle, surface)
         SDL_FreeSurface(surface)
-      else
-        println("Failed to create SDL surface for window icon")
+      else println("Failed to create SDL surface for window icon")
     }
+  end setIcon
 
   def setTitle(title: String): Unit =
     if !isWindowInitialized then return
@@ -285,6 +300,7 @@ object Window:
     }
 
     windowTitle = title
+  end setTitle
 
   def setPosition(x: Int, y: Int): Unit =
     if !isWindowInitialized then return
@@ -303,6 +319,7 @@ object Window:
       if SDL_GetDisplayBounds(monitor, displayBounds) == 0 then
         SDL_SetWindowPosition(windowHandle, displayBounds.x, displayBounds.y)
     }
+  end setMonitor
 
   def setMinSize(width: Int, height: Int): Unit =
     if !isWindowInitialized then return
@@ -320,6 +337,7 @@ object Window:
     SDL_SetWindowSize(windowHandle, width, height)
     windowWidth = width
     windowHeight = height
+  end setSize
 
   def setFocused(): Unit =
     if !isWindowInitialized then return
@@ -331,14 +349,16 @@ object Window:
 
     val clampedOpacity = Math.max(0.0f, Math.min(1.0f, opacity))
     SDL_SetWindowOpacity(windowHandle, clampedOpacity)
+  end setOpacity
 
   def setClipboard(text: String): Unit =
     if !isWindowInitialized then return
 
     Zone {
       val textCStr = toCString(text)
-        SDL_SetClipboardText(textCStr)
+      SDL_SetClipboardText(textCStr)
     }
+  end setClipboard
 
   def handle: Ptr[SDL_Window] =
     if !isWindowInitialized then null
@@ -357,6 +377,7 @@ object Window:
       SDL_GL_GetDrawableSize(windowHandle, width, height)
       !width
     }
+  end renderWidth
 
   def renderHeight: Int =
     if !isWindowInitialized then return 0
@@ -367,6 +388,7 @@ object Window:
       SDL_GL_GetDrawableSize(windowHandle, width, height)
       !height
     }
+  end renderHeight
 
   def monitorCount: Int =
     SDL_GetNumVideoDisplays()
@@ -389,7 +411,7 @@ object Window:
         val numDisplays = SDL_GetNumVideoDisplays()
         if numDisplays <= 0 then return 0
 
-        for (i <- 0 until numDisplays) do
+        for i <- 0 until numDisplays do
           val displayBounds = stackalloc[SDL_Rect]()
 
           if SDL_GetDisplayBounds(i, displayBounds) == 0 then
@@ -397,10 +419,14 @@ object Window:
             val monitorBottom = displayBounds.y + displayBounds.h
 
             if windowCenterX >= displayBounds.x && windowCenterX < monitorRight &&
-              windowCenterY >= displayBounds.y && windowCenterY < monitorBottom then break(i)
+              windowCenterY >= displayBounds.y && windowCenterY < monitorBottom
+            then break(i)
+          end if
+        end for
 
         break(0) // default to primary monitor
       }
+  end currentMonitor
 
   def monitorWidth(monitor: Int): Int =
     val numDisplays = SDL_GetNumVideoDisplays()
@@ -409,11 +435,10 @@ object Window:
     Zone {
       val displayMode = stackalloc[SDL_DisplayMode]()
 
-      if SDL_GetDesktopDisplayMode(monitor, displayMode) == 0 then
-        displayMode.w
-      else
-        0
+      if SDL_GetDesktopDisplayMode(monitor, displayMode) == 0 then displayMode.w
+      else 0
     }
+  end monitorWidth
 
   def monitorHeight(monitor: Int): Int =
     val numDisplays = SDL_GetNumVideoDisplays()
@@ -422,11 +447,10 @@ object Window:
     Zone {
       val displayMode = stackalloc[SDL_DisplayMode]()
 
-      if SDL_GetDesktopDisplayMode(monitor, displayMode) == 0 then
-        displayMode.h
-      else
-        0
+      if SDL_GetDesktopDisplayMode(monitor, displayMode) == 0 then displayMode.h
+      else 0
     }
+  end monitorHeight
 
   def monitorPhysicalWidth(monitor: Int): Int =
     val numDisplays = SDL_GetNumVideoDisplays()
@@ -442,11 +466,11 @@ object Window:
         if SDL_GetDesktopDisplayMode(monitor, displayMode) == 0 then
           // pixels to millimeters: (pixels * 25.4) / DPI
           ((displayMode.w * 25.4) / !hdpi).toInt
-        else
-          0
-      else
-        0
+        else 0
+      else 0
+      end if
     }
+  end monitorPhysicalWidth
 
   def monitorPhysicalHeight(monitor: Int): Int =
     val numDisplays = SDL_GetNumVideoDisplays()
@@ -462,11 +486,11 @@ object Window:
         if SDL_GetDesktopDisplayMode(monitor, displayMode) == 0 then
           // pixels to millimeters: (pixels * 25.4) / DPI
           ((displayMode.h * 25.4) / !vdpi).toInt
-        else
-          0
-      else
-        0
+        else 0
+      else 0
+      end if
     }
+  end monitorPhysicalHeight
 
   def monitorRefreshRate(monitor: Int): Int =
     val numDisplays = SDL_GetNumVideoDisplays()
@@ -477,9 +501,9 @@ object Window:
 
       if SDL_GetDesktopDisplayMode(monitor, displayMode) == 0 then
         displayMode.refresh_rate
-      else
-        0
+      else 0
     }
+  end monitorRefreshRate
 
   def position: Vector2 =
     if !isWindowInitialized then return Vector2(0.0f, 0.0f)
@@ -491,6 +515,7 @@ object Window:
       SDL_GetWindowPosition(windowHandle, xPos, yPos)
       Vector2((!xPos).toFloat, (!yPos).toFloat)
     }
+  end position
 
   def scaleDPI: Vector2 =
     if !isWindowInitialized then return Vector2(1.0f, 1.0f)
@@ -508,9 +533,10 @@ object Window:
         val scaleX = !hdpi / standardDPI
         val scaleY = !vdpi / standardDPI
         Vector2(scaleX, scaleY)
-      else
-        Vector2(1.0f, 1.0f)
+      else Vector2(1.0f, 1.0f)
+      end if
     }
+  end scaleDPI
 
   def monitorName(monitor: Int): String =
     val numDisplays = SDL_GetNumVideoDisplays()
@@ -518,6 +544,7 @@ object Window:
 
     val name = SDL_GetDisplayName(monitor)
     if name != null then fromCString(name) else ""
+  end monitorName
 
   def getClipboardComplete: String =
     val clipboardText = SDL_GetClipboardText()
@@ -525,11 +552,13 @@ object Window:
       val result = fromCString(clipboardText)
       SDL_free(clipboardText.asInstanceOf[Ptr[Byte]])
       result
-    else
-      ""
+    else ""
+    end if
+  end getClipboardComplete
 
   def enableEventWaiting(): Unit =
     eventWaitingEnabled = true
 
   def disableEventWaiting(): Unit =
     eventWaitingEnabled = false
+end Window

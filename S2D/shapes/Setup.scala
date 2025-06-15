@@ -16,3 +16,4 @@ object Setup:
     shapesTexture
   def getTextureSource: Rectangle =
     shapesTextureSource
+end Setup

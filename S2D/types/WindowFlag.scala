@@ -10,6 +10,7 @@ enum WindowFlag(val value: Int):
   case Focused extends WindowFlag(0x00000040)
   case Visible extends WindowFlag(0x00000080)
   case Fullscreen extends WindowFlag(0x00000100)
+end WindowFlag
 
 object WindowFlag:
   def combine(flags: WindowFlag*): Int =
@@ -18,3 +19,4 @@ object WindowFlag:
     (combinedFlags & flag.value) != 0
   def extract(combinedFlags: Int): Set[WindowFlag] =
     WindowFlag.values.filter(flag => contains(combinedFlags, flag)).toSet
+end WindowFlag

@@ -19,7 +19,8 @@ case class Vector2(x: Float, y: Float):
     if len == 0.0f then Vector2.Zero else this / len
 
   def angle: Float = math.atan2(y, x).toFloat
-  def angleTo(other: Vector2): Float = math.atan2(other.y - y, other.x - x).toFloat
+  def angleTo(other: Vector2): Float =
+    math.atan2(other.y - y, other.x - x).toFloat
 
   def lerp(other: Vector2, t: Float): Vector2 =
     this + (other - this) * t
@@ -28,6 +29,7 @@ case class Vector2(x: Float, y: Float):
     val cos = math.cos(angle).toFloat
     val sin = math.sin(angle).toFloat
     Vector2(x * cos - y * sin, x * sin + y * cos)
+end Vector2
 
 object Vector2:
   val Zero = Vector2(0.0f, 0.0f)
@@ -37,3 +39,4 @@ object Vector2:
 
   def fromAngle(angle: Float, length: Float = 1.0f): Vector2 =
     Vector2(math.cos(angle).toFloat * length, math.sin(angle).toFloat * length)
+end Vector2

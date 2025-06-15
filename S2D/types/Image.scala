@@ -1,11 +1,11 @@
 package S2D.types
 
-import scalanative.unsafe._
+import scalanative.unsafe.*
 
 case class Image(
-                  data: Ptr[Byte],
-                  width: Int,
-                  height: Int,
-                  mipmaps: Int,
-                  format: Int,
-                )
+    data: Ptr[Byte],
+    width: Int,
+    height: Int,
+    mipmaps: Int,
+    format: Int
+)
