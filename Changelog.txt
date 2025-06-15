@@ -2,6 +2,15 @@ S2D Changelog File.
 In this file you can find the changes made to every version of the library.
 
 06/2025
+v_0.1.2-SNAPSHOT:
+- Finished core package migration (Cursor, Window & Drawing)
+- Finished shapes package migration (Setup & Basics)
+- Started textures package migration.
+- Updated readme information with scala native configurations.
+- Renamed gl/Extras.scala to gl/GLExtras.scala.
+- Added Code of Conduct file.
+- Switched from IntelliJ to Focus. Added build.bat to run with Wezterm.
+
 v_1.0.1:
 - Started the migration of the backend from Scala JVM to Scala Native.
 - Added core module with Window, Cursor and Drawing classes.
