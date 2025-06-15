@@ -3,6 +3,9 @@
 //> using nativeVersion 0.5.8
 //> using scalacOptions -Wconf:msg=indented:silent
 
+// Test framework
+//> using test.dep org.scalameta::munit::1.1.1
+
 // Ignore the sandbox folder
 //> using exclude sandbox/*
 
