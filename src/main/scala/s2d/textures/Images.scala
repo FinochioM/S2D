@@ -1,6 +1,6 @@
 package s2d.textures
 
-import s2d.types.{Image, PixelFormat}
+import s2d.types.{Image, PixelFormat, Texture2D}
 import s2d.core.Window
 import s2d.sdl2.SDL.*
 import s2d.sdl2.Extras.*
@@ -65,13 +65,13 @@ object Images:
             if availableDataSize < expectedDataSize then
               return None
 
-            val pixelData = malloc(expectedDataSize.toULong).asInstanceOf[Ptr[stbi_uc]]
+            val pixelData = malloc(expectedDataSize.toLong).asInstanceOf[Ptr[stbi_uc]]
             if pixelData == null then
               return None
 
             fseek(file, headerSize, SEEK_SET)
 
-            val bytesRead = fread(pixelData.asInstanceOf[Ptr[Byte]], 1.toULong, expectedDataSize.toULong, file)
+            val bytesRead = fread(pixelData.asInstanceOf[Ptr[Byte]], 1.toCSize, expectedDataSize.toCSize, file)
             if bytesRead != expectedDataSize then
               stbi_image_free(pixelData.asInstanceOf[Ptr[Byte]])
               return None
@@ -98,11 +98,11 @@ object Images:
           if fileSize <= 0 then
             return None
 
-          val fileBuffer = alloc[stbi_uc](fileSize.toULong)
+          val fileBuffer = alloc[stbi_uc](fileSize.toInt)
           if fileBuffer == null then
             return None
 
-          val bytesRead = fread(fileBuffer.asInstanceOf[Ptr[Byte]], 1.toULong, fileSize.toULong, file)
+          val bytesRead = fread(fileBuffer.asInstanceOf[Ptr[Byte]], 1.toCSize, fileSize.toCSize, file)
           if bytesRead != fileSize then
             return None
 
@@ -114,7 +114,7 @@ object Images:
 
           val data = stbi_load_gif_from_memory(
             fileBuffer,
-            fileSize,
+            fileSize.toInt,
             delays,
             width, height, frames, channels, 0
           )
@@ -147,13 +147,13 @@ object Images:
           if dataSize <= 0 || fileData.length < dataSize then
             return None
 
-          val dataBuffer = alloc[stbi_uc](dataSize.toULong)
+          val dataBuffer = alloc[stbi_uc](dataSize.toInt)
           if dataBuffer == null then
             return None
 
           var i = 0
           while i < dataSize do
-            dataBuffer(i) = fileData(i).toUByte
+            dataBuffer(i) = fileData(i).asInstanceOf[stbi_uc]
             i += 1
 
           val width = alloc[CInt](1)
@@ -195,13 +195,13 @@ object Images:
           if dataSize <= 0 || fileData.length < dataSize then
             return None
 
-          val dataBuffer = alloc[stbi_uc](dataSize.toULong)
+          val dataBuffer = alloc[stbi_uc](dataSize.toInt)
           if dataBuffer == null then
             return None
 
           var i = 0
           while i < dataSize do
-            dataBuffer(i) = fileData(i).toUByte
+            dataBuffer(i) = fileData(i).asInstanceOf[stbi_uc]
             i += 1
 
           val width = alloc[CInt](1)
@@ -237,11 +237,11 @@ object Images:
         val bytesPerPixel = pixelFormat.bytesPerPixel
         val dataSize = texture.width * texture.height * bytesPerPixel
 
-        val pixelData = malloc(dataSize.toULong)
+        val pixelData = malloc(dataSize.toLong)
         if pixelData == null then
           return None
 
-        glBindTexture(GL_TEXTURE_2D, texture.id.toULong)
+        glBindTexture(GL_TEXTURE_2D, texture.id.toUInt)
 
         val (glFormat, glType) = texture.format match
           case f if f == PixelFormat.UncompressedGrayscale.value => (GL_LUMINANCE, GL_UNSIGNED_BYTE)
@@ -254,7 +254,7 @@ object Images:
           case _ => (GL_RGBA, GL_UNSIGNED_BYTE)
 
         glGetTexImage(GL_TEXTURE_2D, 0, glFormat, glType, pixelData.asInstanceOf[Ptr[Byte]])
-        glBindTexture(GL_TEXTURE_2D, 0.toULong)
+        glBindTexture(GL_TEXTURE_2D, 0.toUInt)
 
         Some(Image(pixelData.asInstanceOf[Ptr[Byte]], texture.width, texture.height, texture.mipmaps, texture.format))
       catch
@@ -269,13 +269,13 @@ object Images:
         val bytesPerPixel = 4
         val dataSize = width * height * bytesPerPixel
 
-        val tempPixelData = malloc(dataSize.toULong)
+        val tempPixelData = malloc(dataSize.toLong)
         if tempPixelData == null then
           return None
 
-        glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, tempPixelData.asInstanceOf[Ptr[Byte]])
+        glReadPixels(0, 0, width.toUInt, height.toUInt, GL_RGBA, GL_UNSIGNED_BYTE, tempPixelData.asInstanceOf[Ptr[Byte]])
 
-        val pixelData = malloc(dataSize.toULong)
+        val pixelData = malloc(dataSize.toLong)
         if pixelData == null then
           free(tempPixelData)
           return None
@@ -289,7 +289,7 @@ object Images:
           memcpy(
             pixelData.asInstanceOf[Ptr[Byte]] + dstRow,
             tempPixelData.asInstanceOf[Ptr[Byte]] + srcRow,
-            rowSize.toULong
+            rowSize.toCSize
           )
           y += 1
 
@@ -306,9 +306,9 @@ object Images:
         image.mipmaps > 0 &&
         PixelFormat.fromValue(image.format).isDefined
 
-    def unload(image: Image): Unit =
-      try
-        if image.data != null then
-          stbi_image_free(image.data)
-      catch
-        case _: Exception =>
+  def unload(image: Image): Unit =
+    try
+      if image.data != null then
+        stbi_image_free(image.data)
+    catch
+      case _: Exception =>
