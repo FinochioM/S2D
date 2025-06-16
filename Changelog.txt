@@ -11,6 +11,8 @@ v_0.1.5-SNAPSHOT:
 - added loadFromScreen function to Images.scala.
 - added isValid function to Images.scala.
 - modified unload function (added exception).
+- added getChannelCount and getBytesPerPixel functions to Images.scala.
+- finished the migration of Images.scala.
 
 v_0.1.4-SNAPSHOT:
 - Refactored the entire structure of the project

@@ -2,14 +2,11 @@ package s2d.textures
 
 import s2d.types.{Image, PixelFormat, Texture2D}
 import s2d.core.Window
-import s2d.sdl2.SDL.*
-import s2d.sdl2.Extras.*
 import s2d.gl.GL.*
 import s2d.gl.GLExtras.*
 import s2d.stb.all.*
 import scalanative.unsafe.*
 import scalanative.unsigned.*
-import scala.util.Using
 import scalanative.libc.stdio.*
 import scalanative.libc.stdlib.*
 import scalanative.libc.string.*
@@ -312,3 +309,20 @@ object Images:
         stbi_image_free(image.data)
     catch
       case _: Exception =>
+
+  def getChannelCount(format: Int): Int =
+    PixelFormat.fromValue(format) match
+      case Some(PixelFormat.UncompressedGrayscale) => 1
+      case Some(PixelFormat.UncompressedGrayAlpha) => 2
+      case Some(PixelFormat.UncompressedR5G6B5) => 3
+      case Some(PixelFormat.UncompressedRGB8) => 3
+      case Some(PixelFormat.UncompressedR5G6B5A1) => 4
+      case Some(PixelFormat.UncompressedR4G4B4A4) => 4
+      case Some(PixelFormat.UncompressedR8G8B8A8) => 4
+      case Some(PixelFormat.UncompressedR32) => 1
+      case Some(PixelFormat.UncompressedR32G32B32) => 3
+      case Some(PixelFormat.UncompressedR32G32B32A32) => 4
+      case _ => 4
+
+  def getBytesPerPixel(format: Int): Int =
+    PixelFormat.fromValue(format).map(_.bytesPerPixel).getOrElse(4)
