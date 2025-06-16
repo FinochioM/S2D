@@ -3,7 +3,10 @@ In this file you can find the changes made to every version of the library.
 
 06/2025
 v_0.1.5-SNAPSHOT:
-
+- changed load and loadRaw to use STB instead of SDL2_Image.
+- added unload function to Images.scala, necessary to free images.
+- added loadAnim, loadAnimFromMemory functions to Images.scala.
+- added loadFromMemory function to Images.scala.
 
 v_0.1.4-SNAPSHOT:
 - Refactored the entire structure of the project
