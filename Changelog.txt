@@ -7,6 +7,10 @@ v_0.1.5-SNAPSHOT:
 - added unload function to Images.scala, necessary to free images.
 - added loadAnim, loadAnimFromMemory functions to Images.scala.
 - added loadFromMemory function to Images.scala.
+- added loadFromTexture funtion to Images.scala.
+- added loadFromScreen function to Images.scala.
+- added isValid function to Images.scala.
+- modified unload function (added exception).
 
 v_0.1.4-SNAPSHOT:
 - Refactored the entire structure of the project

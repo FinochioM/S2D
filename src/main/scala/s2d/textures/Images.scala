@@ -1,8 +1,11 @@
 package s2d.textures
 
 import s2d.types.{Image, PixelFormat}
+import s2d.core.Window
 import s2d.sdl2.SDL.*
 import s2d.sdl2.Extras.*
+import s2d.gl.GL.*
+import s2d.gl.GLExtras.*
 import s2d.stb.all.*
 import scalanative.unsafe.*
 import scalanative.unsigned.*
@@ -226,6 +229,86 @@ object Images:
       catch
         case _: Exception => None
 
-  def unload(image: Image): Unit =
-    if image.data != null then
-      stbi_image_free(image.data)
+  def loadFromTexture(texture: Texture2D): Option[Image] =
+      try
+        if texture.id == 0 then return None
+
+        val pixelFormat = PixelFormat.fromValue(texture.format).getOrElse(PixelFormat.UncompressedR8G8B8A8)
+        val bytesPerPixel = pixelFormat.bytesPerPixel
+        val dataSize = texture.width * texture.height * bytesPerPixel
+
+        val pixelData = malloc(dataSize.toULong)
+        if pixelData == null then
+          return None
+
+        glBindTexture(GL_TEXTURE_2D, texture.id.toULong)
+
+        val (glFormat, glType) = texture.format match
+          case f if f == PixelFormat.UncompressedGrayscale.value => (GL_LUMINANCE, GL_UNSIGNED_BYTE)
+          case f if f == PixelFormat.UncompressedGrayAlpha.value => (GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE)
+          case f if f == PixelFormat.UncompressedRGB8.value => (GL_RGB, GL_UNSIGNED_BYTE)
+          case f if f == PixelFormat.UncompressedR8G8B8A8.value => (GL_RGBA, GL_UNSIGNED_BYTE)
+          case f if f == PixelFormat.UncompressedR5G6B5.value => (GL_RGB, GL_UNSIGNED_SHORT_5_6_5)
+          case f if f == PixelFormat.UncompressedR5G6B5A1.value => (GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1)
+          case f if f == PixelFormat.UncompressedR4G4B4A4.value => (GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4)
+          case _ => (GL_RGBA, GL_UNSIGNED_BYTE)
+
+        glGetTexImage(GL_TEXTURE_2D, 0, glFormat, glType, pixelData.asInstanceOf[Ptr[Byte]])
+        glBindTexture(GL_TEXTURE_2D, 0.toULong)
+
+        Some(Image(pixelData.asInstanceOf[Ptr[Byte]], texture.width, texture.height, texture.mipmaps, texture.format))
+      catch
+        case _: Exception => None
+
+  def loadFromScreen(): Option[Image] =
+      try
+        if !Window.isReady then return None
+
+        val width = Window.width
+        val height = Window.height
+        val bytesPerPixel = 4
+        val dataSize = width * height * bytesPerPixel
+
+        val tempPixelData = malloc(dataSize.toULong)
+        if tempPixelData == null then
+          return None
+
+        glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, tempPixelData.asInstanceOf[Ptr[Byte]])
+
+        val pixelData = malloc(dataSize.toULong)
+        if pixelData == null then
+          free(tempPixelData)
+          return None
+
+        val rowSize = width * bytesPerPixel
+        var y = 0
+        while y < height do
+          val srcRow = (height - 1 - y) * rowSize
+          val dstRow = y * rowSize
+
+          memcpy(
+            pixelData.asInstanceOf[Ptr[Byte]] + dstRow,
+            tempPixelData.asInstanceOf[Ptr[Byte]] + srcRow,
+            rowSize.toULong
+          )
+          y += 1
+
+        free(tempPixelData)
+
+        Some(Image(pixelData.asInstanceOf[Ptr[Byte]], width, height, 1, PixelFormat.UncompressedR8G8B8A8.value))
+      catch
+        case _: Exception => None
+
+  def isValid(image: Image): Boolean =
+      image.data != null &&
+        image.width > 0 &&
+        image.height > 0 &&
+        image.mipmaps > 0 &&
+        PixelFormat.fromValue(image.format).isDefined
+
+    def unload(image: Image): Unit =
+      try
+        if image.data != null then
+          stbi_image_free(image.data)
+      catch
+        case _: Exception =>
