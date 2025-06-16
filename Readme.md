@@ -18,7 +18,7 @@ Don't forget to give the repo a star! Thanks again!
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-_NOTE: Take into account that the project is built with Scala-CLI and you will need to manually link SDL2 and OpenGL. Go to the `build and installation` section to see the command._
+_**NOTE: Take into account that the project is built with Scala-CLI and you will need to manually link SDL2 and OpenGL. Go to the** `build and installation` **section to see the command.**_
 
 ## Basic Example
 
@@ -62,9 +62,9 @@ def main(): Unit =
 ## Build and Installation
 You can install S2D directly from Maven Central with the following link:
 </br> https://central.sonatype.com/artifact/io.github.finochiom/s2d_native0.5_3
-
-_Another way of using S2D is through jitpack._
-</br> _Just go to https://jitpack.io/#FinochioM/S2D and follow their instructions._
+<br>
+<br>_**Publishing to Maven Central is currently on hold because of an issue with Scala-CLI.**_
+<br>_**The last version available on Maven is the 1.0.1, which is an outdated version. If you want to use the latest version you can check the last release on this repository and download it through Jitpack.**_
 
 Here is an example of the `build.sbt` and `plugins.sbt` file with the Maven configuration.
 
@@ -103,12 +103,12 @@ lazy val root = (project in file("."))
 addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.8")
 ```
 
-_NOTE 1: To run the project I recommend using Scala-CLI. You should be able to use this command `scala-cli run . --native-compile -I<path-to-include> --native-linking -lSDL2 --native-linking -L<path-to-lib> --native-linking -lopengl32`_
+_**NOTE 1: To run the project I recommend using Scala-CLI. You should be able to use this command** `scala-cli run . --native-compile -I<path-to-include> --native-linking -lSDL2 --native-linking -L<path-to-lib> --native-linking -lopengl32`_
 </br>
-</br>_NOTE 2: If you are planning to use SBT anyway I recommend creating an SBT task with the `run` command. The libraries will be linked through the `build.sbt` file as showed above._
+</br>_**NOTE 2: If you are planning to use SBT anyway I recommend creating an SBT task with the** `run` **command. The libraries will be linked through the** `build.sbt` **file as showed above.**_
 </br>
 </br>
-_NOTE 3: Version 1.0.0 of S2D uses LWJGL as the backend, so it will NOT work with Scala Native, from 1.0.1 on it uses SDL2_
+_NOTE 3: **Version** `1.0.1` **uses the wrong version scheme. S2D will be using the** `early-semver` **scheme, starting from** `0.1.2-SNAPSHOT`**.**_
 
 ## License
 S2D is licensed under the *zlib* license. Read the [LICENSE](https://github.com/FinochioM/S2D/blob/master/LICENSE) for more information.
