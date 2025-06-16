@@ -4,7 +4,7 @@
 //> using scalacOptions -Wconf:msg=indented:silent
 //> using exclude sandbox/*
 
-//> using publish.version 0.1.5-SNAPSHOT
+//> using publish.version 0.1.6-SNAPSHOT
 //> using publish.developers "FinochioM|Matias Finochio|https://github.com/FinochioM"
 //> using publish.license zlib|https://zlib.net/zlib_license.html
 //> using publish.name s2d
