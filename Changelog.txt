@@ -2,6 +2,13 @@ S2D Changelog File.
 In this file you can find the changes made to every version of the library.
 
 06/2025
+v_0.1.5-SNAPSHOT:
+
+
+v_0.1.4-SNAPSHOT:
+- Refactored the entire structure of the project
+- added stb bindings.
+
 v_0.1.3-SNAPSHOT:
 - Added new SDL_Image and SDL_ImageExtras files.
 - Updated project.scala file.

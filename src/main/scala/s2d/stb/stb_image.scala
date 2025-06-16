@@ -1,13 +1,13 @@
-package stb_image
+package s2d.stb
 
-import _root_.scala.scalanative.unsafe.*
-import _root_.scala.scalanative.unsigned.*
-import _root_.scala.scalanative.libc.*
-import _root_.scala.scalanative.*
+import scalanative.unsafe.*
+import scala.scalanative.unsigned.*
+import scalanative.libc.*
+import scalanative.*
 
 object aliases:
-  import _root_.stb_image.aliases.*
-  import _root_.stb_image.structs.*
+  import aliases.*
+  import structs.*
   type FILE = libc.stdio.FILE
   object FILE:
     val _tag: Tag[FILE] = summon[Tag[libc.stdio.FILE]]
@@ -36,8 +36,8 @@ object aliases:
       inline def value: CUnsignedShort = v
 
 object structs:
-  import _root_.stb_image.aliases.*
-  import _root_.stb_image.structs.*
+  import aliases.*
+  import structs.*
   /**
    * ///////////////////////////////////////////////////////////////////////////
 
@@ -63,9 +63,9 @@ object structs:
 
 
 @extern
-private[stb_image] object extern_functions:
-  import _root_.stb_image.aliases.*
-  import _root_.stb_image.structs.*
+private[stb] object extern_functions:
+  import aliases.*
+  import structs.*
   /**
    * [bindgen] header: C:\libs\STB\include\stb\stb_image.h
   */
@@ -287,8 +287,8 @@ private[stb_image] object extern_functions:
 
 
 object functions:
-  import _root_.stb_image.aliases.*
-  import _root_.stb_image.structs.*
+  import aliases.*
+  import structs.*
   import extern_functions.*
   export extern_functions.*
 
@@ -300,54 +300,54 @@ object constants:
   val STBI_rgb_alpha: CInt = 4
 
 object types:
-  export _root_.stb_image.structs.*
-  export _root_.stb_image.aliases.*
+  export structs.*
+  export aliases.*
 
 object all:
-  export _root_.stb_image.aliases.FILE
-  export _root_.stb_image.aliases.stbi_uc
-  export _root_.stb_image.aliases.stbi_us
-  export _root_.stb_image.structs.stbi_io_callbacks
-  export _root_.stb_image.functions.stbi_convert_iphone_png_to_rgb
-  export _root_.stb_image.functions.stbi_convert_iphone_png_to_rgb_thread
-  export _root_.stb_image.functions.stbi_failure_reason
-  export _root_.stb_image.functions.stbi_hdr_to_ldr_gamma
-  export _root_.stb_image.functions.stbi_hdr_to_ldr_scale
-  export _root_.stb_image.functions.stbi_image_free
-  export _root_.stb_image.functions.stbi_info
-  export _root_.stb_image.functions.stbi_info_from_callbacks
-  export _root_.stb_image.functions.stbi_info_from_file
-  export _root_.stb_image.functions.stbi_info_from_memory
-  export _root_.stb_image.functions.stbi_is_16_bit
-  export _root_.stb_image.functions.stbi_is_16_bit_from_callbacks
-  export _root_.stb_image.functions.stbi_is_16_bit_from_file
-  export _root_.stb_image.functions.stbi_is_16_bit_from_memory
-  export _root_.stb_image.functions.stbi_is_hdr
-  export _root_.stb_image.functions.stbi_is_hdr_from_callbacks
-  export _root_.stb_image.functions.stbi_is_hdr_from_file
-  export _root_.stb_image.functions.stbi_is_hdr_from_memory
-  export _root_.stb_image.functions.stbi_ldr_to_hdr_gamma
-  export _root_.stb_image.functions.stbi_ldr_to_hdr_scale
-  export _root_.stb_image.functions.stbi_load
-  export _root_.stb_image.functions.stbi_load_16
-  export _root_.stb_image.functions.stbi_load_16_from_callbacks
-  export _root_.stb_image.functions.stbi_load_16_from_memory
-  export _root_.stb_image.functions.stbi_load_from_callbacks
-  export _root_.stb_image.functions.stbi_load_from_file
-  export _root_.stb_image.functions.stbi_load_from_file_16
-  export _root_.stb_image.functions.stbi_load_from_memory
-  export _root_.stb_image.functions.stbi_load_gif_from_memory
-  export _root_.stb_image.functions.stbi_loadf
-  export _root_.stb_image.functions.stbi_loadf_from_callbacks
-  export _root_.stb_image.functions.stbi_loadf_from_file
-  export _root_.stb_image.functions.stbi_loadf_from_memory
-  export _root_.stb_image.functions.stbi_set_flip_vertically_on_load
-  export _root_.stb_image.functions.stbi_set_flip_vertically_on_load_thread
-  export _root_.stb_image.functions.stbi_set_unpremultiply_on_load
-  export _root_.stb_image.functions.stbi_set_unpremultiply_on_load_thread
-  export _root_.stb_image.functions.stbi_zlib_decode_buffer
-  export _root_.stb_image.functions.stbi_zlib_decode_malloc
-  export _root_.stb_image.functions.stbi_zlib_decode_malloc_guesssize
-  export _root_.stb_image.functions.stbi_zlib_decode_malloc_guesssize_headerflag
-  export _root_.stb_image.functions.stbi_zlib_decode_noheader_buffer
-  export _root_.stb_image.functions.stbi_zlib_decode_noheader_malloc
+  export aliases.FILE
+  export aliases.stbi_uc
+  export aliases.stbi_us
+  export structs.stbi_io_callbacks
+  export functions.stbi_convert_iphone_png_to_rgb
+  export functions.stbi_convert_iphone_png_to_rgb_thread
+  export functions.stbi_failure_reason
+  export functions.stbi_hdr_to_ldr_gamma
+  export functions.stbi_hdr_to_ldr_scale
+  export functions.stbi_image_free
+  export functions.stbi_info
+  export functions.stbi_info_from_callbacks
+  export functions.stbi_info_from_file
+  export functions.stbi_info_from_memory
+  export functions.stbi_is_16_bit
+  export functions.stbi_is_16_bit_from_callbacks
+  export functions.stbi_is_16_bit_from_file
+  export functions.stbi_is_16_bit_from_memory
+  export functions.stbi_is_hdr
+  export functions.stbi_is_hdr_from_callbacks
+  export functions.stbi_is_hdr_from_file
+  export functions.stbi_is_hdr_from_memory
+  export functions.stbi_ldr_to_hdr_gamma
+  export functions.stbi_ldr_to_hdr_scale
+  export functions.stbi_load
+  export functions.stbi_load_16
+  export functions.stbi_load_16_from_callbacks
+  export functions.stbi_load_16_from_memory
+  export functions.stbi_load_from_callbacks
+  export functions.stbi_load_from_file
+  export functions.stbi_load_from_file_16
+  export functions.stbi_load_from_memory
+  export functions.stbi_load_gif_from_memory
+  export functions.stbi_loadf
+  export functions.stbi_loadf_from_callbacks
+  export functions.stbi_loadf_from_file
+  export functions.stbi_loadf_from_memory
+  export functions.stbi_set_flip_vertically_on_load
+  export functions.stbi_set_flip_vertically_on_load_thread
+  export functions.stbi_set_unpremultiply_on_load
+  export functions.stbi_set_unpremultiply_on_load_thread
+  export functions.stbi_zlib_decode_buffer
+  export functions.stbi_zlib_decode_malloc
+  export functions.stbi_zlib_decode_malloc_guesssize
+  export functions.stbi_zlib_decode_malloc_guesssize_headerflag
+  export functions.stbi_zlib_decode_noheader_buffer
+  export functions.stbi_zlib_decode_noheader_malloc
