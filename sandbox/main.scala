@@ -2,12 +2,13 @@
 //> using platform scala-native
 //> using nativeVersion 0.5.8
 //> using scalacOptions -Wconf:msg=indented:silent
-//> using dep "io.github.FinochioM::s2d::0.1.6-SNAPSHOT"
+//> using dep "io.github.FinochioM::s2d::0.1.8-SNAPSHOT"
 
 package sandbox
 
 import s2d.core.{Window, Drawing}
 import s2d.shapes.Basics
+import s2d.textures.Textures
 import s2d.types.*
 import scalanative.unsafe.*
 import scalanative.unsigned.*
@@ -23,6 +24,8 @@ def main(): Unit =
     zoom = 1.0f
   )
 
+  val textureOpt = Textures.load("assets/grill.png")
+
   val rect = Rectangle(400, 300, 100, 200)
 
   while !Window.shouldCloseWindow() do
@@ -31,6 +34,11 @@ def main(): Unit =
 
     Drawing.beginCamera(camera2D)
 
+    textureOpt match
+      case Some(texture) =>
+        Textures.draw(texture, 100, 100, Color.White)
+      case None =>
+        Basics.rectangle(rect, Color.Red)
 
     Drawing.endCamera()
     Drawing.endFrame()

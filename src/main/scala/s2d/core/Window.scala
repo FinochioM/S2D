@@ -5,6 +5,7 @@ import s2d.sdl2.SDL.*
 import s2d.sdl2.Extras.*
 import s2d.gl.GL.*
 import s2d.gl.GLExtras.*
+import s2d.gl.GLEWHelper
 import scalanative.unsafe.*
 import scalanative.unsigned.*
 import scala.util.boundary, boundary.break
@@ -76,6 +77,9 @@ object Window:
 
       SDL_GL_MakeCurrent(windowHandle, glContext)
       SDL_GL_SetSwapInterval(1)
+
+      if !GLEWHelper.initializeGLEW() then
+        throw new RuntimeException("Failed to initialize GLEW")
 
       glViewport(0, 0, width.toUInt, height.toUInt)
       glEnable(GL_BLEND)

@@ -4,6 +4,8 @@ If you want to help improve the library you can also make a push request or just
 
 SCALA NATIVE MIGRATION:
 - Finish the migration of the backend from LWJGL to SDL2.
+- Manage the project setup better. It is not good that users have to manually link libraries and place dll files in their projects.
+  I could probably make some sort of script that does this automatically or just find a better way to manage the dependencies.
 
 Currently Available Packages:
 

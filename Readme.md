@@ -18,7 +18,7 @@ Don't forget to give the repo a star! Thanks again!
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-_**NOTE: Take into account that the project is built with Scala-CLI and you will need to manually link SDL2 and OpenGL. Go to the** `build and installation` **section to see the command.**_
+_**Go to the _[CONTRIBUTING](https://github.com/FinochioM/S2D/blob/master/.github/CONTRIBUTING)_ file to see what are the requirements of building and running the project.**_
 
 ## Basic Example
 
@@ -59,14 +59,15 @@ def main(): Unit =
   Window.close()
 ```
 
-## Build and Installation
+## Installation
 You can install S2D directly from Maven Central with the following link:
 </br> https://central.sonatype.com/artifact/io.github.finochiom/s2d_native0.5_3
 <br>
 <br>_**Publishing to Maven Central is currently on hold because of an issue with Scala-CLI.**_
 <br>_**The last version available on Maven is the 1.0.1, which is an outdated version. If you want to use the latest version you can check the last release on this repository and download it through Jitpack.**_
 
-Here is an example of the `build.sbt` and `plugins.sbt` file with the Maven configuration.
+If you use SBT:<br>
+`build.sbt` & `plugins.sbt`
 
 ```scala
 import scala.scalanative.build._
@@ -84,7 +85,9 @@ lazy val root = (project in file("."))
         .withGC(GC.commix)
         .withCompileOptions(
           Seq(
-            "-IC:\\libs\\SDL2\\include",
+            "-I<path-to-SDL2_include>", // Replace with your SDL2 include path
+            "-I<path-to-STB_include>",        // Replace with your STb include path
+            "-I<path-to-GLEW_include>",       // Replace with your GLEW include path
             "-I/usr/local/include",
             "-I/usr/include"
           )
@@ -92,8 +95,13 @@ lazy val root = (project in file("."))
         .withLinkingOptions(
           Seq(
             "-lSDL2",
-            "-LC:\\libs\\SDL2\\lib",
-            "-lopengl32"
+            "-L<path-to-SDL2_lib>", // Replace with your SDL2 library path
+            "-L<path-to-STB_lib>",                 // Replace with your STB library path
+            "-lstb_image",                     // This is the name of the STB library (std_image.lib)
+            "-L<path-to-GLEWx64_lib>", // Replace with your GLEW library path
+            "-lglew32",                        // This is the name of the GLEW library (glew32.lib)
+            "-lopengl32",
+            "-lglu32"
           )
         )
     }
@@ -102,13 +110,25 @@ lazy val root = (project in file("."))
 ```scala
 addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.8")
 ```
+If you use Scala-CLI:<br>
+`project.scala`
+```scala
+//> using scala 3.3.6
+//> using platform scala-native
+//> using nativeVersion 0.5.8
+//> using dep io.github.finochiom::s2d_native:version
+```
+Or run this command in a terminal:
+```scala
+scala-cli run . --dependency io.github.finochiom::s2d_native:version
+```
 
-_**NOTE 1: To run the project I recommend using Scala-CLI. You should be able to use this command** `scala-cli run . --native-compile -I<path-to-include> --native-linking -lSDL2 --native-linking -L<path-to-lib> --native-linking -lopengl32`_
+_**To be able to Build and Run the project you will need to manually link the libraries and their headers. The project currently uses SDL2, STB, GLEW and OpenGL. You can refer to the _[CONTRIBUTING](https://github.com/FinochioM/S2D/blob/master/.github/CONTRIBUTING)_ file to see how to do it.**_
 </br>
-</br>_**NOTE 2: If you are planning to use SBT anyway I recommend creating an SBT task with the** `run` **command. The libraries will be linked through the** `build.sbt` **file as showed above.**_
+</br>_**NOTE 1: You will need to place the `glew32.dll` and `sdl2.dll` files in the root folder of your project. Again you can refer to the _[CONTRIBUTING](https://github.com/FinochioM/S2D/blob/master/.github/CONTRIBUTING)_ file to download them.**_
 </br>
 </br>
-_NOTE 3: **Version** `1.0.1` **uses the wrong version scheme. S2D will be using the** `early-semver` **scheme, starting from** `0.1.2-SNAPSHOT`**.**_
+_**NOTE 2: Version** `1.0.1` **uses the wrong version scheme. S2D will be using the** `early-semver` **scheme, starting from** `0.1.2-SNAPSHOT`_
 
 ## License
 S2D is licensed under the *zlib* license. Read the [LICENSE](https://github.com/FinochioM/S2D/blob/master/LICENSE) for more information.

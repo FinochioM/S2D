@@ -2,6 +2,22 @@ S2D Changelog File.
 In this file you can find the changes made to every version of the library.
 
 06/2025
+v_0.1.6-SNAPSHOT:
+- started the migration of the textures package.
+- added all the different load textures functions to Textures.scala.
+- added unload function to Textures.scala, necessary to free textures.
+- added update and updateRec to Textures.scala.
+- added GLEW bindings to gl package.
+- updated Window.scala (create function) to use GLEW.
+- updated load functions in Textures.scala to use GLEWHelper.
+- added assets folder to sandbox project.
+- updated build.bat in sandbox project to link GLEW.
+- added CONTRIBUTING.md file. Used to explain how to contribute to the project with the correct binaries and libraries.
+- updated README.md file with new information about how to build and run the library.
+- updated README.md, specified where to download dll and binaries.
+- manually placed the glew32.dll and sdl2.dll files in the sandbox root folder. THIS SHOULD BE CHANGED.
+- updated LIBRARY_EXPANSION.txt file, added new goal for the scala migration about the current state of project setup.
+
 v_0.1.5-SNAPSHOT:
 - changed load and loadRaw to use STB instead of SDL2_Image.
 - added unload function to Images.scala, necessary to free images.

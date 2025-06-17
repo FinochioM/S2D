@@ -4,6 +4,7 @@ import s2d.textures.Images.*
 import s2d.types.*
 import s2d.gl.GL.*
 import s2d.gl.GLExtras.*
+import s2d.gl.GLEWHelper
 import scalanative.unsafe.*
 import scalanative.unsigned.*
 import scalanative.libc.stdio.*
@@ -41,7 +42,7 @@ object Textures:
             glTexParameteri(GL_TEXTURE_2D.toUInt, GL_TEXTURE_MIN_FILTER.toUInt, GL_LINEAR.toInt)
             glTexParameteri(GL_TEXTURE_2D.toUInt, GL_TEXTURE_MAG_FILTER.toUInt, GL_LINEAR.toInt)
 
-            glGenerateMipmap(GL_TEXTURE_2D.toUInt)
+            GLEWHelper.glGenerateMipmap(GL_TEXTURE_2D.toUInt)
             glBindTexture(GL_TEXTURE_2D.toUInt, 0.toUInt)
             Images.unload(image)
 
@@ -83,7 +84,7 @@ object Textures:
         glTexParameteri(GL_TEXTURE_2D.toUInt, GL_TEXTURE_MIN_FILTER.toUInt, GL_LINEAR.toInt)
         glTexParameteri(GL_TEXTURE_2D.toUInt, GL_TEXTURE_MAG_FILTER.toUInt, GL_LINEAR.toInt)
 
-        glGenerateMipmap(GL_TEXTURE_2D.toUInt)
+        GLEWHelper.glGenerateMipmap(GL_TEXTURE_2D.toUInt)
 
         glBindTexture(GL_TEXTURE_2D.toUInt, 0.toUInt)
 
@@ -326,3 +327,30 @@ object Textures:
       glBindTexture(GL_TEXTURE_2D.toUInt, 0.toUInt)
     catch
       case _: Exception =>
+
+  def draw(texture: Texture2D, posX: Int, posY: Int, tint: Color): Unit =
+    if texture.id == 0 then return
+
+    glEnable(GL_TEXTURE_2D.toUInt)
+    glBindTexture(GL_TEXTURE_2D.toUInt, texture.id.toUInt)
+    glColor4f(tint.r / 255.0f, tint.g / 255.0f, tint.b / 255.0f, tint.a / 255.0f)
+
+    glBegin(GL_QUADS.toUInt)
+    glTexCoord2f(0.0f, 0.0f)
+    glVertex2f(posX.toFloat, posY.toFloat)
+
+    glTexCoord2f(1.0f, 0.0f)
+    glVertex2f(posX.toFloat + texture.width, posY.toFloat)
+
+    glTexCoord2f(1.0f, 1.0f)
+    glVertex2f(posX.toFloat + texture.width, posY.toFloat + texture.height)
+
+    glTexCoord2f(0.0f, 1.0f)
+    glVertex2f(posX.toFloat, posY.toFloat + texture.height)
+    glEnd()
+
+    glBindTexture(GL_TEXTURE_2D.toUInt, 0.toUInt)
+    glDisable(GL_TEXTURE_2D.toUInt)
+
+  def draw(texture: Texture2D, position: Vector2, tint: Color): Unit =
+    draw(texture, position.x.toInt, position.y.toInt, tint)

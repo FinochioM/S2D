@@ -2400,7 +2400,7 @@ object GL:
       pname: GLenum,
       params: Ptr[GLint]
   ): Unit = extern
-  def glGenerateMipmap(target: GLenum): Unit = extern
+  //def glGenerateMipmap(target: GLenum): Unit = extern
   def glBlitFramebuffer(
       srcX0: GLint,
       srcY0: GLint,
