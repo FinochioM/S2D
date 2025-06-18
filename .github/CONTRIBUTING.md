@@ -32,6 +32,6 @@ _**Again note that in the `main.scala` file inside the sandbox folder you will f
 
 ## Important Notes
 **As explained above it is a MUST that you have the libraries stored locally in your computer.**<br>
-**It is also important to read the `BUILD AND INSTALLATION` section of the [README.md](https://github.com/FinochioM/S2D/blob/master/README.md) file**<br>
+**It is also important to read the `NSTALLATION` section of the [README.md](https://github.com/FinochioM/S2D/blob/master/README.md) file**<br>
 
 If you followed these steps and the project compiles and runs correctly, then you are ready to contribute with whatever you feel like!

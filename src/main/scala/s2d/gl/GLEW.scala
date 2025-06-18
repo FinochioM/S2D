@@ -30,7 +30,6 @@ object GLEWHelper:
   def initializeGLEW(): Boolean =
     val result = GLEW.glewInit()
     if result == GLEW_OK then
-      println(s"GLEW initialized successfully")
       loadModernGLFunctions()
       true
     else

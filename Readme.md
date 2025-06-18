@@ -18,7 +18,7 @@ Don't forget to give the repo a star! Thanks again!
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-_**Go to the _[CONTRIBUTING](https://github.com/FinochioM/S2D/blob/master/.github/CONTRIBUTING)_ file to see what are the requirements of building and running the project.**_
+_**Go to the _[CONTRIBUTING](https://github.com/FinochioM/S2D/blob/master/.github/CONTRIBUTING.md)_ file to see what are the requirements of building and running the project.**_
 
 ## Basic Example
 
@@ -60,75 +60,36 @@ def main(): Unit =
 ```
 
 ## Installation
-You can install S2D directly from Maven Central with the following link:
-</br> https://central.sonatype.com/artifact/io.github.finochiom/s2d_native0.5_3
+S2D has a custom CLI Tool that lets you create a new template project with either SBT or Scala CLI.<br>
+Here is a step-by-step guide (You need Coursier installed on your machine):
+
+**The fastest way to set up a new project is running this command in your terminal:**
+
+```
+cs launch io.github.finochiom:s2d-cli_3:0.1.0 -- --generate
+```
+
+_This command will launch the S2D_CLI with the `--generate` command directly._
+
+**If you want to install the CLI locally on your machine you can follow these steps:**
+1. Go into the directory where you want to install the CLI Tool
+2. Run the following command:
+```
+cs bootstrap io.github.finochiom:s2d-cli_3:0.1.0 --main main -o s2d-cli
+```
+_This will generate 2 files: `s2d_cli` & `s2d_cli.bat`_
+3. After that you can run the CLI Tool like this:
+```
+s2d-cli --<command>
+```
+
+
+_**NOTE 1: The CLI Tool has its own repository where you can find the latest release. (https://github.com/FinochioM/S2D_CLI)**_
 <br>
-<br>_**Publishing to Maven Central is currently on hold because of an issue with Scala-CLI.**_
-<br>_**The last version available on Maven is the 1.0.1, which is an outdated version. If you want to use the latest version you can check the last release on this repository and download it through Jitpack.**_
-
-If you use SBT:<br>
-`build.sbt` & `plugins.sbt`
-
-```scala
-import scala.scalanative.build._
-
-ThisBuild / version := "0.1.0-SNAPSHOT"
-ThisBuild / scalaVersion := "3.3.6"
-
-lazy val root = (project in file("."))
-  .enablePlugins(ScalaNativePlugin)
-  .settings(
-    name := "TEST_S2D_Native",
-    libraryDependencies += "io.github.finochiom" % "s2d_native0.5_3" % "1.0.1",
-    nativeConfig ~= { c =>
-      c.withMode(Mode.debug)
-        .withGC(GC.commix)
-        .withCompileOptions(
-          Seq(
-            "-I<path-to-SDL2_include>", // Replace with your SDL2 include path
-            "-I<path-to-STB_include>",        // Replace with your STb include path
-            "-I<path-to-GLEW_include>",       // Replace with your GLEW include path
-            "-I/usr/local/include",
-            "-I/usr/include"
-          )
-        )
-        .withLinkingOptions(
-          Seq(
-            "-lSDL2",
-            "-L<path-to-SDL2_lib>", // Replace with your SDL2 library path
-            "-L<path-to-STB_lib>",                 // Replace with your STB library path
-            "-lstb_image",                     // This is the name of the STB library (std_image.lib)
-            "-L<path-to-GLEWx64_lib>", // Replace with your GLEW library path
-            "-lglew32",                        // This is the name of the GLEW library (glew32.lib)
-            "-lopengl32",
-            "-lglu32"
-          )
-        )
-    }
-  )
-```
-```scala
-addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.8")
-```
-If you use Scala-CLI:<br>
-`project.scala`
-```scala
-//> using scala 3.3.6
-//> using platform scala-native
-//> using nativeVersion 0.5.8
-//> using dep io.github.finochiom::s2d_native:version
-```
-Or run this command in a terminal:
-```scala
-scala-cli run . --dependency io.github.finochiom::s2d_native:version
-```
-
-_**To be able to Build and Run the project you will need to manually link the libraries and their headers. The project currently uses SDL2, STB, GLEW and OpenGL. You can refer to the _[CONTRIBUTING](https://github.com/FinochioM/S2D/blob/master/.github/CONTRIBUTING)_ file to see how to do it.**_
-</br>
-</br>_**NOTE 1: You will need to place the `glew32.dll` and `sdl2.dll` files in the root folder of your project. Again you can refer to the _[CONTRIBUTING](https://github.com/FinochioM/S2D/blob/master/.github/CONTRIBUTING)_ file to download them.**_
-</br>
-</br>
+<br>
 _**NOTE 2: Version** `1.0.1` **uses the wrong version scheme. S2D will be using the** `early-semver` **scheme, starting from** `0.1.2-SNAPSHOT`_
-
+<br>
+<br>
+_**NOTE 3: If you don't want to use the CLI you will need to manually link the libraries, headers and dlls. If you don't do this the library will not work. You can go to the _[CONTRIBUTING](https://github.com/FinochioM/S2D/blob/master/.github/CONTRIBUTING.md)_ file for more information.**_
 ## License
 S2D is licensed under the *zlib* license. Read the [LICENSE](https://github.com/FinochioM/S2D/blob/master/LICENSE) for more information.
