@@ -17,6 +17,9 @@ v_0.1.6-SNAPSHOT:
 - updated README.md, specified where to download dll and binaries.
 - manually placed the glew32.dll and sdl2.dll files in the sandbox root folder. THIS SHOULD BE CHANGED.
 - updated LIBRARY_EXPANSION.txt file, added new goal for the scala migration about the current state of project setup.
+- created a small CLI application as the main project creation tool.
+- updated README.md file with the new project creation step by step.
+- changed from Scala-CLI to SBT as the main build system.
 
 v_0.1.5-SNAPSHOT:
 - changed load and loadRaw to use STB instead of SDL2_Image.
