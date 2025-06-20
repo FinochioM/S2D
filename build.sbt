@@ -5,6 +5,22 @@ ThisBuild / versionScheme := Some("early-semver")
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
+// Copied from the Scala Native docs
+// https://scala-native.org/en/stable/user/sbt.html
+// set to Debug for compilation details (Info is default)
+ThisBuild / logLevel := Level.Info
+
+// import to add Scala Native options
+import scala.scalanative.build._
+
+// defaults set with common options shown
+ThisBuild / nativeConfig ~= { c =>
+  c.withLTO(LTO.none) // thin
+    .withMode(Mode.debug) // releaseFast
+    .withGC(GC.immix) // commix
+}
+//
+
 lazy val root =
   (project in file("."))
     .enablePlugins(ScalaNativePlugin)
@@ -21,6 +37,15 @@ lazy val s2d =
       name := "s2d",
       commonSettings ++ publishSettings
     )
+
+lazy val sandbox =
+  (project in file("sandbox"))
+    .enablePlugins(ScalaNativePlugin)
+    .settings(
+      name := "s2d",
+      commonSettings ++ neverPublish
+    )
+    .dependsOn(s2d)
 
 lazy val commonSettings = {
   Seq(
