@@ -69,22 +69,21 @@ Here is a step-by-step guide (You need Coursier installed on your machine):
 cs launch io.github.finochiom:s2d-cli_3:0.1.0 -- --generate
 ```
 
-_This command will launch the S2D_CLI with the `--generate` command directly._
+_This command will launch S2D_CLI with the `--generate` command directly. **(Please take into account you will need to manually change the version of the CLI to the latest one)**_
 
 **If you want to install the CLI locally on your machine you can follow these steps:**
-1. Go into the directory where you want to install the CLI Tool
-2. Run the following command:
+1. Run the following command:
 ```
-cs bootstrap io.github.finochiom:s2d-cli_3:0.1.0 --main main -o s2d-cli
+cs install s2d --contrib
 ```
-_This will generate 2 files: `s2d_cli` & `s2d_cli.bat`_
-3. After that you can run the CLI Tool like this:
+_This will generate install the s2d-cli application in your machine. **Refer to the coursier documentation to see where the applications are installed.**_
+2. After that you can run the CLI Tool like this:
 ```
-s2d-cli --<command>
+s2d --<command>
 ```
+_You can run the `--help` command to see the commands available_
 
-
-_**NOTE 1: The CLI Tool has its own repository where you can find the latest release. (https://github.com/FinochioM/S2D_CLI)**_
+_**NOTE 1: The CLI Tool has its own repository where you can find the changelog and latest release (The `install` command automatically installs the latest version)** **https://github.com/FinochioM/S2D_CLI**_
 <br>
 <br>
 _**NOTE 2: Version** `1.0.1` **uses the wrong version scheme. S2D will be using the** `early-semver` **scheme, starting from** `0.1.2-SNAPSHOT`_
