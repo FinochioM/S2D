@@ -2,6 +2,11 @@ S2D Changelog File.
 In this file you can find the changes made to every version of the library.
 
 06/2025
+v_0.1.7-SNAPSHOT:
+- created Shaders.scala file.
+- started adding shader functions to Shaders.scala.
+- fixed description on build.sbt file.
+
 v_0.1.6-SNAPSHOT:
 - started the migration of the textures package.
 - added all the different load textures functions to Textures.scala.

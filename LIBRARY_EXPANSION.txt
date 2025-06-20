@@ -2,11 +2,6 @@ S2D Library Expansion file.
 In here I will add whatever ideas I come up with and also anything that could make the library better.
 If you want to help improve the library you can also make a push request or just let me know what you would like to see in S2D.
 
-SCALA NATIVE MIGRATION:
-- Finish the migration of the backend from LWJGL to SDL2.
-- Manage the project setup better. It is not good that users have to manually link libraries and place dll files in their projects.
-  I could probably make some sort of script that does this automatically or just find a better way to manage the dependencies.
-
 Currently Available Packages:
 
 CORE PACKAGE:

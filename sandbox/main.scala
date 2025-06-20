@@ -2,7 +2,7 @@
 //> using platform scala-native
 //> using nativeVersion 0.5.8
 //> using scalacOptions -Wconf:msg=indented:silent
-// //> using dep "io.github.FinochioM::s2d::0.1.8-SNAPSHOT"
+//> using dep "io.github.finochiom:s2d_native0.5_3:0.1.6"
 
 package sandbox
 

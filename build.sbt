@@ -1,4 +1,4 @@
-ThisBuild / version := "0.1.6"
+ThisBuild / version := "0.1.7-SNAPSHOT"
 ThisBuild / scalaVersion := "3.3.6"
 ThisBuild / organization := "io.github.finochiom"
 ThisBuild / versionScheme := Some("early-semver")
@@ -33,7 +33,7 @@ lazy val root = (project in file("."))
 
     pgpSigningKey := Some("FD3BD1C64C106A9B"),
 
-    description := "The S2D CLI tool for creating and managing S2D projects",
+    description := "A simple to use 2D videogames programming library written in Scala",
     publishTo := Some(Resolver.file("local-repo", file(sys.props("user.home") + "/.m2/repository"))),
 
     Compile / packageDoc / publishArtifact := true,

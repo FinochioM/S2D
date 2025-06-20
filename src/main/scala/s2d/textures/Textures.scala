@@ -354,3 +354,102 @@ object Textures:
 
   def draw(texture: Texture2D, position: Vector2, tint: Color): Unit =
     draw(texture, position.x.toInt, position.y.toInt, tint)
+
+  def drawEx(texture: Texture2D, position: Vector2, rotation: Float, scale: Float, tint: Color): Unit =
+    if texture.id == 0 then return
+
+    glEnable(GL_TEXTURE_2D.toUInt)
+    glBindTexture(GL_TEXTURE_2D.toUInt, texture.id.toUInt)
+    glColor4f(tint.r / 255.0f, tint.g / 255.0f, tint.b / 255.0f, tint.a / 255.0f)
+
+    glPushMatrix()
+    glTranslatef(position.x, position.y, 0.0f)
+    glRotatef(rotation, 0.0f, 0.0f, 1.0f)
+    glScalef(scale, scale, 1.0f)
+
+    val width = texture.width * scale
+    val height = texture.height * scale
+
+    glBegin(GL_QUADS.toUInt)
+    glTexCoord2f(0.0f, 0.0f)
+    glVertex2f(0.0f, 0.0f)
+
+    glTexCoord2f(1.0f, 0.0f)
+    glVertex2f(width, 0.0f)
+
+    glTexCoord2f(1.0f, 1.0f)
+    glVertex2f(width, height)
+
+    glTexCoord2f(0.0f, 1.0f)
+    glVertex2f(0.0f, height)
+    glEnd()
+
+    glPopMatrix()
+    glBindTexture(GL_TEXTURE_2D.toUInt, 0.toUInt)
+    glDisable(GL_TEXTURE_2D.toUInt)
+
+  def drawRec(texture: Texture2D, source: Rectangle, position: Vector2, tint: Color): Unit =
+    if texture.id == 0 then return
+    if source.width <= 0 || source.height <= 0 then return
+
+    glEnable(GL_TEXTURE_2D.toUInt)
+    glBindTexture(GL_TEXTURE_2D.toUInt, texture.id.toUInt)
+    glColor4f(tint.r / 255.0f, tint.g / 255.0f, tint.b / 255.0f, tint.a / 255.0f)
+
+    val texLeft = source.x / texture.width.toFloat
+    val texTop = source.y / texture.height.toFloat
+    val texRight = (source.x + source.width) / texture.width.toFloat
+    val texBottom = (source.y + source.height) / texture.height.toFloat
+
+    glBegin(GL_QUADS.toUInt)
+    glTexCoord2f(texLeft, texTop)
+    glVertex2f(position.x, position.y)
+
+    glTexCoord2f(texRight, texTop)
+    glVertex2f(position.x + source.width, position.y)
+
+    glTexCoord2f(texRight, texBottom)
+    glVertex2f(position.x + source.width, position.y + source.height)
+
+    glTexCoord2f(texLeft, texBottom)
+    glVertex2f(position.x, position.y + source.height)
+    glEnd()
+
+    glBindTexture(GL_TEXTURE_2D.toUInt, 0.toUInt)
+    glDisable(GL_TEXTURE_2D.toUInt)
+
+  def drawPro(texture: Texture2D, source: Rectangle, dest: Rectangle, origin: Vector2, rotation: Float, tint: Color): Unit =
+    if texture.id == 0 then return
+    if source.width <= 0 || source.height <= 0 then return
+    if dest.width <= 0 || dest.height <= 0 then return
+
+    glEnable(GL_TEXTURE_2D.toUInt)
+    glBindTexture(GL_TEXTURE_2D.toUInt, texture.id.toUInt)
+    glColor4f(tint.r / 255.0f, tint.g / 255.0f, tint.b / 255.0f, tint.a / 255.0f)
+
+    val texLeft = source.x / texture.width.toFloat
+    val texTop = source.y / texture.height.toFloat
+    val texRight = (source.x + source.width) / texture.width.toFloat
+    val texBottom = (source.y + source.height) / texture.height.toFloat
+
+    glPushMatrix()
+    glTranslatef(dest.x + origin.x, dest.y + origin.y, 0.0f)
+    glRotatef(rotation, 0.0f, 0.0f, 1.0f)
+
+    glBegin(GL_QUADS.toUInt)
+    glTexCoord2f(texLeft, texTop)
+    glVertex2f(-origin.x, -origin.y)
+
+    glTexCoord2f(texRight, texTop)
+    glVertex2f(dest.width - origin.x, -origin.y)
+
+    glTexCoord2f(texRight, texBottom)
+    glVertex2f(dest.width - origin.x, dest.height - origin.y)
+
+    glTexCoord2f(texLeft, texBottom)
+    glVertex2f(-origin.x, dest.height - origin.y)
+    glEnd()
+
+    glPopMatrix()
+    glBindTexture(GL_TEXTURE_2D.toUInt, 0.toUInt)
+    glDisable(GL_TEXTURE_2D.toUInt)
