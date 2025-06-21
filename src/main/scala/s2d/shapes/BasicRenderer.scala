@@ -150,4 +150,54 @@ object BasicRenderer:
       GLEWHelper.glBindVertexArray(0.toUInt)
     }
 
+  def renderThickLine(startPos: Vector2, endPos: Vector2, thick: Float, color: Color): Unit =
+    if !isInitialized then
+      if !initialize() then return
+
+    defaultShader.foreach { shader =>
+      GLEWHelper.glUseProgram(shader.id.toUInt)
+      setColor(color)
+
+      val dx = endPos.x - startPos.x
+      val dy = endPos.y - startPos.y
+      val length = math.sqrt(dx * dx + dy * dy).toFloat
+
+      if length == 0.0f then return
+      val perpX = -dy / length * (thick / 2.0f)
+      val perpY = dx / length * (thick / 2.0f)
+
+      val vertices = Array(
+        startPos.x + perpX, startPos.y + perpY, // top-left
+        startPos.x - perpX, startPos.y - perpY, // bottom-left
+        endPos.x - perpX, endPos.y - perpY, // bottom-right
+
+        startPos.x + perpX, startPos.y + perpY, // top-left
+        endPos.x - perpX, endPos.y - perpY, // bottom-right
+        endPos.x + perpX, endPos.y + perpY // top-right
+      )
+
+      GLEWHelper.glBindVertexArray(VAO)
+      GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+
+      Zone {
+        val verticesPtr = stackalloc[GLfloat](vertices.length)
+        for i <- vertices.indices do
+          verticesPtr(i) = vertices(i)
+
+        GLEWHelper.glBufferData(
+          GL_ARRAY_BUFFER.toUInt,
+          (vertices.length * sizeof[GLfloat].toInt),
+          verticesPtr.asInstanceOf[Ptr[Byte]],
+          GL_DYNAMIC_DRAW.toUInt
+        )
+      }
+
+      GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
+      GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+
+      glDrawArrays(GL_TRIANGLES.toUInt, 0, 6.toUInt)
+
+      GLEWHelper.glBindVertexArray(0.toUInt)
+    }
+
 end BasicRenderer

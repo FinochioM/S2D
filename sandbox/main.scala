@@ -3,7 +3,7 @@
 //> using nativeVersion 0.5.8
 //> using scalacOptions -Wconf:msg=indented:silent
 //> using repository "m2Local"
-//> using dep "io.github.finochiom:s2d_native0.5_3:0.1.71-SNAPSHOT"
+//> using dep "io.github.finochiom:s2d_native0.5_3:0.1.72-SNAPSHOT"
 
 package sandbox
 
@@ -25,7 +25,7 @@ def main(): Unit =
 
     Drawing.beginCamera(camera2D)
 
-    Basics.line(100, 100, 700, 500, Color.Red)
+    Basics.lineThick(Vector2(100, 300), Vector2(700, 300), 10.0f, Color.Red)
 
     Drawing.endCamera()
     Drawing.endFrame()

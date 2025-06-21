@@ -38,34 +38,9 @@ object Basics:
     BasicRenderer.renderLine(startPos, endPos, color)
   end line
 
-  def lineThick(
-      startPos: Vector2,
-      endPos: Vector2,
-      thick: Float,
-      color: Color
-  ): Unit =
-    glColor4f(
-      color.r / 255.0f,
-      color.g / 255.0f,
-      color.b / 255.0f,
-      color.a / 255.0f
-    )
-
-    val dx = endPos.x - startPos.x
-    val dy = endPos.y - startPos.y
-
-    val length = math.sqrt(dx * dx + dy * dy).toFloat
-    if length == 0.0f then return // no division by zero
-
-    val perpX = -dy / length * (thick / 2.0f)
-    val perpY = dx / length * (thick / 2.0f)
-
-    glBegin(GL_QUADS.toUInt)
-    glVertex2f(startPos.x + perpX, startPos.y + perpY)
-    glVertex2f(startPos.x - perpX, startPos.y - perpY)
-    glVertex2f(endPos.x - perpX, endPos.y - perpY)
-    glVertex2f(endPos.x + perpX, endPos.y + perpY)
-    glEnd()
+  def lineThick(startPos: Vector2, endPos: Vector2, thick: Float, color: Color): Unit =
+    BasicRenderer.updateProjectionFromDrawing()
+    BasicRenderer.renderThickLine(startPos, endPos, thick, color)
   end lineThick
 
   def lineStrip(points: Array[Vector2], color: Color): Unit =
