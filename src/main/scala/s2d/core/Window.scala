@@ -40,7 +40,7 @@ object Window:
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION.toUInt, 3)
     SDL_GL_SetAttribute(
       SDL_GL_CONTEXT_PROFILE_MASK.toUInt,
-      SDL_GL_CONTEXT_PROFILE_COMPATIBILITY.toInt
+      SDL_GL_CONTEXT_PROFILE_CORE.toInt
     )
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER.toUInt, 1)
 

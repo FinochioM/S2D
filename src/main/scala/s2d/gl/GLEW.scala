@@ -57,6 +57,18 @@ type PFNGLUNIFORMMATRIX3FVPROC = CFuncPtr4[GLint, GLsizei, GLboolean, Ptr[GLfloa
 type PFNGLUNIFORMMATRIX4FVPROC = CFuncPtr4[GLint, GLsizei, GLboolean, Ptr[GLfloat], Unit]
 type PFNGLISPROGRAMPROC = CFuncPtr1[GLuint, GLboolean]
 type PFNGLACTIVETEXTUREPROC = CFuncPtr1[GLenum, Unit]
+type PFNGLBINDTEXTUREPROC = CFuncPtr2[GLenum, GLuint, Unit]
+
+type PFNGLGENVERTEXARRAYSPROC = CFuncPtr2[GLsizei, Ptr[GLuint], Unit]
+type PFNGLDELETEVERTEXARRAYSPROC = CFuncPtr2[GLsizei, Ptr[GLuint], Unit]
+type PFNGLBINDVERTEXARRAYPROC = CFuncPtr1[GLuint, Unit]
+type PFNGLGENBUFFERSPROC = CFuncPtr2[GLsizei, Ptr[GLuint], Unit]
+type PFNGLDELETEBUFFERSPROC = CFuncPtr2[GLsizei, Ptr[GLuint], Unit]
+type PFNGLBINDBUFFERPROC = CFuncPtr2[GLenum, GLuint, Unit]
+type PFNGLBUFFERDATAPROC = CFuncPtr4[GLenum, GLsizeiptr, Ptr[Byte], GLenum, Unit]
+type PFNGLVERTEXATTRIBPOINTERPROC = CFuncPtr6[GLuint, GLint, GLenum, GLboolean, GLsizei, Ptr[Byte], Unit]
+type PFNGLENABLEVERTEXATTRIBARRAYPROC = CFuncPtr1[GLuint, Unit]
+type PFNGLDISABLEVERTEXATTRIBARRAYPROC = CFuncPtr1[GLuint, Unit]
 
 object GLEWHelper:
   import GLEWConstants.*
@@ -98,6 +110,18 @@ object GLEWHelper:
   private var glUniformMatrix4fvPtr: PFNGLUNIFORMMATRIX4FVPROC = null
   private var glIsProgramPtr: PFNGLISPROGRAMPROC = null
   private var glActiveTexturePtr: PFNGLACTIVETEXTUREPROC = null
+  private var glBindTexturePtr: PFNGLBINDTEXTUREPROC = null
+
+  private var glGenVertexArraysPtr: PFNGLGENVERTEXARRAYSPROC = null
+  private var glDeleteVertexArraysPtr: PFNGLDELETEVERTEXARRAYSPROC = null
+  private var glBindVertexArrayPtr: PFNGLBINDVERTEXARRAYPROC = null
+  private var glGenBuffersPtr: PFNGLGENBUFFERSPROC = null
+  private var glDeleteBuffersPtr: PFNGLDELETEBUFFERSPROC = null
+  private var glBindBufferPtr: PFNGLBINDBUFFERPROC = null
+  private var glBufferDataPtr: PFNGLBUFFERDATAPROC = null
+  private var glVertexAttribPointerPtr: PFNGLVERTEXATTRIBPOINTERPROC = null
+  private var glEnableVertexAttribArrayPtr: PFNGLENABLEVERTEXATTRIBARRAYPROC = null
+  private var glDisableVertexAttribArrayPtr: PFNGLDISABLEVERTEXATTRIBARRAYPROC = null
 
   def initializeGLEW(): Boolean =
     val result = GLEW.glewInit()
@@ -150,6 +174,18 @@ object GLEWHelper:
       loadShaderFunction(c"glUniformMatrix4fv", glUniformMatrix4fvPtr, (ptr: Ptr[Byte]) => glUniformMatrix4fvPtr = CFuncPtr.fromPtr[PFNGLUNIFORMMATRIX4FVPROC](ptr))
       loadShaderFunction(c"glIsProgram", glIsProgramPtr, (ptr: Ptr[Byte]) => glIsProgramPtr = CFuncPtr.fromPtr[PFNGLISPROGRAMPROC](ptr))
       loadShaderFunction(c"glActiveTexture", glActiveTexturePtr, (ptr: Ptr[Byte]) => glActiveTexturePtr = CFuncPtr.fromPtr[PFNGLACTIVETEXTUREPROC](ptr))
+      loadShaderFunction(c"glBindTexture", glBindTexturePtr, (ptr: Ptr[Byte]) => glBindTexturePtr = CFuncPtr.fromPtr[PFNGLBINDTEXTUREPROC](ptr))
+
+      loadShaderFunction(c"glGenVertexArrays", glGenVertexArraysPtr, (ptr: Ptr[Byte]) => glGenVertexArraysPtr = CFuncPtr.fromPtr[PFNGLGENVERTEXARRAYSPROC](ptr))
+      loadShaderFunction(c"glDeleteVertexArrays", glDeleteVertexArraysPtr, (ptr: Ptr[Byte]) => glDeleteVertexArraysPtr = CFuncPtr.fromPtr[PFNGLDELETEVERTEXARRAYSPROC](ptr))
+      loadShaderFunction(c"glBindVertexArray", glBindVertexArrayPtr, (ptr: Ptr[Byte]) => glBindVertexArrayPtr = CFuncPtr.fromPtr[PFNGLBINDVERTEXARRAYPROC](ptr))
+      loadShaderFunction(c"glGenBuffers", glGenBuffersPtr, (ptr: Ptr[Byte]) => glGenBuffersPtr = CFuncPtr.fromPtr[PFNGLGENBUFFERSPROC](ptr))
+      loadShaderFunction(c"glDeleteBuffers", glDeleteBuffersPtr, (ptr: Ptr[Byte]) => glDeleteBuffersPtr = CFuncPtr.fromPtr[PFNGLDELETEBUFFERSPROC](ptr))
+      loadShaderFunction(c"glBindBuffer", glBindBufferPtr, (ptr: Ptr[Byte]) => glBindBufferPtr = CFuncPtr.fromPtr[PFNGLBINDBUFFERPROC](ptr))
+      loadShaderFunction(c"glBufferData", glBufferDataPtr, (ptr: Ptr[Byte]) => glBufferDataPtr = CFuncPtr.fromPtr[PFNGLBUFFERDATAPROC](ptr))
+      loadShaderFunction(c"glVertexAttribPointer", glVertexAttribPointerPtr, (ptr: Ptr[Byte]) => glVertexAttribPointerPtr = CFuncPtr.fromPtr[PFNGLVERTEXATTRIBPOINTERPROC](ptr))
+      loadShaderFunction(c"glEnableVertexAttribArray", glEnableVertexAttribArrayPtr, (ptr: Ptr[Byte]) => glEnableVertexAttribArrayPtr = CFuncPtr.fromPtr[PFNGLENABLEVERTEXATTRIBARRAYPROC](ptr))
+      loadShaderFunction(c"glDisableVertexAttribArray", glDisableVertexAttribArrayPtr, (ptr: Ptr[Byte]) => glDisableVertexAttribArrayPtr = CFuncPtr.fromPtr[PFNGLDISABLEVERTEXATTRIBARRAYPROC](ptr))
     }
 
   private def loadShaderFunction[T](name: CString, currentPtr: T, setPtr: Ptr[Byte] => Unit): Unit =
@@ -271,3 +307,37 @@ object GLEWHelper:
 
   def glActiveTexture(texture: GLenum): Unit =
     if glActiveTexturePtr != null then glActiveTexturePtr(texture)
+
+  def glBindTexture(target: GLenum, texture: GLuint): Unit =
+    if glBindTexturePtr != null then glBindTexturePtr(target, texture)
+    else println("Warning: glBindTexture not available - skipping texture binding")
+
+  def glGenVertexArrays(n: GLsizei, arrays: Ptr[GLuint]): Unit =
+    if glGenVertexArraysPtr != null then glGenVertexArraysPtr(n, arrays)
+
+  def glDeleteVertexArrays(n: GLsizei, arrays: Ptr[GLuint]): Unit =
+    if glDeleteVertexArraysPtr != null then glDeleteVertexArraysPtr(n, arrays)
+
+  def glBindVertexArray(array: GLuint): Unit =
+    if glBindVertexArrayPtr != null then glBindVertexArrayPtr(array)
+
+  def glGenBuffers(n: GLsizei, buffers: Ptr[GLuint]): Unit =
+    if glGenBuffersPtr != null then glGenBuffersPtr(n, buffers)
+
+  def glDeleteBuffers(n: GLsizei, buffers: Ptr[GLuint]): Unit =
+    if glDeleteBuffersPtr != null then glDeleteBuffersPtr(n, buffers)
+
+  def glBindBuffer(target: GLenum, buffer: GLuint): Unit =
+    if glBindBufferPtr != null then glBindBufferPtr(target, buffer)
+
+  def glBufferData(target: GLenum, size: GLsizeiptr, data: Ptr[Byte], usage: GLenum): Unit =
+    if glBufferDataPtr != null then glBufferDataPtr(target, size, data, usage)
+
+  def glVertexAttribPointer(index: GLuint, size: GLint, `type`: GLenum, normalized: GLboolean, stride: GLsizei, pointer: Ptr[Byte]): Unit =
+    if glVertexAttribPointerPtr != null then glVertexAttribPointerPtr(index, size, `type`, normalized, stride, pointer)
+
+  def glEnableVertexAttribArray(index: GLuint): Unit =
+    if glEnableVertexAttribArrayPtr != null then glEnableVertexAttribArrayPtr(index)
+
+  def glDisableVertexAttribArray(index: GLuint): Unit =
+    if glDisableVertexAttribArrayPtr != null then glDisableVertexAttribArrayPtr(index)

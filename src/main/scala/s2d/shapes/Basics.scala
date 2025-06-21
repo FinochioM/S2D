@@ -1,17 +1,13 @@
 package s2d.shapes
 
+import s2d.shapes.BasicRenderer
 import s2d.types.{Color, Rectangle, Vector2}
 import s2d.gl.GL.*
 import s2d.gl.GLExtras.*
 
 object Basics:
   def pixel(posX: Int, posY: Int, color: Color): Unit =
-    glColor4f(
-      color.r / 255.0f,
-      color.g / 255.0f,
-      color.b / 255.0f,
-      color.a / 255.0f
-    )
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
     glPointSize(1.0f)
 
     glBegin(GL_POINTS.toUInt)
@@ -20,12 +16,7 @@ object Basics:
   end pixel
 
   def pixel(position: Vector2, color: Color): Unit =
-    glColor4f(
-      color.r / 255.0f,
-      color.g / 255.0f,
-      color.b / 255.0f,
-      color.a / 255.0f
-    )
+    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
     glPointSize(1.0f)
 
     glBegin(GL_POINTS.toUInt)
@@ -33,38 +24,18 @@ object Basics:
     glEnd()
   end pixel
 
-  def line(
-      startPosX: Int,
-      startPosY: Int,
-      endPosX: Int,
-      endPosY: Int,
-      color: Color
-  ): Unit =
-    glColor4f(
-      color.r / 255.0f,
-      color.g / 255.0f,
-      color.b / 255.0f,
-      color.a / 255.0f
+  def line(startPosX: Int, startPosY: Int, endPosX: Int, endPosY: Int, color: Color): Unit =
+    BasicRenderer.updateProjectionFromDrawing()
+    BasicRenderer.renderLine(
+      Vector2(startPosX.toFloat, startPosY.toFloat),
+      Vector2(endPosX.toFloat, endPosY.toFloat),
+      color
     )
-
-    glBegin(GL_LINES.toUInt)
-    glVertex2f(startPosX.toFloat, startPosY.toFloat)
-    glVertex2f(endPosX.toFloat, endPosY.toFloat)
-    glEnd()
   end line
 
   def line(startPos: Vector2, endPos: Vector2, color: Color): Unit =
-    glColor4f(
-      color.r / 255.0f,
-      color.g / 255.0f,
-      color.b / 255.0f,
-      color.a / 255.0f
-    )
-
-    glBegin(GL_LINES.toUInt)
-    glVertex2f(startPos.x, startPos.y)
-    glVertex2f(endPos.x, endPos.y)
-    glEnd()
+    BasicRenderer.updateProjectionFromDrawing()
+    BasicRenderer.renderLine(startPos, endPos, color)
   end line
 
   def lineThick(
