@@ -217,3 +217,88 @@ object Shaders:
         glUniform1i(locIndex, !intPtr)
 
       case _ => // unsupported uniform type
+
+  def setShaderValueV(shader: Shader, locIndex: Int, value: Ptr[Byte], uniformType: Int, count: Int): Unit =
+    if shader.id <= 0 || locIndex < 0 || count <= 0 then return
+
+    glUseProgram(shader.id.toUInt)
+
+    uniformType match
+      case t if t == GL_FLOAT.toInt =>
+        val floatPtr = value.asInstanceOf[Ptr[GLfloat]]
+        glUniform1fv(locIndex, count.toUInt, floatPtr)
+
+      case t if t == GL_FLOAT_VEC2.toInt =>
+        val floatPtr = value.asInstanceOf[Ptr[GLfloat]]
+        glUniform2fv(locIndex, count.toUInt, floatPtr)
+
+      case t if t == GL_FLOAT_VEC3.toInt =>
+        val floatPtr = value.asInstanceOf[Ptr[GLfloat]]
+        glUniform3fv(locIndex, count.toUInt, floatPtr)
+
+      case t if t == GL_FLOAT_VEC4.toInt =>
+        val floatPtr = value.asInstanceOf[Ptr[GLfloat]]
+        glUniform4fv(locIndex, count.toUInt, floatPtr)
+
+      case t if t == GL_INT.toInt =>
+        val intPtr = value.asInstanceOf[Ptr[GLint]]
+        glUniform1iv(locIndex, count.toUInt, intPtr)
+
+      case t if t == GL_INT_VEC2.toInt =>
+        val intPtr = value.asInstanceOf[Ptr[GLint]]
+        glUniform2iv(locIndex, count.toUInt, intPtr)
+
+      case t if t == GL_INT_VEC3.toInt =>
+        val intPtr = value.asInstanceOf[Ptr[GLint]]
+        glUniform3iv(locIndex, count.toUInt, intPtr)
+
+      case t if t == GL_INT_VEC4.toInt =>
+        val intPtr = value.asInstanceOf[Ptr[GLint]]
+        glUniform4iv(locIndex, count.toUInt, intPtr)
+
+      case t if t == GL_FLOAT_MAT2.toInt =>
+        val floatPtr = value.asInstanceOf[Ptr[GLfloat]]
+        glUniformMatrix2fv(locIndex, count.toUInt, GL_FALSE.toUByte, floatPtr)
+
+      case t if t == GL_FLOAT_MAT3.toInt =>
+        val floatPtr = value.asInstanceOf[Ptr[GLfloat]]
+        glUniformMatrix3fv(locIndex, count.toUInt, GL_FALSE.toUByte, floatPtr)
+
+      case t if t == GL_FLOAT_MAT4.toInt =>
+        val floatPtr = value.asInstanceOf[Ptr[GLfloat]]
+        glUniformMatrix4fv(locIndex, count.toUInt, GL_FALSE.toUByte, floatPtr)
+
+      case t if t == GL_SAMPLER_2D.toInt =>
+        val intPtr = value.asInstanceOf[Ptr[GLint]]
+        glUniform1iv(locIndex, count.toUInt, intPtr)
+
+      case _ => // unsupported uniform type
+
+  def setShaderValueMatrix(shader: Shader, locIndex: Int, mat: Matrix): Unit =
+    if shader.id <= 0 || locIndex < 0 then return
+
+    glUseProgram(shader.id.toUInt)
+
+    Zone {
+      val matrixPtr = alloc[GLfloat](16)
+      var i = 0
+      while i < 16 do
+        matrixPtr(i) = mat.values(i)
+        i += 1
+
+      glUniformMatrix4fv(locIndex, 1.toUInt, GL_FALSE.toUByte, matrixPtr)
+    }
+
+  def setShaderValueTexture(shader: Shader, locIndex: Int, texture: Texture2D): Unit =
+    if shader.id <= 0 || locIndex < 0 || texture.id <= 0 then return
+
+    glUseProgram(shader.id.toUInt)
+
+    glActiveTexture(GL_TEXTURE0.toUInt)
+    glBindTexture(GL_TEXTURE_2D.toUInt, texture.id.toUInt)
+
+    glUniform1i(locIndex, 0)
+
+  def unloadShader(shader: Shader): Unit =
+    if shader.id > 0 then
+      glDeleteProgram(shader.id.toUInt)
