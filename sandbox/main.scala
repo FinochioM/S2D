@@ -2,13 +2,13 @@
 //> using platform scala-native
 //> using nativeVersion 0.5.8
 //> using scalacOptions -Wconf:msg=indented:silent
-//> using dep "io.github.finochiom:s2d_native0.5_3:0.1.6"
+//> using repository "m2Local"
+//> using dep "io.github.finochiom:s2d_native0.5_3:0.1.71-SNAPSHOT"
 
 package sandbox
 
-import s2d.core.{Window, Drawing}
+import s2d.core.{Window, Drawing, Shaders}
 import s2d.shapes.Basics
-import s2d.textures.Textures
 import s2d.types.*
 import scalanative.unsafe.*
 import scalanative.unsigned.*
@@ -17,16 +17,29 @@ import scalanative.unsigned.*
 def main(): Unit =
   Window.create(800, 600, "S2D Framework - Images Module Test")
 
-  val camera2D = Camera2D(
-    offset = Vector2(0.0f, 0.0f),
-    target = Vector2(0.0f, 0.0f),
-    rotation = 0.0f,
-    zoom = 1.0f
-  )
+  val camera2D = Camera2D.default
 
-  val textureOpt = Textures.load("assets/grill.png")
+  val vertexShader =
+    """
+    #version 120
+    attribute vec3 aPos;
 
-  val rect = Rectangle(400, 300, 100, 200)
+    void main() {
+        gl_Position = gl_ModelViewProjectionMatrix * vec4(aPos, 1.0);
+    }
+  """
+
+  val fragmentShader =
+    """
+    #version 120
+
+    void main() {
+        gl_FragColor = vec4(0.0, 1.0, 1.0, 1.0);
+    }
+  """
+
+  val shader = Shaders.loadFromMemory(vertexShader, fragmentShader)
+  val rect = Rectangle(350, 250, 100, 100)
 
   while !Window.shouldCloseWindow() do
     Drawing.beginFrame()
@@ -34,15 +47,21 @@ def main(): Unit =
 
     Drawing.beginCamera(camera2D)
 
-    textureOpt match
-      case Some(texture) =>
-        Textures.draw(texture, 100, 100, Color.White)
+    shader match
+      case Some(s) =>
+        //println("Using custom shader")
+        Drawing.beginShader(s)
+        Basics.rectangle(rect, Color.White)
+        Drawing.endShader()
       case None =>
-        Basics.rectangle(rect, Color.Red)
+        //println("Using default shader")
+        Basics.rectangle(rect, Color.Blue)
 
     Drawing.endCamera()
     Drawing.endFrame()
   end while
+
+  shader.foreach(s => Shaders.unloadShader(s))
 
   Window.close()
 end main

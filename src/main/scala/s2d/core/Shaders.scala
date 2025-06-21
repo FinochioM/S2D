@@ -2,6 +2,7 @@ package s2d.core
 
 import s2d.gl.GL.*
 import s2d.gl.GLExtras.*
+import s2d.gl.GLEWHelper
 import s2d.types.*
 import scalanative.unsafe.*
 import scalanative.unsigned.*
@@ -10,6 +11,9 @@ import scalanative.libc.stdlib.*
 import scalanative.libc.string.*
 
 object Shaders:
+
+  import s2d.gl.GLEWHelper
+
   def load(vsFilename: String, fsFilename: String): Option[Shader] =
     Zone {
       val vsFilenameC = toCString(vsFilename)
@@ -30,31 +34,31 @@ object Shaders:
       free(fsSource)
 
       if vertexShader == 0.toUInt || fragmentShader == 0.toUInt then
-        if vertexShader != 0.toUInt then glDeleteShader(vertexShader)
-        if fragmentShader != 0.toUInt then glDeleteShader(fragmentShader)
+        if vertexShader != 0.toUInt then GLEWHelper.glDeleteShader(vertexShader)
+        if fragmentShader != 0.toUInt then GLEWHelper.glDeleteShader(fragmentShader)
         return None
 
-      val program = glCreateProgram()
+      val program = GLEWHelper.glCreateProgram()
       if program == 0.toUInt then
-        glDeleteShader(vertexShader)
-        glDeleteShader(fragmentShader)
+        GLEWHelper.glDeleteShader(vertexShader)
+        GLEWHelper.glDeleteShader(fragmentShader)
         return None
 
-      glAttachShader(program, vertexShader)
-      glAttachShader(program, fragmentShader)
-      glLinkProgram(program)
+      GLEWHelper.glAttachShader(program, vertexShader)
+      GLEWHelper.glAttachShader(program, fragmentShader)
+      GLEWHelper.glLinkProgram(program)
 
       val linkStatus = stackalloc[GLint]()
-      glGetProgramiv(program, GL_LINK_STATUS.toUInt, linkStatus)
+      GLEWHelper.glGetProgramiv(program, GL_LINK_STATUS.toUInt, linkStatus)
 
       if !linkStatus == 0 then
-        glDeleteProgram(program)
-        glDeleteShader(vertexShader)
-        glDeleteShader(fragmentShader)
+        GLEWHelper.glDeleteProgram(program)
+        GLEWHelper.glDeleteShader(vertexShader)
+        GLEWHelper.glDeleteShader(fragmentShader)
         return None
 
-      glDeleteShader(vertexShader)
-      glDeleteShader(fragmentShader)
+      GLEWHelper.glDeleteShader(vertexShader)
+      GLEWHelper.glDeleteShader(fragmentShader)
 
       Some(Shader(program.toInt, Array.empty[Int]))
     }
@@ -68,31 +72,31 @@ object Shaders:
       val fragmentShader = compileShader(GL_FRAGMENT_SHADER.toUInt, fsCodeC)
 
       if vertexShader == 0.toUInt || fragmentShader == 0.toUInt then
-        if vertexShader != 0.toUInt then glDeleteShader(vertexShader)
-        if fragmentShader != 0.toUInt then glDeleteShader(fragmentShader)
+        if vertexShader != 0.toUInt then GLEWHelper.glDeleteShader(vertexShader)
+        if fragmentShader != 0.toUInt then GLEWHelper.glDeleteShader(fragmentShader)
         return None
 
-      val program = glCreateProgram()
+      val program = GLEWHelper.glCreateProgram()
       if program == 0.toUInt then
-        glDeleteShader(vertexShader)
-        glDeleteShader(fragmentShader)
+        GLEWHelper.glDeleteShader(vertexShader)
+        GLEWHelper.glDeleteShader(fragmentShader)
         return None
 
-      glAttachShader(program, vertexShader)
-      glAttachShader(program, fragmentShader)
-      glLinkProgram(program)
+      GLEWHelper.glAttachShader(program, vertexShader)
+      GLEWHelper.glAttachShader(program, fragmentShader)
+      GLEWHelper.glLinkProgram(program)
 
       val linkStatus = stackalloc[GLint]()
-      glGetProgramiv(program, GL_LINK_STATUS.toUInt, linkStatus)
+      GLEWHelper.glGetProgramiv(program, GL_LINK_STATUS.toUInt, linkStatus)
 
       if !linkStatus == 0 then
-        glDeleteProgram(program)
-        glDeleteShader(vertexShader)
-        glDeleteShader(fragmentShader)
+        GLEWHelper.glDeleteProgram(program)
+        GLEWHelper.glDeleteShader(vertexShader)
+        GLEWHelper.glDeleteShader(fragmentShader)
         return None
 
-      glDeleteShader(vertexShader)
-      glDeleteShader(fragmentShader)
+      GLEWHelper.glDeleteShader(vertexShader)
+      GLEWHelper.glDeleteShader(fragmentShader)
 
       Some(Shader(program.toInt, Array.empty[Int]))
     }
@@ -124,19 +128,19 @@ object Shaders:
 
   private def compileShader(shaderType: GLuint, source: CString): GLuint =
     Zone {
-      val shader = glCreateShader(shaderType)
+      val shader = GLEWHelper.glCreateShader(shaderType)
       if shader == 0.toUInt then return 0.toUInt
 
       val sourceArray = stackalloc[CString](1)
       !sourceArray = source
-      glShaderSource(shader, 1.toUInt, sourceArray, null)
-      glCompileShader(shader)
+      GLEWHelper.glShaderSource(shader, 1.toUInt, sourceArray, null)
+      GLEWHelper.glCompileShader(shader)
 
       val compileStatus = stackalloc[GLint]()
-      glGetShaderiv(shader, GL_COMPILE_STATUS.toUInt, compileStatus)
+      GLEWHelper.glGetShaderiv(shader, GL_COMPILE_STATUS.toUInt, compileStatus)
 
       if !compileStatus == 0 then
-        glDeleteShader(shader)
+        GLEWHelper.glDeleteShader(shader)
         return 0.toUInt
 
       shader
@@ -144,14 +148,14 @@ object Shaders:
 
   def isShaderValid(shader: Shader): Boolean =
     if shader.id <= 0 then false
-    else glIsProgram(shader.id.toUInt) == GL_TRUE.toUByte
+    else GLEWHelper.glIsProgram(shader.id.toUInt) == GL_TRUE.toUByte
 
   def getShaderLocation(shader: Shader, uniformName: String): Int =
     if shader.id <= 0 then -1
     else
       Zone {
         val uniformNameC = toCString(uniformName)
-        glGetUniformLocation(shader.id.toUInt, uniformNameC)
+        GLEWHelper.glGetUniformLocation(shader.id.toUInt, uniformNameC)
       }
 
   def getShaderLocationAttrib(shader: Shader, attribName: String): Int =
@@ -159,125 +163,125 @@ object Shaders:
     else
       Zone {
         val attribNameC = toCString(attribName)
-        glGetAttribLocation(shader.id.toUInt, attribNameC)
+        GLEWHelper.glGetAttribLocation(shader.id.toUInt, attribNameC)
       }
 
   def setShaderValue(shader: Shader, locIndex: Int, value: Ptr[Byte], uniformType: Int): Unit =
     if shader.id <= 0 || locIndex < 0 then return
 
-    glUseProgram(shader.id.toUInt)
+    GLEWHelper.glUseProgram(shader.id.toUInt)
 
     uniformType match
       case t if t == GL_FLOAT.toInt =>
         val floatPtr = value.asInstanceOf[Ptr[GLfloat]]
-        glUniform1f(locIndex, !floatPtr)
+        GLEWHelper.glUniform1f(locIndex, !floatPtr)
 
       case t if t == GL_FLOAT_VEC2.toInt =>
         val floatPtr = value.asInstanceOf[Ptr[GLfloat]]
-        glUniform2f(locIndex, floatPtr(0), floatPtr(1))
+        GLEWHelper.glUniform2f(locIndex, floatPtr(0), floatPtr(1))
 
       case t if t == GL_FLOAT_VEC3.toInt =>
         val floatPtr = value.asInstanceOf[Ptr[GLfloat]]
-        glUniform3f(locIndex, floatPtr(0), floatPtr(1), floatPtr(2))
+        GLEWHelper.glUniform3f(locIndex, floatPtr(0), floatPtr(1), floatPtr(2))
 
       case t if t == GL_FLOAT_VEC4.toInt =>
         val floatPtr = value.asInstanceOf[Ptr[GLfloat]]
-        glUniform4f(locIndex, floatPtr(0), floatPtr(1), floatPtr(2), floatPtr(3))
+        GLEWHelper.glUniform4f(locIndex, floatPtr(0), floatPtr(1), floatPtr(2), floatPtr(3))
 
       case t if t == GL_INT.toInt =>
         val intPtr = value.asInstanceOf[Ptr[GLint]]
-        glUniform1i(locIndex, !intPtr)
+        GLEWHelper.glUniform1i(locIndex, !intPtr)
 
       case t if t == GL_INT_VEC2.toInt =>
         val intPtr = value.asInstanceOf[Ptr[GLint]]
-        glUniform2i(locIndex, intPtr(0), intPtr(1))
+        GLEWHelper.glUniform2i(locIndex, intPtr(0), intPtr(1))
 
       case t if t == GL_INT_VEC3.toInt =>
         val intPtr = value.asInstanceOf[Ptr[GLint]]
-        glUniform3i(locIndex, intPtr(0), intPtr(1), intPtr(2))
+        GLEWHelper.glUniform3i(locIndex, intPtr(0), intPtr(1), intPtr(2))
 
       case t if t == GL_INT_VEC4.toInt =>
         val intPtr = value.asInstanceOf[Ptr[GLint]]
-        glUniform4i(locIndex, intPtr(0), intPtr(1), intPtr(2), intPtr(3))
+        GLEWHelper.glUniform4i(locIndex, intPtr(0), intPtr(1), intPtr(2), intPtr(3))
 
       case t if t == GL_FLOAT_MAT2.toInt =>
         val floatPtr = value.asInstanceOf[Ptr[GLfloat]]
-        glUniformMatrix2fv(locIndex, 1.toUInt, GL_FALSE.toUByte, floatPtr)
+        GLEWHelper.glUniformMatrix2fv(locIndex, 1.toUInt, GL_FALSE.toUByte, floatPtr)
 
       case t if t == GL_FLOAT_MAT3.toInt =>
         val floatPtr = value.asInstanceOf[Ptr[GLfloat]]
-        glUniformMatrix3fv(locIndex, 1.toUInt, GL_FALSE.toUByte, floatPtr)
+        GLEWHelper.glUniformMatrix3fv(locIndex, 1.toUInt, GL_FALSE.toUByte, floatPtr)
 
       case t if t == GL_FLOAT_MAT4.toInt =>
         val floatPtr = value.asInstanceOf[Ptr[GLfloat]]
-        glUniformMatrix4fv(locIndex, 1.toUInt, GL_FALSE.toUByte, floatPtr)
+        GLEWHelper.glUniformMatrix4fv(locIndex, 1.toUInt, GL_FALSE.toUByte, floatPtr)
 
       case t if t == GL_SAMPLER_2D.toInt =>
         val intPtr = value.asInstanceOf[Ptr[GLint]]
-        glUniform1i(locIndex, !intPtr)
+        GLEWHelper.glUniform1i(locIndex, !intPtr)
 
       case _ => // unsupported uniform type
 
   def setShaderValueV(shader: Shader, locIndex: Int, value: Ptr[Byte], uniformType: Int, count: Int): Unit =
     if shader.id <= 0 || locIndex < 0 || count <= 0 then return
 
-    glUseProgram(shader.id.toUInt)
+    GLEWHelper.glUseProgram(shader.id.toUInt)
 
     uniformType match
       case t if t == GL_FLOAT.toInt =>
         val floatPtr = value.asInstanceOf[Ptr[GLfloat]]
-        glUniform1fv(locIndex, count.toUInt, floatPtr)
+        GLEWHelper.glUniform1fv(locIndex, count.toUInt, floatPtr)
 
       case t if t == GL_FLOAT_VEC2.toInt =>
         val floatPtr = value.asInstanceOf[Ptr[GLfloat]]
-        glUniform2fv(locIndex, count.toUInt, floatPtr)
+        GLEWHelper.glUniform2fv(locIndex, count.toUInt, floatPtr)
 
       case t if t == GL_FLOAT_VEC3.toInt =>
         val floatPtr = value.asInstanceOf[Ptr[GLfloat]]
-        glUniform3fv(locIndex, count.toUInt, floatPtr)
+        GLEWHelper.glUniform3fv(locIndex, count.toUInt, floatPtr)
 
       case t if t == GL_FLOAT_VEC4.toInt =>
         val floatPtr = value.asInstanceOf[Ptr[GLfloat]]
-        glUniform4fv(locIndex, count.toUInt, floatPtr)
+        GLEWHelper.glUniform4fv(locIndex, count.toUInt, floatPtr)
 
       case t if t == GL_INT.toInt =>
         val intPtr = value.asInstanceOf[Ptr[GLint]]
-        glUniform1iv(locIndex, count.toUInt, intPtr)
+        GLEWHelper.glUniform1iv(locIndex, count.toUInt, intPtr)
 
       case t if t == GL_INT_VEC2.toInt =>
         val intPtr = value.asInstanceOf[Ptr[GLint]]
-        glUniform2iv(locIndex, count.toUInt, intPtr)
+        GLEWHelper.glUniform2iv(locIndex, count.toUInt, intPtr)
 
       case t if t == GL_INT_VEC3.toInt =>
         val intPtr = value.asInstanceOf[Ptr[GLint]]
-        glUniform3iv(locIndex, count.toUInt, intPtr)
+        GLEWHelper.glUniform3iv(locIndex, count.toUInt, intPtr)
 
       case t if t == GL_INT_VEC4.toInt =>
         val intPtr = value.asInstanceOf[Ptr[GLint]]
-        glUniform4iv(locIndex, count.toUInt, intPtr)
+        GLEWHelper.glUniform4iv(locIndex, count.toUInt, intPtr)
 
       case t if t == GL_FLOAT_MAT2.toInt =>
         val floatPtr = value.asInstanceOf[Ptr[GLfloat]]
-        glUniformMatrix2fv(locIndex, count.toUInt, GL_FALSE.toUByte, floatPtr)
+        GLEWHelper.glUniformMatrix2fv(locIndex, count.toUInt, GL_FALSE.toUByte, floatPtr)
 
       case t if t == GL_FLOAT_MAT3.toInt =>
         val floatPtr = value.asInstanceOf[Ptr[GLfloat]]
-        glUniformMatrix3fv(locIndex, count.toUInt, GL_FALSE.toUByte, floatPtr)
+        GLEWHelper.glUniformMatrix3fv(locIndex, count.toUInt, GL_FALSE.toUByte, floatPtr)
 
       case t if t == GL_FLOAT_MAT4.toInt =>
         val floatPtr = value.asInstanceOf[Ptr[GLfloat]]
-        glUniformMatrix4fv(locIndex, count.toUInt, GL_FALSE.toUByte, floatPtr)
+        GLEWHelper.glUniformMatrix4fv(locIndex, count.toUInt, GL_FALSE.toUByte, floatPtr)
 
       case t if t == GL_SAMPLER_2D.toInt =>
         val intPtr = value.asInstanceOf[Ptr[GLint]]
-        glUniform1iv(locIndex, count.toUInt, intPtr)
+        GLEWHelper.glUniform1iv(locIndex, count.toUInt, intPtr)
 
       case _ => // unsupported uniform type
 
   def setShaderValueMatrix(shader: Shader, locIndex: Int, mat: Matrix): Unit =
     if shader.id <= 0 || locIndex < 0 then return
 
-    glUseProgram(shader.id.toUInt)
+    GLEWHelper.glUseProgram(shader.id.toUInt)
 
     Zone {
       val matrixPtr = alloc[GLfloat](16)
@@ -286,19 +290,19 @@ object Shaders:
         matrixPtr(i) = mat.values(i)
         i += 1
 
-      glUniformMatrix4fv(locIndex, 1.toUInt, GL_FALSE.toUByte, matrixPtr)
+      GLEWHelper.glUniformMatrix4fv(locIndex, 1.toUInt, GL_FALSE.toUByte, matrixPtr)
     }
 
   def setShaderValueTexture(shader: Shader, locIndex: Int, texture: Texture2D): Unit =
     if shader.id <= 0 || locIndex < 0 || texture.id <= 0 then return
 
-    glUseProgram(shader.id.toUInt)
+    GLEWHelper.glUseProgram(shader.id.toUInt)
 
-    glActiveTexture(GL_TEXTURE0.toUInt)
-    glBindTexture(GL_TEXTURE_2D.toUInt, texture.id.toUInt)
+    GLEWHelper.glActiveTexture(GL_TEXTURE0.toUInt)
+    GLEWHelper.glBindTexture(GL_TEXTURE_2D.toUInt, texture.id.toUInt)
 
-    glUniform1i(locIndex, 0)
+    GLEWHelper.glUniform1i(locIndex, 0)
 
   def unloadShader(shader: Shader): Unit =
     if shader.id > 0 then
-      glDeleteProgram(shader.id.toUInt)
+      GLEWHelper.glDeleteProgram(shader.id.toUInt)

@@ -2,6 +2,7 @@ package s2d.core
 
 import s2d.gl.GL.*
 import s2d.gl.GLExtras.*
+import s2d.gl.GLEWHelper
 import s2d.types.*
 import s2d.sdl2.SDL.*
 import s2d.sdl2.Extras.*
@@ -99,12 +100,12 @@ object Drawing:
   def beginShader(shader: Shader): Unit =
     if !Window.isWindowInitialized then return
 
-    glUseProgram(shader.id.toUInt)
+    GLEWHelper.glUseProgram(shader.id.toUInt)
 
   def endShader(): Unit =
     if !Window.isWindowInitialized then return
 
-    glUseProgram(0.toUInt)
+    GLEWHelper.glUseProgram(0.toUInt)
 
   def beginBlend(mode: BlendMode): Unit =
     if !Window.isWindowInitialized then return
