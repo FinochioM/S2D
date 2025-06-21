@@ -6,6 +6,10 @@ v_0.1.7-SNAPSHOT:
 - created Shaders.scala file.
 - started adding shader functions to Shaders.scala.
 - fixed description on build.sbt file.
+- added Shaders.scala to the core package.
+- added shader functions to Shaders.scala.
+- moved all the shader functionality from GL to GLEWHelper.
+- shaders are working for 120 compatibility profile.
 
 v_0.1.6-SNAPSHOT:
 - started the migration of the textures package.

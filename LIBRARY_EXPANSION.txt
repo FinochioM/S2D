@@ -2,10 +2,13 @@ S2D Library Expansion file.
 In here I will add whatever ideas I come up with and also anything that could make the library better.
 If you want to help improve the library you can also make a push request or just let me know what you would like to see in S2D.
 
+WORKING ON:
+- Shader functions.
+- Switch from 120 comp to 330 core profile / Maybe have both.
+
 Currently Available Packages:
 
 CORE PACKAGE:
-- Shader functions.
 - Screen-Space-Related functions.
 - Timing-related functions.
 - Custom frame control functions.
