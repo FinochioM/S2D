@@ -11,6 +11,8 @@ import scalanative.unsafe.*
 import scalanative.unsigned.*
 
 object Drawing:
+  private var currentCustomShader: Option[Shader] = None
+
   def clear(color: Color): Unit =
     glClearColor(color.rNorm, color.gNorm, color.bNorm, color.aNorm)
     glClear(GL_COLOR_BUFFER_BIT)
@@ -100,11 +102,13 @@ object Drawing:
   def beginShader(shader: Shader): Unit =
     if !Window.isWindowInitialized then return
 
+    currentCustomShader = Some(shader)
     GLEWHelper.glUseProgram(shader.id.toUInt)
 
   def endShader(): Unit =
     if !Window.isWindowInitialized then return
 
+    currentCustomShader = None
     GLEWHelper.glUseProgram(0.toUInt)
 
   def beginBlend(mode: BlendMode): Unit =
@@ -170,4 +174,6 @@ object Drawing:
         end match
       case _ =>
         ()
+
+  def getCurrentShader: Option[Shader] = currentCustomShader
 end Drawing

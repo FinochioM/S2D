@@ -6,7 +6,7 @@ import s2d.core.Window
 import s2d.gl.GL.*
 import s2d.gl.GLExtras.*
 import s2d.gl.GLEWHelper
-import s2d.core.Shaders
+import s2d.core.{Shaders, Drawing}
 import scalanative.unsafe.*
 import scalanative.unsigned.*
 
@@ -121,88 +121,132 @@ object BasicRenderer:
     if !isInitialized then
       if !initialize() then return
 
-    defaultShader.foreach { shader =>
-      GLEWHelper.glUseProgram(shader.id.toUInt)
-      setColor(color)
+    Drawing.getCurrentShader match
+      case Some(customShader) =>
+        GLEWHelper.glUseProgram(customShader.id.toUInt)
 
-      val vertices = Array(
-        startPos.x, startPos.y,
-        endPos.x, endPos.y
+        Zone {
+          val projName = toCString("uProjection")
+          val colorName = toCString("uColor")
+
+          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
+          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
+
+          if projLocation >= 0 then
+            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrixPtr = stackalloc[GLfloat](16)
+            for i <- matrix.indices do
+              matrixPtr(i) = matrix(i)
+            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
+
+          if colorLocation >= 0 then
+            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
+        }
+      case None =>
+        defaultShader.foreach { shader =>
+          GLEWHelper.glUseProgram(shader.id.toUInt)
+          setColor(color)
+        }
+
+    val vertices = Array(
+      startPos.x, startPos.y,
+      endPos.x, endPos.y
+    )
+
+    GLEWHelper.glBindVertexArray(VAO)
+    GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+
+    Zone {
+      val verticesPtr = stackalloc[GLfloat](vertices.length)
+      for i <- vertices.indices do
+        verticesPtr(i) = vertices(i)
+
+      GLEWHelper.glBufferData(
+        GL_ARRAY_BUFFER.toUInt,
+        (vertices.length * sizeof[GLfloat].toInt),
+        verticesPtr.asInstanceOf[Ptr[Byte]],
+        GL_DYNAMIC_DRAW.toUInt
       )
-
-      GLEWHelper.glBindVertexArray(VAO)
-      GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
-
-      Zone {
-        val verticesPtr = stackalloc[GLfloat](vertices.length)
-        for i <- vertices.indices do
-          verticesPtr(i) = vertices(i)
-
-        GLEWHelper.glBufferData(
-          GL_ARRAY_BUFFER.toUInt,
-          (vertices.length * sizeof[GLfloat].toInt),
-          verticesPtr.asInstanceOf[Ptr[Byte]],
-          GL_DYNAMIC_DRAW.toUInt
-        )
-      }
-
-      GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
-      GLEWHelper.glEnableVertexAttribArray(0.toUInt)
-
-      glDrawArrays(GL_LINES.toUInt, 0, 2.toUInt)
-
-      GLEWHelper.glBindVertexArray(0.toUInt)
     }
+
+    GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
+    GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+
+    glDrawArrays(GL_LINES.toUInt, 0, 2.toUInt)
+
+    GLEWHelper.glBindVertexArray(0.toUInt)
 
   def renderThickLine(startPos: Vector2, endPos: Vector2, thick: Float, color: Color): Unit =
     if !isInitialized then
       if !initialize() then return
 
-    defaultShader.foreach { shader =>
-      GLEWHelper.glUseProgram(shader.id.toUInt)
-      setColor(color)
+    Drawing.getCurrentShader match
+      case Some(customShader) =>
+        GLEWHelper.glUseProgram(customShader.id.toUInt)
 
-      val dx = endPos.x - startPos.x
-      val dy = endPos.y - startPos.y
-      val length = math.sqrt(dx * dx + dy * dy).toFloat
+        Zone {
+          val projName = toCString("uProjection")
+          val colorName = toCString("uColor")
 
-      if length == 0.0f then return
-      val perpX = -dy / length * (thick / 2.0f)
-      val perpY = dx / length * (thick / 2.0f)
+          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
+          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
 
-      val vertices = Array(
-        startPos.x + perpX, startPos.y + perpY, // top-left
-        startPos.x - perpX, startPos.y - perpY, // bottom-left
-        endPos.x - perpX, endPos.y - perpY, // bottom-right
+          if projLocation >= 0 then
+            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrixPtr = stackalloc[GLfloat](16)
+            for i <- matrix.indices do
+              matrixPtr(i) = matrix(i)
+            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
 
-        startPos.x + perpX, startPos.y + perpY, // top-left
-        endPos.x - perpX, endPos.y - perpY, // bottom-right
-        endPos.x + perpX, endPos.y + perpY // top-right
+          if colorLocation >= 0 then
+            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
+        }
+      case None =>
+        defaultShader.foreach { shader =>
+          GLEWHelper.glUseProgram(shader.id.toUInt)
+          setColor(color)
+        }
+
+    val dx = endPos.x - startPos.x
+    val dy = endPos.y - startPos.y
+    val length = math.sqrt(dx * dx + dy * dy).toFloat
+
+    if length == 0.0f then return
+    val perpX = -dy / length * (thick / 2.0f)
+    val perpY = dx / length * (thick / 2.0f)
+
+    val vertices = Array(
+      startPos.x + perpX, startPos.y + perpY, // top-left
+      startPos.x - perpX, startPos.y - perpY, // bottom-left
+      endPos.x - perpX, endPos.y - perpY, // bottom-right
+
+      startPos.x + perpX, startPos.y + perpY, // top-left
+      endPos.x - perpX, endPos.y - perpY, // bottom-right
+      endPos.x + perpX, endPos.y + perpY // top-right
+    )
+
+    GLEWHelper.glBindVertexArray(VAO)
+    GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+
+    Zone {
+      val verticesPtr = stackalloc[GLfloat](vertices.length)
+      for i <- vertices.indices do
+        verticesPtr(i) = vertices(i)
+
+      GLEWHelper.glBufferData(
+        GL_ARRAY_BUFFER.toUInt,
+        (vertices.length * sizeof[GLfloat].toInt),
+        verticesPtr.asInstanceOf[Ptr[Byte]],
+        GL_DYNAMIC_DRAW.toUInt
       )
-
-      GLEWHelper.glBindVertexArray(VAO)
-      GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
-
-      Zone {
-        val verticesPtr = stackalloc[GLfloat](vertices.length)
-        for i <- vertices.indices do
-          verticesPtr(i) = vertices(i)
-
-        GLEWHelper.glBufferData(
-          GL_ARRAY_BUFFER.toUInt,
-          (vertices.length * sizeof[GLfloat].toInt),
-          verticesPtr.asInstanceOf[Ptr[Byte]],
-          GL_DYNAMIC_DRAW.toUInt
-        )
-      }
-
-      GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
-      GLEWHelper.glEnableVertexAttribArray(0.toUInt)
-
-      glDrawArrays(GL_TRIANGLES.toUInt, 0, 6.toUInt)
-
-      GLEWHelper.glBindVertexArray(0.toUInt)
     }
+
+    GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
+    GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+
+    glDrawArrays(GL_TRIANGLES.toUInt, 0, 6.toUInt)
+
+    GLEWHelper.glBindVertexArray(0.toUInt)
 
   def renderLineStrip(points: Array[Vector2], color: Color): Unit =
     if !isInitialized then
@@ -210,194 +254,282 @@ object BasicRenderer:
 
     if points.length < 2 then return
 
-    defaultShader.foreach { shader =>
-      GLEWHelper.glUseProgram(shader.id.toUInt)
-      setColor(color)
-
-      val vertices = scala.collection.mutable.ArrayBuffer[Float]()
-
-      for i <- 0 until points.length - 1 do
-        val current = points(i)
-        val next = points(i + 1)
-
-        vertices += current.x; vertices += current.y
-        vertices += next.x; vertices += next.y
-
-      if vertices.nonEmpty then
-        GLEWHelper.glBindVertexArray(VAO)
-        GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+    Drawing.getCurrentShader match
+      case Some(customShader) =>
+        GLEWHelper.glUseProgram(customShader.id.toUInt)
 
         Zone {
-          val verticesPtr = stackalloc[GLfloat](vertices.length)
-          for i <- vertices.indices do
-            verticesPtr(i) = vertices(i)
+          val projName = toCString("uProjection")
+          val colorName = toCString("uColor")
 
-          GLEWHelper.glBufferData(
-            GL_ARRAY_BUFFER.toUInt,
-            (vertices.length * sizeof[GLfloat].toInt),
-            verticesPtr.asInstanceOf[Ptr[Byte]],
-            GL_DYNAMIC_DRAW.toUInt
-          )
+          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
+          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
+
+          if projLocation >= 0 then
+            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrixPtr = stackalloc[GLfloat](16)
+            for i <- matrix.indices do
+              matrixPtr(i) = matrix(i)
+            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
+
+          if colorLocation >= 0 then
+            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
+        }
+      case None =>
+        defaultShader.foreach { shader =>
+          GLEWHelper.glUseProgram(shader.id.toUInt)
+          setColor(color)
         }
 
-        GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
-        GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+    val vertices = scala.collection.mutable.ArrayBuffer[Float]()
 
-        glDrawArrays(GL_LINES.toUInt, 0, (vertices.length / 2).toUInt)
+    for i <- 0 until points.length - 1 do
+      val current = points(i)
+      val next = points(i + 1)
 
-        GLEWHelper.glBindVertexArray(0.toUInt)
-    }
+      vertices += current.x; vertices += current.y
+      vertices += next.x; vertices += next.y
+
+    if vertices.nonEmpty then
+      GLEWHelper.glBindVertexArray(VAO)
+      GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+
+      Zone {
+        val verticesPtr = stackalloc[GLfloat](vertices.length)
+        for i <- vertices.indices do
+          verticesPtr(i) = vertices(i)
+
+        GLEWHelper.glBufferData(
+          GL_ARRAY_BUFFER.toUInt,
+          (vertices.length * sizeof[GLfloat].toInt),
+          verticesPtr.asInstanceOf[Ptr[Byte]],
+          GL_DYNAMIC_DRAW.toUInt
+        )
+      }
+
+      GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
+      GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+
+      glDrawArrays(GL_LINES.toUInt, 0, (vertices.length / 2).toUInt)
+
+      GLEWHelper.glBindVertexArray(0.toUInt)
 
   def renderRectangle(x: Float, y: Float, width: Float, height: Float, color: Color): Unit =
     if !isInitialized then
       if !initialize() then return
 
-    defaultShader.foreach { shader =>
-      GLEWHelper.glUseProgram(shader.id.toUInt)
-      setColor(color)
+    Drawing.getCurrentShader match
+      case Some(customShader) =>
+        GLEWHelper.glUseProgram(customShader.id.toUInt)
 
-      val vertices = Array(
-        x, y, // top-left
-        x + width, y, // top-right
-        x, y + height, // bottom-left
+        Zone {
+          val projName = toCString("uProjection")
+          val colorName = toCString("uColor")
 
-        x + width, y, // top-right
-        x + width, y + height, // bottom-right
-        x, y + height // bottom-left
+          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
+          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
+
+          if projLocation >= 0 then
+            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrixPtr = stackalloc[GLfloat](16)
+            for i <- matrix.indices do
+              matrixPtr(i) = matrix(i)
+            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
+
+          if colorLocation >= 0 then
+            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
+        }
+      case None =>
+        defaultShader.foreach { shader =>
+          GLEWHelper.glUseProgram(shader.id.toUInt)
+          setColor(color)
+        }
+
+    val vertices = Array(
+      x, y, // top-left
+      x + width, y, // top-right
+      x, y + height, // bottom-left
+
+      x + width, y, // top-right
+      x + width, y + height, // bottom-right
+      x, y + height // bottom-left
+    )
+
+    GLEWHelper.glBindVertexArray(VAO)
+    GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+
+    Zone {
+      val verticesPtr = stackalloc[GLfloat](vertices.length)
+      for i <- vertices.indices do
+        verticesPtr(i) = vertices(i)
+
+      GLEWHelper.glBufferData(
+        GL_ARRAY_BUFFER.toUInt,
+        (vertices.length * sizeof[GLfloat].toInt),
+        verticesPtr.asInstanceOf[Ptr[Byte]],
+        GL_DYNAMIC_DRAW.toUInt
       )
-
-      GLEWHelper.glBindVertexArray(VAO)
-      GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
-
-      Zone {
-        val verticesPtr = stackalloc[GLfloat](vertices.length)
-        for i <- vertices.indices do
-          verticesPtr(i) = vertices(i)
-
-        GLEWHelper.glBufferData(
-          GL_ARRAY_BUFFER.toUInt,
-          (vertices.length * sizeof[GLfloat].toInt),
-          verticesPtr.asInstanceOf[Ptr[Byte]],
-          GL_DYNAMIC_DRAW.toUInt
-        )
-      }
-
-      GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
-      GLEWHelper.glEnableVertexAttribArray(0.toUInt)
-
-      glDrawArrays(GL_TRIANGLES.toUInt, 0, 6.toUInt)
-
-      GLEWHelper.glBindVertexArray(0.toUInt)
     }
+
+    GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
+    GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+
+    glDrawArrays(GL_TRIANGLES.toUInt, 0, 6.toUInt)
+
+    GLEWHelper.glBindVertexArray(0.toUInt)
 
   def renderRotatedRectangle(rectangle: Rectangle, origin: Vector2, rotation: Float, color: Color): Unit =
     if !isInitialized then
       if !initialize() then return
 
-    defaultShader.foreach { shader =>
-      GLEWHelper.glUseProgram(shader.id.toUInt)
-      setColor(color)
+    Drawing.getCurrentShader match
+      case Some(customShader) =>
+        GLEWHelper.glUseProgram(customShader.id.toUInt)
 
-      val angleRad = math.toRadians(rotation).toFloat
-      val cos = math.cos(angleRad).toFloat
-      val sin = math.sin(angleRad).toFloat
+        Zone {
+          val projName = toCString("uProjection")
+          val colorName = toCString("uColor")
 
-      val corners = Array(
-        (-origin.x, -origin.y), // top-left
-        (rectangle.width - origin.x, -origin.y), // top-right
-        (rectangle.width - origin.x, rectangle.height - origin.y), // bottom-right
-        (-origin.x, rectangle.height - origin.y) // bottom-left
-      )
+          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
+          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
 
-      val rotatedCorners = corners.map { case (x, y) =>
-        val rotX = x * cos - y * sin + rectangle.x + origin.x
-        val rotY = x * sin + y * cos + rectangle.y + origin.y
-        (rotX, rotY)
-      }
+          if projLocation >= 0 then
+            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrixPtr = stackalloc[GLfloat](16)
+            for i <- matrix.indices do
+              matrixPtr(i) = matrix(i)
+            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
 
-      val vertices = Array(
-        rotatedCorners(0)._1, rotatedCorners(0)._2, // top-left
-        rotatedCorners(1)._1, rotatedCorners(1)._2, // top-right
-        rotatedCorners(2)._1, rotatedCorners(2)._2, // bottom-right
+          if colorLocation >= 0 then
+            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
+        }
+      case None =>
+        defaultShader.foreach { shader =>
+          GLEWHelper.glUseProgram(shader.id.toUInt)
+          setColor(color)
+        }
 
-        rotatedCorners(0)._1, rotatedCorners(0)._2, // top-left
-        rotatedCorners(2)._1, rotatedCorners(2)._2, // bottom-right
-        rotatedCorners(3)._1, rotatedCorners(3)._2 // bottom-left
-      )
+    val angleRad = math.toRadians(rotation).toFloat
+    val cos = math.cos(angleRad).toFloat
+    val sin = math.sin(angleRad).toFloat
 
-      GLEWHelper.glBindVertexArray(VAO)
-      GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+    val corners = Array(
+      (-origin.x, -origin.y), // top-left
+      (rectangle.width - origin.x, -origin.y), // top-right
+      (rectangle.width - origin.x, rectangle.height - origin.y), // bottom-right
+      (-origin.x, rectangle.height - origin.y) // bottom-left
+    )
 
-      Zone {
-        val verticesPtr = stackalloc[GLfloat](vertices.length)
-        for i <- vertices.indices do
-          verticesPtr(i) = vertices(i)
-
-        GLEWHelper.glBufferData(
-          GL_ARRAY_BUFFER.toUInt,
-          (vertices.length * sizeof[GLfloat].toInt),
-          verticesPtr.asInstanceOf[Ptr[Byte]],
-          GL_DYNAMIC_DRAW.toUInt
-        )
-      }
-
-      GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
-      GLEWHelper.glEnableVertexAttribArray(0.toUInt)
-
-      glDrawArrays(GL_TRIANGLES.toUInt, 0, 6.toUInt)
-
-      GLEWHelper.glBindVertexArray(0.toUInt)
+    val rotatedCorners = corners.map { case (x, y) =>
+      val rotX = x * cos - y * sin + rectangle.x + origin.x
+      val rotY = x * sin + y * cos + rectangle.y + origin.y
+      (rotX, rotY)
     }
+
+    val vertices = Array(
+      rotatedCorners(0)._1, rotatedCorners(0)._2, // top-left
+      rotatedCorners(1)._1, rotatedCorners(1)._2, // top-right
+      rotatedCorners(2)._1, rotatedCorners(2)._2, // bottom-right
+
+      rotatedCorners(0)._1, rotatedCorners(0)._2, // top-left
+      rotatedCorners(2)._1, rotatedCorners(2)._2, // bottom-right
+      rotatedCorners(3)._1, rotatedCorners(3)._2 // bottom-left
+    )
+
+    GLEWHelper.glBindVertexArray(VAO)
+    GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+
+    Zone {
+      val verticesPtr = stackalloc[GLfloat](vertices.length)
+      for i <- vertices.indices do
+        verticesPtr(i) = vertices(i)
+
+      GLEWHelper.glBufferData(
+        GL_ARRAY_BUFFER.toUInt,
+        (vertices.length * sizeof[GLfloat].toInt),
+        verticesPtr.asInstanceOf[Ptr[Byte]],
+        GL_DYNAMIC_DRAW.toUInt
+      )
+    }
+
+    GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
+    GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+
+    glDrawArrays(GL_TRIANGLES.toUInt, 0, 6.toUInt)
+
+    GLEWHelper.glBindVertexArray(0.toUInt)
 
   def renderRectangleOutline(x: Float, y: Float, width: Float, height: Float, color: Color): Unit =
     if !isInitialized then
       if !initialize() then return
 
-    defaultShader.foreach { shader =>
-      GLEWHelper.glUseProgram(shader.id.toUInt)
-      setColor(color)
+    Drawing.getCurrentShader match
+      case Some(customShader) =>
+        GLEWHelper.glUseProgram(customShader.id.toUInt)
 
-      val vertices = Array(
-        // Top edge
-        x, y,
-        x + width, y,
+        Zone {
+          val projName = toCString("uProjection")
+          val colorName = toCString("uColor")
 
-        // Right edge
-        x + width, y,
-        x + width, y + height,
+          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
+          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
 
-        // Bottom edge
-        x + width, y + height,
-        x, y + height,
+          if projLocation >= 0 then
+            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrixPtr = stackalloc[GLfloat](16)
+            for i <- matrix.indices do
+              matrixPtr(i) = matrix(i)
+            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
 
-        // Left edge
-        x, y + height,
-        x, y
+          if colorLocation >= 0 then
+            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
+        }
+      case None =>
+        defaultShader.foreach { shader =>
+          GLEWHelper.glUseProgram(shader.id.toUInt)
+          setColor(color)
+        }
+
+    val vertices = Array(
+      // Top edge
+      x, y,
+      x + width, y,
+
+      // Right edge
+      x + width, y,
+      x + width, y + height,
+
+      // Bottom edge
+      x + width, y + height,
+      x, y + height,
+
+      // Left edge
+      x, y + height,
+      x, y
+    )
+
+    GLEWHelper.glBindVertexArray(VAO)
+    GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+
+    Zone {
+      val verticesPtr = stackalloc[GLfloat](vertices.length)
+      for i <- vertices.indices do
+        verticesPtr(i) = vertices(i)
+
+      GLEWHelper.glBufferData(
+        GL_ARRAY_BUFFER.toUInt,
+        (vertices.length * sizeof[GLfloat].toInt),
+        verticesPtr.asInstanceOf[Ptr[Byte]],
+        GL_DYNAMIC_DRAW.toUInt
       )
-
-      GLEWHelper.glBindVertexArray(VAO)
-      GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
-
-      Zone {
-        val verticesPtr = stackalloc[GLfloat](vertices.length)
-        for i <- vertices.indices do
-          verticesPtr(i) = vertices(i)
-
-        GLEWHelper.glBufferData(
-          GL_ARRAY_BUFFER.toUInt,
-          (vertices.length * sizeof[GLfloat].toInt),
-          verticesPtr.asInstanceOf[Ptr[Byte]],
-          GL_DYNAMIC_DRAW.toUInt
-        )
-      }
-
-      GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
-      GLEWHelper.glEnableVertexAttribArray(0.toUInt)
-
-      glDrawArrays(GL_LINES.toUInt, 0, 8.toUInt)
-
-      GLEWHelper.glBindVertexArray(0.toUInt)
     }
+
+    GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
+    GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+
+    glDrawArrays(GL_LINES.toUInt, 0, 8.toUInt)
+
+    GLEWHelper.glBindVertexArray(0.toUInt)
 
   def renderRoundedRectangle(rect: Rectangle, roundness: Float, segments: Int, color: Color): Unit =
     if !isInitialized then
@@ -408,115 +540,137 @@ object BasicRenderer:
       renderRectangle(rect.x, rect.y, rect.width, rect.height, color)
       return
 
-    defaultShader.foreach { shader =>
-      GLEWHelper.glUseProgram(shader.id.toUInt)
-      setColor(color)
-
-      val maxRadius = math.min(rect.width, rect.height) / 2.0f
-      val cornerRadius = (roundness * maxRadius).min(maxRadius)
-      val innerWidth = rect.width - 2 * cornerRadius
-      val innerHeight = rect.height - 2 * cornerRadius
-
-      val vertices = scala.collection.mutable.ArrayBuffer[Float]()
-
-      def addQuad(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float, x4: Float, y4: Float): Unit =
-        vertices += x1;
-        vertices += y1
-        vertices += x2;
-        vertices += y2
-        vertices += x3;
-        vertices += y3
-        vertices += x1;
-        vertices += y1
-        vertices += x3;
-        vertices += y3
-        vertices += x4;
-        vertices += y4
-
-      if innerWidth > 0 && innerHeight > 0 then
-        addQuad(
-          rect.x + cornerRadius, rect.y + cornerRadius,
-          rect.x + cornerRadius + innerWidth, rect.y + cornerRadius,
-          rect.x + cornerRadius + innerWidth, rect.y + cornerRadius + innerHeight,
-          rect.x + cornerRadius, rect.y + cornerRadius + innerHeight
-        )
-
-      if innerWidth > 0 then
-        addQuad(
-          rect.x + cornerRadius, rect.y,
-          rect.x + cornerRadius + innerWidth, rect.y,
-          rect.x + cornerRadius + innerWidth, rect.y + cornerRadius,
-          rect.x + cornerRadius, rect.y + cornerRadius
-        )
-
-      if innerWidth > 0 then
-        addQuad(
-          rect.x + cornerRadius, rect.y + cornerRadius + innerHeight,
-          rect.x + cornerRadius + innerWidth, rect.y + cornerRadius + innerHeight,
-          rect.x + cornerRadius + innerWidth, rect.y + rect.height,
-          rect.x + cornerRadius, rect.y + rect.height
-        )
-
-      if innerHeight > 0 then
-        addQuad(
-          rect.x, rect.y + cornerRadius,
-          rect.x + cornerRadius, rect.y + cornerRadius,
-          rect.x + cornerRadius, rect.y + cornerRadius + innerHeight,
-          rect.x, rect.y + cornerRadius + innerHeight
-        )
-
-      if innerHeight > 0 then
-        addQuad(
-          rect.x + cornerRadius + innerWidth, rect.y + cornerRadius,
-          rect.x + rect.width, rect.y + cornerRadius,
-          rect.x + rect.width, rect.y + cornerRadius + innerHeight,
-          rect.x + cornerRadius + innerWidth, rect.y + cornerRadius + innerHeight
-        )
-
-      def addCorner(centerX: Float, centerY: Float, startAngle: Float): Unit =
-        val angleStep = (math.Pi / 2.0f) / segments.toFloat
-        for i <- 0 until segments do
-          val angle1 = startAngle + (i * angleStep)
-          val angle2 = startAngle + ((i + 1) * angleStep)
-
-          val x1 = centerX + cornerRadius * math.cos(angle1).toFloat
-          val y1 = centerY + cornerRadius * math.sin(angle1).toFloat
-          val x2 = centerX + cornerRadius * math.cos(angle2).toFloat
-          val y2 = centerY + cornerRadius * math.sin(angle2).toFloat
-
-          vertices += centerX; vertices += centerY
-          vertices += x1; vertices += y1
-          vertices += x2; vertices += y2
-
-      addCorner(rect.x + cornerRadius, rect.y + cornerRadius, math.Pi.toFloat) // top-left
-      addCorner(rect.x + rect.width - cornerRadius, rect.y + cornerRadius, 3 * math.Pi.toFloat / 2) // top-right
-      addCorner(rect.x + rect.width - cornerRadius, rect.y + rect.height - cornerRadius, 0.0f) // bottom-right
-      addCorner(rect.x + cornerRadius, rect.y + rect.height - cornerRadius, math.Pi.toFloat / 2) // bottom-left
-
-      if vertices.nonEmpty then
-        GLEWHelper.glBindVertexArray(VAO)
-        GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+    Drawing.getCurrentShader match
+      case Some(customShader) =>
+        GLEWHelper.glUseProgram(customShader.id.toUInt)
 
         Zone {
-          val verticesPtr = stackalloc[GLfloat](vertices.length)
-          for i <- vertices.indices do
-            verticesPtr(i) = vertices(i)
+          val projName = toCString("uProjection")
+          val colorName = toCString("uColor")
 
-          GLEWHelper.glBufferData(
-            GL_ARRAY_BUFFER.toUInt,
-            (vertices.length * sizeof[GLfloat].toInt),
-            verticesPtr.asInstanceOf[Ptr[Byte]],
-            GL_DYNAMIC_DRAW.toUInt
-          )
+          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
+          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
+
+          if projLocation >= 0 then
+            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrixPtr = stackalloc[GLfloat](16)
+            for i <- matrix.indices do
+              matrixPtr(i) = matrix(i)
+            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
+
+          if colorLocation >= 0 then
+            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
+        }
+      case None =>
+        defaultShader.foreach { shader =>
+          GLEWHelper.glUseProgram(shader.id.toUInt)
+          setColor(color)
         }
 
-        GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
-        GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+    val maxRadius = math.min(rect.width, rect.height) / 2.0f
+    val cornerRadius = (roundness * maxRadius).min(maxRadius)
+    val innerWidth = rect.width - 2 * cornerRadius
+    val innerHeight = rect.height - 2 * cornerRadius
 
-        glDrawArrays(GL_TRIANGLES.toUInt, 0, (vertices.length / 2).toUInt)
+    val vertices = scala.collection.mutable.ArrayBuffer[Float]()
 
-        GLEWHelper.glBindVertexArray(0.toUInt)
-    }
+    def addQuad(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float, x4: Float, y4: Float): Unit =
+      vertices += x1;
+      vertices += y1
+      vertices += x2;
+      vertices += y2
+      vertices += x3;
+      vertices += y3
+      vertices += x1;
+      vertices += y1
+      vertices += x3;
+      vertices += y3
+      vertices += x4;
+      vertices += y4
+
+    if innerWidth > 0 && innerHeight > 0 then
+      addQuad(
+        rect.x + cornerRadius, rect.y + cornerRadius,
+        rect.x + cornerRadius + innerWidth, rect.y + cornerRadius,
+        rect.x + cornerRadius + innerWidth, rect.y + cornerRadius + innerHeight,
+        rect.x + cornerRadius, rect.y + cornerRadius + innerHeight
+      )
+
+    if innerWidth > 0 then
+      addQuad(
+        rect.x + cornerRadius, rect.y,
+        rect.x + cornerRadius + innerWidth, rect.y,
+        rect.x + cornerRadius + innerWidth, rect.y + cornerRadius,
+        rect.x + cornerRadius, rect.y + cornerRadius
+      )
+
+    if innerWidth > 0 then
+      addQuad(
+        rect.x + cornerRadius, rect.y + cornerRadius + innerHeight,
+        rect.x + cornerRadius + innerWidth, rect.y + cornerRadius + innerHeight,
+        rect.x + cornerRadius + innerWidth, rect.y + rect.height,
+        rect.x + cornerRadius, rect.y + rect.height
+      )
+
+    if innerHeight > 0 then
+      addQuad(
+        rect.x, rect.y + cornerRadius,
+        rect.x + cornerRadius, rect.y + cornerRadius,
+        rect.x + cornerRadius, rect.y + cornerRadius + innerHeight,
+        rect.x, rect.y + cornerRadius + innerHeight
+      )
+
+    if innerHeight > 0 then
+      addQuad(
+        rect.x + cornerRadius + innerWidth, rect.y + cornerRadius,
+        rect.x + rect.width, rect.y + cornerRadius,
+        rect.x + rect.width, rect.y + cornerRadius + innerHeight,
+        rect.x + cornerRadius + innerWidth, rect.y + cornerRadius + innerHeight
+      )
+
+    def addCorner(centerX: Float, centerY: Float, startAngle: Float): Unit =
+      val angleStep = (math.Pi / 2.0f) / segments.toFloat
+      for i <- 0 until segments do
+        val angle1 = startAngle + (i * angleStep)
+        val angle2 = startAngle + ((i + 1) * angleStep)
+
+        val x1 = centerX + cornerRadius * math.cos(angle1).toFloat
+        val y1 = centerY + cornerRadius * math.sin(angle1).toFloat
+        val x2 = centerX + cornerRadius * math.cos(angle2).toFloat
+        val y2 = centerY + cornerRadius * math.sin(angle2).toFloat
+
+        vertices += centerX; vertices += centerY
+        vertices += x1; vertices += y1
+        vertices += x2; vertices += y2
+
+    addCorner(rect.x + cornerRadius, rect.y + cornerRadius, math.Pi.toFloat) // top-left
+    addCorner(rect.x + rect.width - cornerRadius, rect.y + cornerRadius, 3 * math.Pi.toFloat / 2) // top-right
+    addCorner(rect.x + rect.width - cornerRadius, rect.y + rect.height - cornerRadius, 0.0f) // bottom-right
+    addCorner(rect.x + cornerRadius, rect.y + rect.height - cornerRadius, math.Pi.toFloat / 2) // bottom-left
+
+    if vertices.nonEmpty then
+      GLEWHelper.glBindVertexArray(VAO)
+      GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+
+      Zone {
+        val verticesPtr = stackalloc[GLfloat](vertices.length)
+        for i <- vertices.indices do
+          verticesPtr(i) = vertices(i)
+
+        GLEWHelper.glBufferData(
+          GL_ARRAY_BUFFER.toUInt,
+          (vertices.length * sizeof[GLfloat].toInt),
+          verticesPtr.asInstanceOf[Ptr[Byte]],
+          GL_DYNAMIC_DRAW.toUInt
+        )
+      }
+
+      GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
+      GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+
+      glDrawArrays(GL_TRIANGLES.toUInt, 0, (vertices.length / 2).toUInt)
+
+      GLEWHelper.glBindVertexArray(0.toUInt)
 
   def renderRoundedRectangleOutline(rectangle: Rectangle, roundness: Float, segments: Int, color: Color): Unit =
     if !isInitialized then
@@ -527,189 +681,255 @@ object BasicRenderer:
       renderRectangleOutline(rectangle.x, rectangle.y, rectangle.width, rectangle.height, color)
       return
 
-    defaultShader.foreach { shader =>
-      GLEWHelper.glUseProgram(shader.id.toUInt)
-      setColor(color)
-
-      val maxRadius = math.min(rectangle.width, rectangle.height) / 2.0f
-      val cornerRadius = (roundness * maxRadius).min(maxRadius)
-      val angleStep = (math.Pi / 2.0f) / segments.toFloat
-
-      val vertices = scala.collection.mutable.ArrayBuffer[Float]()
-
-      vertices += rectangle.x + cornerRadius;
-      vertices += rectangle.y
-      vertices += rectangle.x + rectangle.width - cornerRadius;
-      vertices += rectangle.y
-
-      for i <- 0 until segments do
-        val angle1 = (3 * math.Pi / 2.0f) + (i * angleStep)
-        val angle2 = (3 * math.Pi / 2.0f) + ((i + 1) * angleStep)
-
-        val x1 = rectangle.x + rectangle.width - cornerRadius + cornerRadius * math.cos(angle1).toFloat
-        val y1 = rectangle.y + cornerRadius + cornerRadius * math.sin(angle1).toFloat
-        val x2 = rectangle.x + rectangle.width - cornerRadius + cornerRadius * math.cos(angle2).toFloat
-        val y2 = rectangle.y + cornerRadius + cornerRadius * math.sin(angle2).toFloat
-
-        vertices += x1; vertices += y1
-        vertices += x2; vertices += y2
-
-      vertices += rectangle.x + rectangle.width;
-      vertices += rectangle.y + cornerRadius
-      vertices += rectangle.x + rectangle.width;
-      vertices += rectangle.y + rectangle.height - cornerRadius
-
-      for i <- 0 until segments do
-        val angle1 = (i * angleStep)
-        val angle2 = ((i + 1) * angleStep)
-
-        val x1 = rectangle.x + rectangle.width - cornerRadius + cornerRadius * math.cos(angle1).toFloat
-        val y1 = rectangle.y + rectangle.height - cornerRadius + cornerRadius * math.sin(angle1).toFloat
-        val x2 = rectangle.x + rectangle.width - cornerRadius + cornerRadius * math.cos(angle2).toFloat
-        val y2 = rectangle.y + rectangle.height - cornerRadius + cornerRadius * math.sin(angle2).toFloat
-
-        vertices += x1; vertices += y1
-        vertices += x2; vertices += y2
-
-      vertices += rectangle.x + rectangle.width - cornerRadius;
-      vertices += rectangle.y + rectangle.height
-      vertices += rectangle.x + cornerRadius;
-      vertices += rectangle.y + rectangle.height
-
-      for i <- 0 until segments do
-        val angle1 = (math.Pi / 2.0f) + (i * angleStep)
-        val angle2 = (math.Pi / 2.0f) + ((i + 1) * angleStep)
-
-        val x1 = rectangle.x + cornerRadius + cornerRadius * math.cos(angle1).toFloat
-        val y1 = rectangle.y + rectangle.height - cornerRadius + cornerRadius * math.sin(angle1).toFloat
-        val x2 = rectangle.x + cornerRadius + cornerRadius * math.cos(angle2).toFloat
-        val y2 = rectangle.y + rectangle.height - cornerRadius + cornerRadius * math.sin(angle2).toFloat
-
-        vertices += x1; vertices += y1
-        vertices += x2; vertices += y2
-
-      vertices += rectangle.x;
-      vertices += rectangle.y + rectangle.height - cornerRadius
-      vertices += rectangle.x;
-      vertices += rectangle.y + cornerRadius
-
-      for i <- 0 until segments do
-        val angle1 = math.Pi.toFloat + (i * angleStep)
-        val angle2 = math.Pi.toFloat + ((i + 1) * angleStep)
-
-        val x1 = rectangle.x + cornerRadius + cornerRadius * math.cos(angle1).toFloat
-        val y1 = rectangle.y + cornerRadius + cornerRadius * math.sin(angle1).toFloat
-        val x2 = rectangle.x + cornerRadius + cornerRadius * math.cos(angle2).toFloat
-        val y2 = rectangle.y + cornerRadius + cornerRadius * math.sin(angle2).toFloat
-
-        vertices += x1; vertices += y1
-        vertices += x2; vertices += y2
-
-      if vertices.nonEmpty then
-        GLEWHelper.glBindVertexArray(VAO)
-        GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+    Drawing.getCurrentShader match
+      case Some(customShader) =>
+        GLEWHelper.glUseProgram(customShader.id.toUInt)
 
         Zone {
-          val verticesPtr = stackalloc[GLfloat](vertices.length)
-          for i <- vertices.indices do
-            verticesPtr(i) = vertices(i)
+          val projName = toCString("uProjection")
+          val colorName = toCString("uColor")
 
-          GLEWHelper.glBufferData(
-            GL_ARRAY_BUFFER.toUInt,
-            (vertices.length * sizeof[GLfloat].toInt),
-            verticesPtr.asInstanceOf[Ptr[Byte]],
-            GL_DYNAMIC_DRAW.toUInt
-          )
+          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
+          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
+
+          if projLocation >= 0 then
+            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrixPtr = stackalloc[GLfloat](16)
+            for i <- matrix.indices do
+              matrixPtr(i) = matrix(i)
+            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
+
+          if colorLocation >= 0 then
+            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
+        }
+      case None =>
+        defaultShader.foreach { shader =>
+          GLEWHelper.glUseProgram(shader.id.toUInt)
+          setColor(color)
         }
 
-        GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
-        GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+    val maxRadius = math.min(rectangle.width, rectangle.height) / 2.0f
+    val cornerRadius = (roundness * maxRadius).min(maxRadius)
+    val angleStep = (math.Pi / 2.0f) / segments.toFloat
 
-        glDrawArrays(GL_LINES.toUInt, 0, (vertices.length / 2).toUInt)
+    val vertices = scala.collection.mutable.ArrayBuffer[Float]()
 
-        GLEWHelper.glBindVertexArray(0.toUInt)
-    }
+    vertices += rectangle.x + cornerRadius;
+    vertices += rectangle.y
+    vertices += rectangle.x + rectangle.width - cornerRadius;
+    vertices += rectangle.y
+
+    for i <- 0 until segments do
+      val angle1 = (3 * math.Pi / 2.0f) + (i * angleStep)
+      val angle2 = (3 * math.Pi / 2.0f) + ((i + 1) * angleStep)
+
+      val x1 = rectangle.x + rectangle.width - cornerRadius + cornerRadius * math.cos(angle1).toFloat
+      val y1 = rectangle.y + cornerRadius + cornerRadius * math.sin(angle1).toFloat
+      val x2 = rectangle.x + rectangle.width - cornerRadius + cornerRadius * math.cos(angle2).toFloat
+      val y2 = rectangle.y + cornerRadius + cornerRadius * math.sin(angle2).toFloat
+
+      vertices += x1; vertices += y1
+      vertices += x2; vertices += y2
+
+    vertices += rectangle.x + rectangle.width;
+    vertices += rectangle.y + cornerRadius
+    vertices += rectangle.x + rectangle.width;
+    vertices += rectangle.y + rectangle.height - cornerRadius
+
+    for i <- 0 until segments do
+      val angle1 = (i * angleStep)
+      val angle2 = ((i + 1) * angleStep)
+
+      val x1 = rectangle.x + rectangle.width - cornerRadius + cornerRadius * math.cos(angle1).toFloat
+      val y1 = rectangle.y + rectangle.height - cornerRadius + cornerRadius * math.sin(angle1).toFloat
+      val x2 = rectangle.x + rectangle.width - cornerRadius + cornerRadius * math.cos(angle2).toFloat
+      val y2 = rectangle.y + rectangle.height - cornerRadius + cornerRadius * math.sin(angle2).toFloat
+
+      vertices += x1; vertices += y1
+      vertices += x2; vertices += y2
+
+    vertices += rectangle.x + rectangle.width - cornerRadius;
+    vertices += rectangle.y + rectangle.height
+    vertices += rectangle.x + cornerRadius;
+    vertices += rectangle.y + rectangle.height
+
+    for i <- 0 until segments do
+      val angle1 = (math.Pi / 2.0f) + (i * angleStep)
+      val angle2 = (math.Pi / 2.0f) + ((i + 1) * angleStep)
+
+      val x1 = rectangle.x + cornerRadius + cornerRadius * math.cos(angle1).toFloat
+      val y1 = rectangle.y + rectangle.height - cornerRadius + cornerRadius * math.sin(angle1).toFloat
+      val x2 = rectangle.x + cornerRadius + cornerRadius * math.cos(angle2).toFloat
+      val y2 = rectangle.y + rectangle.height - cornerRadius + cornerRadius * math.sin(angle2).toFloat
+
+      vertices += x1; vertices += y1
+      vertices += x2; vertices += y2
+
+    vertices += rectangle.x;
+    vertices += rectangle.y + rectangle.height - cornerRadius
+    vertices += rectangle.x;
+    vertices += rectangle.y + cornerRadius
+
+    for i <- 0 until segments do
+      val angle1 = math.Pi.toFloat + (i * angleStep)
+      val angle2 = math.Pi.toFloat + ((i + 1) * angleStep)
+
+      val x1 = rectangle.x + cornerRadius + cornerRadius * math.cos(angle1).toFloat
+      val y1 = rectangle.y + cornerRadius + cornerRadius * math.sin(angle1).toFloat
+      val x2 = rectangle.x + cornerRadius + cornerRadius * math.cos(angle2).toFloat
+      val y2 = rectangle.y + cornerRadius + cornerRadius * math.sin(angle2).toFloat
+
+      vertices += x1; vertices += y1
+      vertices += x2; vertices += y2
+
+    if vertices.nonEmpty then
+      GLEWHelper.glBindVertexArray(VAO)
+      GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+
+      Zone {
+        val verticesPtr = stackalloc[GLfloat](vertices.length)
+        for i <- vertices.indices do
+          verticesPtr(i) = vertices(i)
+
+        GLEWHelper.glBufferData(
+          GL_ARRAY_BUFFER.toUInt,
+          (vertices.length * sizeof[GLfloat].toInt),
+          verticesPtr.asInstanceOf[Ptr[Byte]],
+          GL_DYNAMIC_DRAW.toUInt
+        )
+      }
+
+      GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
+      GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+
+      glDrawArrays(GL_LINES.toUInt, 0, (vertices.length / 2).toUInt)
+
+      GLEWHelper.glBindVertexArray(0.toUInt)
 
   def renderTriangle(v1: Vector2, v2: Vector2, v3: Vector2, color: Color): Unit =
     if !isInitialized then
       if !initialize() then return
 
-    defaultShader.foreach { shader =>
-      GLEWHelper.glUseProgram(shader.id.toUInt)
-      setColor(color)
+    Drawing.getCurrentShader match
+      case Some(customShader) =>
+        GLEWHelper.glUseProgram(customShader.id.toUInt)
 
-      val vertices = Array(
-        v1.x, v1.y,
-        v2.x, v2.y,
-        v3.x, v3.y
+        Zone {
+          val projName = toCString("uProjection")
+          val colorName = toCString("uColor")
+
+          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
+          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
+
+          if projLocation >= 0 then
+            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrixPtr = stackalloc[GLfloat](16)
+            for i <- matrix.indices do
+              matrixPtr(i) = matrix(i)
+            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
+
+          if colorLocation >= 0 then
+            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
+        }
+      case None =>
+        defaultShader.foreach { shader =>
+          GLEWHelper.glUseProgram(shader.id.toUInt)
+          setColor(color)
+        }
+
+    val vertices = Array(
+      v1.x, v1.y,
+      v2.x, v2.y,
+      v3.x, v3.y
+    )
+
+    GLEWHelper.glBindVertexArray(VAO)
+    GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+
+    Zone {
+      val verticesPtr = stackalloc[GLfloat](vertices.length)
+      for i <- vertices.indices do
+        verticesPtr(i) = vertices(i)
+
+      GLEWHelper.glBufferData(
+        GL_ARRAY_BUFFER.toUInt,
+        (vertices.length * sizeof[GLfloat].toInt),
+        verticesPtr.asInstanceOf[Ptr[Byte]],
+        GL_DYNAMIC_DRAW.toUInt
       )
-
-      GLEWHelper.glBindVertexArray(VAO)
-      GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
-
-      Zone {
-        val verticesPtr = stackalloc[GLfloat](vertices.length)
-        for i <- vertices.indices do
-          verticesPtr(i) = vertices(i)
-
-        GLEWHelper.glBufferData(
-          GL_ARRAY_BUFFER.toUInt,
-          (vertices.length * sizeof[GLfloat].toInt),
-          verticesPtr.asInstanceOf[Ptr[Byte]],
-          GL_DYNAMIC_DRAW.toUInt
-        )
-      }
-
-      GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
-      GLEWHelper.glEnableVertexAttribArray(0.toUInt)
-
-      glDrawArrays(GL_TRIANGLES.toUInt, 0, 3.toUInt)
-
-      GLEWHelper.glBindVertexArray(0.toUInt)
     }
+
+    GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
+    GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+
+    glDrawArrays(GL_TRIANGLES.toUInt, 0, 3.toUInt)
+
+    GLEWHelper.glBindVertexArray(0.toUInt)
 
   def renderTriangleOutline(v1: Vector2, v2: Vector2, v3: Vector2, color: Color): Unit =
     if !isInitialized then
       if !initialize() then return
 
-    defaultShader.foreach { shader =>
-      GLEWHelper.glUseProgram(shader.id.toUInt)
-      setColor(color)
+    Drawing.getCurrentShader match
+      case Some(customShader) =>
+        GLEWHelper.glUseProgram(customShader.id.toUInt)
 
-      val vertices = Array(
-        v1.x, v1.y,
-        v2.x, v2.y,
+        Zone {
+          val projName = toCString("uProjection")
+          val colorName = toCString("uColor")
 
-        v2.x, v2.y,
-        v3.x, v3.y,
+          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
+          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
 
-        v3.x, v3.y,
-        v1.x, v1.y
+          if projLocation >= 0 then
+            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrixPtr = stackalloc[GLfloat](16)
+            for i <- matrix.indices do
+              matrixPtr(i) = matrix(i)
+            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
+
+          if colorLocation >= 0 then
+            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
+        }
+      case None =>
+        defaultShader.foreach { shader =>
+          GLEWHelper.glUseProgram(shader.id.toUInt)
+          setColor(color)
+        }
+
+    val vertices = Array(
+      v1.x, v1.y,
+      v2.x, v2.y,
+
+      v2.x, v2.y,
+      v3.x, v3.y,
+
+      v3.x, v3.y,
+      v1.x, v1.y
+    )
+
+    GLEWHelper.glBindVertexArray(VAO)
+    GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+
+    Zone {
+      val verticesPtr = stackalloc[GLfloat](vertices.length)
+      for i <- vertices.indices do
+        verticesPtr(i) = vertices(i)
+
+      GLEWHelper.glBufferData(
+        GL_ARRAY_BUFFER.toUInt,
+        (vertices.length * sizeof[GLfloat].toInt),
+        verticesPtr.asInstanceOf[Ptr[Byte]],
+        GL_DYNAMIC_DRAW.toUInt
       )
-
-      GLEWHelper.glBindVertexArray(VAO)
-      GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
-
-      Zone {
-        val verticesPtr = stackalloc[GLfloat](vertices.length)
-        for i <- vertices.indices do
-          verticesPtr(i) = vertices(i)
-
-        GLEWHelper.glBufferData(
-          GL_ARRAY_BUFFER.toUInt,
-          (vertices.length * sizeof[GLfloat].toInt),
-          verticesPtr.asInstanceOf[Ptr[Byte]],
-          GL_DYNAMIC_DRAW.toUInt
-        )
-      }
-
-      GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
-      GLEWHelper.glEnableVertexAttribArray(0.toUInt)
-
-      glDrawArrays(GL_LINES.toUInt, 0, 6.toUInt)
-
-      GLEWHelper.glBindVertexArray(0.toUInt)
     }
+
+    GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
+    GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+
+    glDrawArrays(GL_LINES.toUInt, 0, 6.toUInt)
+
+    GLEWHelper.glBindVertexArray(0.toUInt)
 
   def renderTriangleFan(points: Array[Vector2], color: Color): Unit =
     if !isInitialized then
@@ -717,46 +937,68 @@ object BasicRenderer:
 
     if points.length < 3 then return
 
-    defaultShader.foreach { shader =>
-      GLEWHelper.glUseProgram(shader.id.toUInt)
-      setColor(color)
-
-      val vertices = scala.collection.mutable.ArrayBuffer[Float]()
-
-      val centerPoint = points(0)
-
-      for i <- 1 until points.length - 1 do
-        val currentPoint = points(i)
-        val nextPoint = points(i + 1)
-
-        vertices += centerPoint.x; vertices += centerPoint.y
-        vertices += currentPoint.x; vertices += currentPoint.y
-        vertices += nextPoint.x; vertices += nextPoint.y
-
-      if vertices.nonEmpty then
-        GLEWHelper.glBindVertexArray(VAO)
-        GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+    Drawing.getCurrentShader match
+      case Some(customShader) =>
+        GLEWHelper.glUseProgram(customShader.id.toUInt)
 
         Zone {
-          val verticesPtr = stackalloc[GLfloat](vertices.length)
-          for i <- vertices.indices do
-            verticesPtr(i) = vertices(i)
+          val projName = toCString("uProjection")
+          val colorName = toCString("uColor")
 
-          GLEWHelper.glBufferData(
-            GL_ARRAY_BUFFER.toUInt,
-            (vertices.length * sizeof[GLfloat].toInt),
-            verticesPtr.asInstanceOf[Ptr[Byte]],
-            GL_DYNAMIC_DRAW.toUInt
-          )
+          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
+          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
+
+          if projLocation >= 0 then
+            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrixPtr = stackalloc[GLfloat](16)
+            for i <- matrix.indices do
+              matrixPtr(i) = matrix(i)
+            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
+
+          if colorLocation >= 0 then
+            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
+        }
+      case None =>
+        defaultShader.foreach { shader =>
+          GLEWHelper.glUseProgram(shader.id.toUInt)
+          setColor(color)
         }
 
-        GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
-        GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+    val vertices = scala.collection.mutable.ArrayBuffer[Float]()
 
-        glDrawArrays(GL_TRIANGLES.toUInt, 0, (vertices.length / 2).toUInt)
+    val centerPoint = points(0)
 
-        GLEWHelper.glBindVertexArray(0.toUInt)
-    }
+    for i <- 1 until points.length - 1 do
+      val currentPoint = points(i)
+      val nextPoint = points(i + 1)
+
+      vertices += centerPoint.x; vertices += centerPoint.y
+      vertices += currentPoint.x; vertices += currentPoint.y
+      vertices += nextPoint.x; vertices += nextPoint.y
+
+    if vertices.nonEmpty then
+      GLEWHelper.glBindVertexArray(VAO)
+      GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+
+      Zone {
+        val verticesPtr = stackalloc[GLfloat](vertices.length)
+        for i <- vertices.indices do
+          verticesPtr(i) = vertices(i)
+
+        GLEWHelper.glBufferData(
+          GL_ARRAY_BUFFER.toUInt,
+          (vertices.length * sizeof[GLfloat].toInt),
+          verticesPtr.asInstanceOf[Ptr[Byte]],
+          GL_DYNAMIC_DRAW.toUInt
+        )
+      }
+
+      GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
+      GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+
+      glDrawArrays(GL_TRIANGLES.toUInt, 0, (vertices.length / 2).toUInt)
+
+      GLEWHelper.glBindVertexArray(0.toUInt)
 
   def renderTriangleStrip(points: Array[Vector2], color: Color): Unit =
     if !isInitialized then
@@ -764,53 +1006,75 @@ object BasicRenderer:
 
     if points.length < 3 then return
 
-    defaultShader.foreach { shader =>
-      GLEWHelper.glUseProgram(shader.id.toUInt)
-      setColor(color)
-
-      // note: every odd triangle has flipped winding order to maintain face orientation
-      val vertices = scala.collection.mutable.ArrayBuffer[Float]()
-
-      for i <- 0 until points.length - 2 do
-        if i % 2 == 0 then
-          vertices += points(i).x;
-          vertices += points(i).y
-          vertices += points(i + 1).x;
-          vertices += points(i + 1).y
-          vertices += points(i + 2).x;
-          vertices += points(i + 2).y
-        else
-          vertices += points(i).x;
-          vertices += points(i).y
-          vertices += points(i + 2).x;
-          vertices += points(i + 2).y
-          vertices += points(i + 1).x;
-          vertices += points(i + 1).y
-
-      if vertices.nonEmpty then
-        GLEWHelper.glBindVertexArray(VAO)
-        GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+    Drawing.getCurrentShader match
+      case Some(customShader) =>
+        GLEWHelper.glUseProgram(customShader.id.toUInt)
 
         Zone {
-          val verticesPtr = stackalloc[GLfloat](vertices.length)
-          for i <- vertices.indices do
-            verticesPtr(i) = vertices(i)
+          val projName = toCString("uProjection")
+          val colorName = toCString("uColor")
 
-          GLEWHelper.glBufferData(
-            GL_ARRAY_BUFFER.toUInt,
-            (vertices.length * sizeof[GLfloat].toInt),
-            verticesPtr.asInstanceOf[Ptr[Byte]],
-            GL_DYNAMIC_DRAW.toUInt
-          )
+          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
+          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
+
+          if projLocation >= 0 then
+            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrixPtr = stackalloc[GLfloat](16)
+            for i <- matrix.indices do
+              matrixPtr(i) = matrix(i)
+            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
+
+          if colorLocation >= 0 then
+            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
+        }
+      case None =>
+        defaultShader.foreach { shader =>
+          GLEWHelper.glUseProgram(shader.id.toUInt)
+          setColor(color)
         }
 
-        GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
-        GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+    // note: every odd triangle has flipped winding order to maintain face orientation
+    val vertices = scala.collection.mutable.ArrayBuffer[Float]()
 
-        glDrawArrays(GL_TRIANGLES.toUInt, 0, (vertices.length / 2).toUInt)
+    for i <- 0 until points.length - 2 do
+      if i % 2 == 0 then
+        vertices += points(i).x;
+        vertices += points(i).y
+        vertices += points(i + 1).x;
+        vertices += points(i + 1).y
+        vertices += points(i + 2).x;
+        vertices += points(i + 2).y
+      else
+        vertices += points(i).x;
+        vertices += points(i).y
+        vertices += points(i + 2).x;
+        vertices += points(i + 2).y
+        vertices += points(i + 1).x;
+        vertices += points(i + 1).y
 
-        GLEWHelper.glBindVertexArray(0.toUInt)
-    }
+    if vertices.nonEmpty then
+      GLEWHelper.glBindVertexArray(VAO)
+      GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+
+      Zone {
+        val verticesPtr = stackalloc[GLfloat](vertices.length)
+        for i <- vertices.indices do
+          verticesPtr(i) = vertices(i)
+
+        GLEWHelper.glBufferData(
+          GL_ARRAY_BUFFER.toUInt,
+          (vertices.length * sizeof[GLfloat].toInt),
+          verticesPtr.asInstanceOf[Ptr[Byte]],
+          GL_DYNAMIC_DRAW.toUInt
+        )
+      }
+
+      GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
+      GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+
+      glDrawArrays(GL_TRIANGLES.toUInt, 0, (vertices.length / 2).toUInt)
+
+      GLEWHelper.glBindVertexArray(0.toUInt)
 
   def renderPolygon(center: Vector2, sides: Int, radius: Float, rotation: Float, color: Color): Unit =
     if !isInitialized then
@@ -841,53 +1105,75 @@ object BasicRenderer:
 
     if sides < 3 then return
 
-    defaultShader.foreach { shader =>
-      GLEWHelper.glUseProgram(shader.id.toUInt)
-      setColor(color)
-
-      val rotationRad = math.toRadians(rotation).toFloat
-      val angleStep = (2.0f * math.Pi / sides.toFloat).toFloat
-
-      val vertices = scala.collection.mutable.ArrayBuffer[Float]()
-
-      val points = Array.ofDim[Vector2](sides)
-      for i <- 0 until sides do
-        val angle = (i * angleStep) + rotationRad
-        val x = center.x + radius * math.cos(angle).toFloat
-        val y = center.y + radius * math.sin(angle).toFloat
-        points(i) = Vector2(x, y)
-
-      for i <- 0 until sides do
-        val current = points(i)
-        val next = points((i + 1) % sides) // wrap around to first point
-
-        vertices += current.x; vertices += current.y
-        vertices += next.x; vertices += next.y
-
-      if vertices.nonEmpty then
-        GLEWHelper.glBindVertexArray(VAO)
-        GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+    Drawing.getCurrentShader match
+      case Some(customShader) =>
+        GLEWHelper.glUseProgram(customShader.id.toUInt)
 
         Zone {
-          val verticesPtr = stackalloc[GLfloat](vertices.length)
-          for i <- vertices.indices do
-            verticesPtr(i) = vertices(i)
+          val projName = toCString("uProjection")
+          val colorName = toCString("uColor")
 
-          GLEWHelper.glBufferData(
-            GL_ARRAY_BUFFER.toUInt,
-            (vertices.length * sizeof[GLfloat].toInt),
-            verticesPtr.asInstanceOf[Ptr[Byte]],
-            GL_DYNAMIC_DRAW.toUInt
-          )
+          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
+          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
+
+          if projLocation >= 0 then
+            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrixPtr = stackalloc[GLfloat](16)
+            for i <- matrix.indices do
+              matrixPtr(i) = matrix(i)
+            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
+
+          if colorLocation >= 0 then
+            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
+        }
+      case None =>
+        defaultShader.foreach { shader =>
+          GLEWHelper.glUseProgram(shader.id.toUInt)
+          setColor(color)
         }
 
-        GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
-        GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+    val rotationRad = math.toRadians(rotation).toFloat
+    val angleStep = (2.0f * math.Pi / sides.toFloat).toFloat
 
-        glDrawArrays(GL_LINES.toUInt, 0, (vertices.length / 2).toUInt)
+    val vertices = scala.collection.mutable.ArrayBuffer[Float]()
 
-        GLEWHelper.glBindVertexArray(0.toUInt)
-    }
+    val points = Array.ofDim[Vector2](sides)
+    for i <- 0 until sides do
+      val angle = (i * angleStep) + rotationRad
+      val x = center.x + radius * math.cos(angle).toFloat
+      val y = center.y + radius * math.sin(angle).toFloat
+      points(i) = Vector2(x, y)
+
+    for i <- 0 until sides do
+      val current = points(i)
+      val next = points((i + 1) % sides) // wrap around to first point
+
+      vertices += current.x; vertices += current.y
+      vertices += next.x; vertices += next.y
+
+    if vertices.nonEmpty then
+      GLEWHelper.glBindVertexArray(VAO)
+      GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+
+      Zone {
+        val verticesPtr = stackalloc[GLfloat](vertices.length)
+        for i <- vertices.indices do
+          verticesPtr(i) = vertices(i)
+
+        GLEWHelper.glBufferData(
+          GL_ARRAY_BUFFER.toUInt,
+          (vertices.length * sizeof[GLfloat].toInt),
+          verticesPtr.asInstanceOf[Ptr[Byte]],
+          GL_DYNAMIC_DRAW.toUInt
+        )
+      }
+
+      GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
+      GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+
+      glDrawArrays(GL_LINES.toUInt, 0, (vertices.length / 2).toUInt)
+
+      GLEWHelper.glBindVertexArray(0.toUInt)
 
   def renderCircle(centerX: Float, centerY: Float, radius: Float, color: Color): Unit =
     if !isInitialized then
@@ -937,115 +1223,159 @@ object BasicRenderer:
 
     if segments < 3 then return
 
-    defaultShader.foreach { shader =>
-      GLEWHelper.glUseProgram(shader.id.toUInt)
-      setColor(color)
-
-      val startRad = math.toRadians(startAngle).toFloat
-      val endRad = math.toRadians(endAngle).toFloat
-      val angleStep = (endRad - startRad) / segments.toFloat
-
-      val vertices = scala.collection.mutable.ArrayBuffer[Float]()
-
-      for i <- 0 until segments do
-        val angle1 = startRad + (i * angleStep)
-        val angle2 = startRad + ((i + 1) * angleStep)
-
-        val x1 = center.x + radius * math.cos(angle1).toFloat
-        val y1 = center.y + radius * math.sin(angle1).toFloat
-        val x2 = center.x + radius * math.cos(angle2).toFloat
-        val y2 = center.y + radius * math.sin(angle2).toFloat
-
-        vertices += x1; vertices += y1
-        vertices += x2; vertices += y2
-
-      val startX = center.x + radius * math.cos(startRad).toFloat
-      val startY = center.y + radius * math.sin(startRad).toFloat
-      val endX = center.x + radius * math.cos(endRad).toFloat
-      val endY = center.y + radius * math.sin(endRad).toFloat
-
-      vertices += center.x;
-      vertices += center.y
-      vertices += startX;
-      vertices += startY
-
-      vertices += center.x;
-      vertices += center.y
-      vertices += endX;
-      vertices += endY
-
-      if vertices.nonEmpty then
-        GLEWHelper.glBindVertexArray(VAO)
-        GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+    Drawing.getCurrentShader match
+      case Some(customShader) =>
+        GLEWHelper.glUseProgram(customShader.id.toUInt)
 
         Zone {
-          val verticesPtr = stackalloc[GLfloat](vertices.length)
-          for i <- vertices.indices do
-            verticesPtr(i) = vertices(i)
+          val projName = toCString("uProjection")
+          val colorName = toCString("uColor")
 
-          GLEWHelper.glBufferData(
-            GL_ARRAY_BUFFER.toUInt,
-            (vertices.length * sizeof[GLfloat].toInt),
-            verticesPtr.asInstanceOf[Ptr[Byte]],
-            GL_DYNAMIC_DRAW.toUInt
-          )
+          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
+          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
+
+          if projLocation >= 0 then
+            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrixPtr = stackalloc[GLfloat](16)
+            for i <- matrix.indices do
+              matrixPtr(i) = matrix(i)
+            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
+
+          if colorLocation >= 0 then
+            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
+        }
+      case None =>
+        defaultShader.foreach { shader =>
+          GLEWHelper.glUseProgram(shader.id.toUInt)
+          setColor(color)
         }
 
-        GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
-        GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+    val startRad = math.toRadians(startAngle).toFloat
+    val endRad = math.toRadians(endAngle).toFloat
+    val angleStep = (endRad - startRad) / segments.toFloat
 
-        glDrawArrays(GL_LINES.toUInt, 0, (vertices.length / 2).toUInt)
+    val vertices = scala.collection.mutable.ArrayBuffer[Float]()
 
-        GLEWHelper.glBindVertexArray(0.toUInt)
-    }
+    for i <- 0 until segments do
+      val angle1 = startRad + (i * angleStep)
+      val angle2 = startRad + ((i + 1) * angleStep)
+
+      val x1 = center.x + radius * math.cos(angle1).toFloat
+      val y1 = center.y + radius * math.sin(angle1).toFloat
+      val x2 = center.x + radius * math.cos(angle2).toFloat
+      val y2 = center.y + radius * math.sin(angle2).toFloat
+
+      vertices += x1; vertices += y1
+      vertices += x2; vertices += y2
+
+    val startX = center.x + radius * math.cos(startRad).toFloat
+    val startY = center.y + radius * math.sin(startRad).toFloat
+    val endX = center.x + radius * math.cos(endRad).toFloat
+    val endY = center.y + radius * math.sin(endRad).toFloat
+
+    vertices += center.x;
+    vertices += center.y
+    vertices += startX;
+    vertices += startY
+
+    vertices += center.x;
+    vertices += center.y
+    vertices += endX;
+    vertices += endY
+
+    if vertices.nonEmpty then
+      GLEWHelper.glBindVertexArray(VAO)
+      GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+
+      Zone {
+        val verticesPtr = stackalloc[GLfloat](vertices.length)
+        for i <- vertices.indices do
+          verticesPtr(i) = vertices(i)
+
+        GLEWHelper.glBufferData(
+          GL_ARRAY_BUFFER.toUInt,
+          (vertices.length * sizeof[GLfloat].toInt),
+          verticesPtr.asInstanceOf[Ptr[Byte]],
+          GL_DYNAMIC_DRAW.toUInt
+        )
+      }
+
+      GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
+      GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+
+      glDrawArrays(GL_LINES.toUInt, 0, (vertices.length / 2).toUInt)
+
+      GLEWHelper.glBindVertexArray(0.toUInt)
 
   def renderCircleOutline(centerX: Float, centerY: Float, radius: Float, color: Color): Unit =
     if !isInitialized then
       if !initialize() then return
 
-    defaultShader.foreach { shader =>
-      GLEWHelper.glUseProgram(shader.id.toUInt)
-      setColor(color)
-
-      val segments = 36
-      val vertices = scala.collection.mutable.ArrayBuffer[Float]()
-
-      val points = Array.ofDim[Vector2](segments)
-      for i <- 0 until segments do
-        val angle = (i * 2.0f * math.Pi / segments).toFloat
-        val x = centerX + radius * math.cos(angle).toFloat
-        val y = centerY + radius * math.sin(angle).toFloat
-        points(i) = Vector2(x, y)
-
-      for i <- 0 until segments do
-        val current = points(i)
-        val next = points((i + 1) % segments)
-
-        vertices += current.x; vertices += current.y
-        vertices += next.x; vertices += next.y
-
-      if vertices.nonEmpty then
-        GLEWHelper.glBindVertexArray(VAO)
-        GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+    Drawing.getCurrentShader match
+      case Some(customShader) =>
+        GLEWHelper.glUseProgram(customShader.id.toUInt)
 
         Zone {
-          val verticesPtr = stackalloc[GLfloat](vertices.length)
-          for i <- vertices.indices do
-            verticesPtr(i) = vertices(i)
+          val projName = toCString("uProjection")
+          val colorName = toCString("uColor")
 
-          GLEWHelper.glBufferData(
-            GL_ARRAY_BUFFER.toUInt,
-            (vertices.length * sizeof[GLfloat].toInt),
-            verticesPtr.asInstanceOf[Ptr[Byte]],
-            GL_DYNAMIC_DRAW.toUInt
-          )
+          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
+          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
+
+          if projLocation >= 0 then
+            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrixPtr = stackalloc[GLfloat](16)
+            for i <- matrix.indices do
+              matrixPtr(i) = matrix(i)
+            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
+
+          if colorLocation >= 0 then
+            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
+        }
+      case None =>
+        defaultShader.foreach { shader =>
+          GLEWHelper.glUseProgram(shader.id.toUInt)
+          setColor(color)
         }
 
-        GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
-        GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+    val segments = 36
+    val vertices = scala.collection.mutable.ArrayBuffer[Float]()
 
-        glDrawArrays(GL_LINES.toUInt, 0, (vertices.length / 2).toUInt)
+    val points = Array.ofDim[Vector2](segments)
+    for i <- 0 until segments do
+      val angle = (i * 2.0f * math.Pi / segments).toFloat
+      val x = centerX + radius * math.cos(angle).toFloat
+      val y = centerY + radius * math.sin(angle).toFloat
+      points(i) = Vector2(x, y)
 
-        GLEWHelper.glBindVertexArray(0.toUInt)
-    }
+    for i <- 0 until segments do
+      val current = points(i)
+      val next = points((i + 1) % segments)
+
+      vertices += current.x; vertices += current.y
+      vertices += next.x; vertices += next.y
+
+    if vertices.nonEmpty then
+      GLEWHelper.glBindVertexArray(VAO)
+      GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+
+      Zone {
+        val verticesPtr = stackalloc[GLfloat](vertices.length)
+        for i <- vertices.indices do
+          verticesPtr(i) = vertices(i)
+
+        GLEWHelper.glBufferData(
+          GL_ARRAY_BUFFER.toUInt,
+          (vertices.length * sizeof[GLfloat].toInt),
+          verticesPtr.asInstanceOf[Ptr[Byte]],
+          GL_DYNAMIC_DRAW.toUInt
+        )
+      }
+
+      GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
+      GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+
+      glDrawArrays(GL_LINES.toUInt, 0, (vertices.length / 2).toUInt)
+
+      GLEWHelper.glBindVertexArray(0.toUInt)
 end BasicRenderer
