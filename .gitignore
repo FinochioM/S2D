@@ -7,3 +7,4 @@
 .sbt
 .idea/
 target/
+.vscode/
