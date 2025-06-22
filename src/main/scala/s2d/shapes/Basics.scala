@@ -36,33 +36,11 @@ object Basics:
   end lineThick
 
   def lineStrip(points: Array[Vector2], color: Color): Unit =
-    if points.length < 2 then return
-
-    glColor4f(
-      color.r / 255.0f,
-      color.g / 255.0f,
-      color.b / 255.0f,
-      color.a / 255.0f
-    )
-
-    glBegin(GL_LINE_STRIP.toUInt)
-    for point <- points do glVertex2f(point.x, point.y)
-    glEnd()
+    BasicRenderer.updateProjectionFromDrawing()
+    BasicRenderer.renderLineStrip(points, color)
   end lineStrip
 
-  def lineBezier(
-      startPos: Vector2,
-      endPos: Vector2,
-      thick: Float,
-      color: Color
-  ): Unit =
-    glColor4f(
-      color.r / 255.0f,
-      color.g / 255.0f,
-      color.b / 255.0f,
-      color.a / 255.0f
-    )
-
+  def lineBezier(startPos: Vector2, endPos: Vector2, thick: Float, color: Color): Unit =
     val dx = endPos.x - startPos.x
     val dy = endPos.y - startPos.y
 

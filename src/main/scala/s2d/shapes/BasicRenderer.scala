@@ -204,6 +204,50 @@ object BasicRenderer:
       GLEWHelper.glBindVertexArray(0.toUInt)
     }
 
+  def renderLineStrip(points: Array[Vector2], color: Color): Unit =
+    if !isInitialized then
+      if !initialize() then return
+
+    if points.length < 2 then return
+
+    defaultShader.foreach { shader =>
+      GLEWHelper.glUseProgram(shader.id.toUInt)
+      setColor(color)
+
+      val vertices = scala.collection.mutable.ArrayBuffer[Float]()
+
+      for i <- 0 until points.length - 1 do
+        val current = points(i)
+        val next = points(i + 1)
+
+        vertices += current.x; vertices += current.y
+        vertices += next.x; vertices += next.y
+
+      if vertices.nonEmpty then
+        GLEWHelper.glBindVertexArray(VAO)
+        GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+
+        Zone {
+          val verticesPtr = stackalloc[GLfloat](vertices.length)
+          for i <- vertices.indices do
+            verticesPtr(i) = vertices(i)
+
+          GLEWHelper.glBufferData(
+            GL_ARRAY_BUFFER.toUInt,
+            (vertices.length * sizeof[GLfloat].toInt),
+            verticesPtr.asInstanceOf[Ptr[Byte]],
+            GL_DYNAMIC_DRAW.toUInt
+          )
+        }
+
+        GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
+        GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+
+        glDrawArrays(GL_LINES.toUInt, 0, (vertices.length / 2).toUInt)
+
+        GLEWHelper.glBindVertexArray(0.toUInt)
+    }
+
   def renderRectangle(x: Float, y: Float, width: Float, height: Float, color: Color): Unit =
     if !isInitialized then
       if !initialize() then return
