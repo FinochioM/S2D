@@ -9,6 +9,7 @@ package sandbox
 
 import s2d.core.{Window, Drawing, Shaders}
 import s2d.shapes.Basics
+import s2d.textures.Textures
 import s2d.types.*
 import scalanative.unsafe.*
 import scalanative.unsigned.*
@@ -19,14 +20,22 @@ def main(): Unit =
 
   val camera2D = Camera2D.default
 
+  val texture = Textures.load("assets/grill.png")
+
   while !Window.shouldCloseWindow() do
     Drawing.beginFrame()
     Drawing.clear(Color.fromHex("#3498DB").getOrElse(Color.Blue))
 
     Drawing.beginCamera(camera2D)
 
-    Basics.ellipse(200, 200, 80.0f, 50.0f, Color.Red)
-    Basics.ellipseOutlines(500, 350, 100.0f, 60.0f, Color.Yellow)
+    texture match
+    case Some(tex) =>
+      val sourceRect = Rectangle(0, 0, tex.width / 2, tex.height / 2)
+      val destRect = Rectangle(200, 200, 150, 100)
+      val origin = Vector2(75, 50)
+      Textures.drawPro(tex, sourceRect, destRect, origin, 30.0f, Color.White)
+    case None =>
+        println("Failed to load texture.")
 
     Drawing.endCamera()
     Drawing.endFrame()
