@@ -6,7 +6,7 @@ import s2d.backend.gl.GLEWHelper
 import s2d.types.*
 import s2d.backend.sdl2.SDL.*
 import s2d.backend.sdl2.Extras.*
-import s2d.core.Window
+import s2d.core.{Window, Input}
 import scalanative.unsafe.*
 import scalanative.unsigned.*
 
@@ -27,6 +27,8 @@ object Drawing:
   def beginFrame(): Unit =
     if !Window.isWindowInitialized then
       throw new RuntimeException("Window not initialized!")
+
+    Input.updateKeyStates()
 
     Zone {
       val event = stackalloc[SDL_Event]()
@@ -172,6 +174,8 @@ object Drawing:
           case _ =>
             ()
         end match
+      case SDL_KEYDOWN | SDL_KEYUP =>
+        Input.processKeyEvent(event.key)
       case _ =>
         ()
 
