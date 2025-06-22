@@ -17,23 +17,34 @@ import scalanative.unsigned.*
 
 @main
 def main(): Unit =
-  Window.create(800, 600, "S2D Framework - Custom Shader Test")
+  Window.create(800, 600, "S2D Framework - Custom Texture Shader Test")
 
   val camera2D = Camera2D.default
+
+  val grillTexture = Textures.load("assets/grill.png") match
+    case Some(texture) =>
+      println(s"Texture loaded successfully! Size: ${texture.width}x${texture.height}")
+      texture
+    case None =>
+      println("Failed to load texture!")
+      Window.close()
+      return
 
   val vertexShaderSource = """
     #version 330 core
 
     layout (location = 0) in vec2 aPos;
+    layout (location = 1) in vec2 aTexCoord;
 
     uniform mat4 uProjection;
     uniform vec4 uColor;
-    uniform float uTime;
 
+    out vec2 texCoord;
     out vec4 vertexColor;
 
     void main() {
         gl_Position = uProjection * vec4(aPos, 0.0, 1.0);
+        texCoord = aTexCoord;
         vertexColor = uColor;
     }
   """
@@ -41,18 +52,17 @@ def main(): Unit =
   val fragmentShaderSource = """
     #version 330 core
 
+    in vec2 texCoord;
     in vec4 vertexColor;
     out vec4 FragColor;
 
-    uniform float uTime;
+    uniform sampler2D uTexture;
 
     void main() {
-        // Create a pulsing rainbow effect
-        float r = (sin(uTime * 2.0) + 1.0) * 0.5;
-        float g = (sin(uTime * 2.0 + 2.094) + 1.0) * 0.5;  // 2.094 = 2*PI/3
-        float b = (sin(uTime * 2.0 + 4.188) + 1.0) * 0.5;  // 4.188 = 4*PI/3
+        vec4 textureColor = texture(uTexture, texCoord);
 
-        FragColor = vec4(r, g, b, 1.0);
+        vec4 redTint = vec4(0.0, 1.0, 1.0, 1.0);
+        FragColor = textureColor * vertexColor * redTint;
     }
   """
 
@@ -60,12 +70,7 @@ def main(): Unit =
 
   customShader match
     case Some(shader) =>
-      println("Custom shader loaded successfully!")
-
-      val timeLocation = Shaders.getShaderLocation(shader, "uTime")
-      println(s"Time uniform location: $timeLocation")
-
-      val startTime = System.currentTimeMillis()
+      println("Custom texture shader loaded successfully!")
 
       while !Window.shouldCloseWindow() do
         Drawing.beginFrame()
@@ -73,80 +78,49 @@ def main(): Unit =
 
         Drawing.beginCamera(camera2D)
 
-        val currentTime = System.currentTimeMillis()
-        val timeSeconds = (currentTime - startTime) / 1000.0f
+        val sourceRect = Rectangle(
+          0.0f, 0.0f, 
+          grillTexture.width / 2.0f, 
+          grillTexture.height / 2.0f
+        )
+
+        val destRect = Rectangle(50.0f, 50.0f, 150.0f, 100.0f)
+        
+        val origin = Vector2(destRect.width / 2.0f, destRect.height / 2.0f)
+
+        Textures.drawPro(
+          grillTexture, 
+          sourceRect, 
+          destRect, 
+          origin, 
+          30.0f, 
+          Color.White
+        )
+
+        val destRect2 = Rectangle(350.0f, 50.0f, 150.0f, 100.0f)
+        val origin2 = Vector2(destRect2.width / 2.0f, destRect2.height / 2.0f)
 
         Drawing.beginShader(shader)
-
-        if timeLocation >= 0 then
-          Zone {
-            val timeValue = stackalloc[Float]()
-            !timeValue = timeSeconds
-            Shaders.setShaderValue(shader, timeLocation, timeValue.asInstanceOf[Ptr[Byte]], GL_FLOAT.toInt)
-          }
-
-        //Basics.rectangle(300, 250, 200, 100, Color.White)
-
-        //Basics.lineThick(Vector2(300, 250), Vector2(500, 350), 10.0f, Color.White)
-
-        val points = Array(
-          Vector2(300, 250),
-          Vector2(400, 200),
-          Vector2(500, 300),
-          Vector2(450, 350),
-          Vector2(350, 380)
+        Textures.drawPro(
+          grillTexture, 
+          sourceRect, 
+          destRect2, 
+          origin2, 
+          45.0f,
+          Color.White
         )
-        //Basics.lineStrip(points, Color.White)
-
-        //Basics.rectangleRotated(Rectangle(300, 250, 150, 100), Vector2(75, 50), 45.0f, Color.White)
-
-        //Basics.rectangleOutline(300, 250, 200, 100, Color.White)
-
-        //Basics.rectangleRounded(Rectangle(300, 250, 200, 100), 0.3f, 16, Color.White)
-
-        //Basics.rectangleRoundedOutline(Rectangle(300, 250, 200, 100), 0.3f, 16, Color.White)
-
-        //Basics.triangle(Vector2(400, 200), Vector2(350, 350), Vector2(450, 350), Color.White)
-
-        //Basics.triangleOutline(Vector2(400, 200), Vector2(350, 350), Vector2(450, 350), Color.White)
-
-        val fanPoints = Array(
-          Vector2(400, 300), // center
-          Vector2(450, 250),
-          Vector2(480, 300),
-          Vector2(450, 350),
-          Vector2(350, 350),
-          Vector2(320, 300),
-          Vector2(350, 250)
-        )
-        //Basics.triangleFan(fanPoints, Color.White)
-
-        val stripPoints = Array(
-          Vector2(300, 250),
-          Vector2(350, 200),
-          Vector2(400, 250),
-          Vector2(450, 200),
-          Vector2(500, 250),
-          Vector2(550, 200)
-        )
-        //Basics.triangleStrip(stripPoints, Color.White)
-
-        //Basics.polygon(Vector2(400, 300), 6, 80.0f, 0.0f, Color.White)
-
-        //Basics.polygonOutline(Vector2(400, 300), 8, 80.0f, 0.0f, Color.White)
-
-        //Basics.circleSectorOutline(Vector2(400, 300), 80.0f, 45.0f, 135.0f, 16, Color.White)
-
-        //Basics.circleOutline(400, 300, 80, Color.White)
-
         Drawing.endShader()
+
+        Textures.draw(grillTexture, 50, 300, Color(255, 255, 255, 128))
+
         Drawing.endCamera()
         Drawing.endFrame()
 
       Shaders.unloadShader(shader)
 
     case None =>
-      println("Failed to load custom shader!")
-      println("Falling back to normal drawing...")
+      println("Failed to load custom texture shader!")
+
+  Textures.unload(grillTexture)
   Window.close()
 end main
