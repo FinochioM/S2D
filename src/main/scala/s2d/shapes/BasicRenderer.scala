@@ -888,4 +888,114 @@ object BasicRenderer:
 
         GLEWHelper.glBindVertexArray(0.toUInt)
     }
+
+  def renderCircle(centerX: Float, centerY: Float, radius: Float, color: Color): Unit =
+    if !isInitialized then
+      if !initialize() then return
+
+    val segments = 36
+
+    val points = Array.ofDim[Vector2](segments + 2)
+
+    points(0) = Vector2(centerX, centerY)
+
+    for i <- 0 until segments do
+      val angle = (i * 2.0f * math.Pi / segments).toFloat
+      val x = centerX + radius * math.cos(angle).toFloat
+      val y = centerY + radius * math.sin(angle).toFloat
+      points(i + 1) = Vector2(x, y)
+
+    points(segments + 1) = points(1)
+
+    renderTriangleFan(points, color)
+
+  def renderCircleSector(center: Vector2, radius: Float, startAngle: Float, endAngle: Float, segments: Int, color: Color): Unit =
+    if !isInitialized then
+      if !initialize() then return
+
+    if segments < 3 then return
+
+    val startRad = math.toRadians(startAngle).toFloat
+    val endRad = math.toRadians(endAngle).toFloat
+    val angleStep = (endRad - startRad) / segments.toFloat
+
+    val points = Array.ofDim[Vector2](segments + 2)
+
+    points(0) = center
+
+    for i <- 0 to segments do
+      val angle = startRad + (i * angleStep)
+      val x = center.x + radius * math.cos(angle).toFloat
+      val y = center.y + radius * math.sin(angle).toFloat
+      points(i + 1) = Vector2(x, y)
+
+    renderTriangleFan(points, color)
+
+  def renderCircleSectorOutline(center: Vector2, radius: Float, startAngle: Float, endAngle: Float, segments: Int, color: Color): Unit =
+    if !isInitialized then
+      if !initialize() then return
+
+    if segments < 3 then return
+
+    defaultShader.foreach { shader =>
+      GLEWHelper.glUseProgram(shader.id.toUInt)
+      setColor(color)
+
+      val startRad = math.toRadians(startAngle).toFloat
+      val endRad = math.toRadians(endAngle).toFloat
+      val angleStep = (endRad - startRad) / segments.toFloat
+
+      val vertices = scala.collection.mutable.ArrayBuffer[Float]()
+
+      for i <- 0 until segments do
+        val angle1 = startRad + (i * angleStep)
+        val angle2 = startRad + ((i + 1) * angleStep)
+
+        val x1 = center.x + radius * math.cos(angle1).toFloat
+        val y1 = center.y + radius * math.sin(angle1).toFloat
+        val x2 = center.x + radius * math.cos(angle2).toFloat
+        val y2 = center.y + radius * math.sin(angle2).toFloat
+
+        vertices += x1; vertices += y1
+        vertices += x2; vertices += y2
+
+      val startX = center.x + radius * math.cos(startRad).toFloat
+      val startY = center.y + radius * math.sin(startRad).toFloat
+      val endX = center.x + radius * math.cos(endRad).toFloat
+      val endY = center.y + radius * math.sin(endRad).toFloat
+
+      vertices += center.x;
+      vertices += center.y
+      vertices += startX;
+      vertices += startY
+
+      vertices += center.x;
+      vertices += center.y
+      vertices += endX;
+      vertices += endY
+
+      if vertices.nonEmpty then
+        GLEWHelper.glBindVertexArray(VAO)
+        GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+
+        Zone {
+          val verticesPtr = stackalloc[GLfloat](vertices.length)
+          for i <- vertices.indices do
+            verticesPtr(i) = vertices(i)
+
+          GLEWHelper.glBufferData(
+            GL_ARRAY_BUFFER.toUInt,
+            (vertices.length * sizeof[GLfloat].toInt),
+            verticesPtr.asInstanceOf[Ptr[Byte]],
+            GL_DYNAMIC_DRAW.toUInt
+          )
+        }
+
+        GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
+        GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+
+        glDrawArrays(GL_LINES.toUInt, 0, (vertices.length / 2).toUInt)
+
+        GLEWHelper.glBindVertexArray(0.toUInt)
+    }
 end BasicRenderer

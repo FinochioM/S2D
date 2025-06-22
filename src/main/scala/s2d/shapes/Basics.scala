@@ -72,129 +72,23 @@ object Basics:
   end lineBezier
 
   def circle(centerX: Int, centerY: Int, radius: Float, color: Color): Unit =
-    glColor4f(
-      color.r / 255.0f,
-      color.g / 255.0f,
-      color.b / 255.0f,
-      color.a / 255.0f
-    )
-
-    val segments = 36
-
-    glBegin(GL_TRIANGLE_FAN.toUInt)
-    glVertex2f(centerX.toFloat, centerY.toFloat)
-
-    for i <- 0 to segments do
-      val angle = (i * 2.0f * math.Pi / segments).toFloat
-      val x = centerX + radius * math.cos(angle).toFloat
-      val y = centerY + radius * math.sin(angle).toFloat
-      glVertex2f(x, y)
-    end for
-
-    glEnd()
+    BasicRenderer.updateProjectionFromDrawing()
+    BasicRenderer.renderCircle(centerX.toFloat, centerY.toFloat, radius, color)
   end circle
 
   def circle(center: Vector2, radius: Float, color: Color): Unit =
-    glColor4f(
-      color.r / 255.0f,
-      color.g / 255.0f,
-      color.b / 255.0f,
-      color.a / 255.0f
-    )
-
-    val segments = 36
-
-    glBegin(GL_TRIANGLE_FAN.toUInt)
-    glVertex2f(center.x, center.y)
-
-    for i <- 0 to segments do
-      val angle = (i * 2.0f * math.Pi / segments).toFloat
-      val x = center.x + radius * math.cos(angle).toFloat
-      val y = center.y + radius * math.sin(angle).toFloat
-      glVertex2f(x, y)
-    end for
-
-    glEnd()
+    BasicRenderer.updateProjectionFromDrawing()
+    BasicRenderer.renderCircle(center.x, center.y, radius, color)
   end circle
 
-  def circleSector(
-      center: Vector2,
-      radius: Float,
-      startAngle: Float,
-      endAngle: Float,
-      segments: Int,
-      color: Color
-  ): Unit =
-    if segments < 3 then return
-
-    glColor4f(
-      color.r / 255.0f,
-      color.g / 255.0f,
-      color.b / 255.0f,
-      color.a / 255.0f
-    )
-
-    val startRad = math.toRadians(startAngle).toFloat
-    val endRad = math.toRadians(endAngle).toFloat
-
-    val angleStep = (endRad - startRad) / segments.toFloat
-
-    glBegin(GL_TRIANGLE_FAN.toUInt)
-    glVertex2f(center.x, center.y)
-
-    for i <- 0 to segments do
-      val angle = startRad + (i * angleStep)
-      val x = center.x + radius * math.cos(angle).toFloat
-      val y = center.y + radius * math.sin(angle).toFloat
-      glVertex2f(x, y)
-    end for
-
-    glEnd()
+  def circleSector(center: Vector2, radius: Float, startAngle: Float, endAngle: Float, segments: Int, color: Color): Unit =
+    BasicRenderer.updateProjectionFromDrawing()
+    BasicRenderer.renderCircleSector(center, radius, startAngle, endAngle, segments, color)
   end circleSector
 
-  def circleSectorOutline(
-      center: Vector2,
-      radius: Float,
-      startAngle: Float,
-      endAngle: Float,
-      segments: Int,
-      color: Color
-  ): Unit =
-    if segments < 3 then return
-    glColor4f(
-      color.r / 255.0f,
-      color.g / 255.0f,
-      color.b / 255.0f,
-      color.a / 255.0f
-    )
-
-    val startRad = math.toRadians(startAngle).toFloat
-    val endRad = math.toRadians(endAngle).toFloat
-
-    val angleStep = (endRad - startRad) / segments.toFloat
-
-    glBegin(GL_LINE_STRIP.toUInt)
-    for i <- 0 to segments do
-      val angle = startRad + (i * angleStep)
-      val x = center.x + radius * math.cos(angle).toFloat
-      val y = center.y + radius * math.sin(angle).toFloat
-      glVertex2f(x, y)
-    end for
-    glEnd()
-
-    glBegin(GL_LINES.toUInt)
-    glVertex2f(center.x, center.y)
-    glVertex2f(
-      center.x + radius * math.cos(startRad).toFloat,
-      center.y + radius * math.sin(startRad).toFloat
-    )
-
-    glVertex2f(center.x, center.y)
-    glVertex2f(
-      center.x + radius * math.cos(endRad).toFloat,
-      center.y + radius * math.sin(endRad).toFloat
-    )
-    glEnd()
+  def circleSectorOutline(center: Vector2, radius: Float, startAngle: Float, endAngle: Float, segments: Int, color: Color): Unit =
+    BasicRenderer.updateProjectionFromDrawing()
+    BasicRenderer.renderCircleSectorOutline(center, radius, startAngle, endAngle, segments, color)
   end circleSectorOutline
 
   def circleGradient(

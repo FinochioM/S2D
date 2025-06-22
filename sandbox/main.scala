@@ -25,10 +25,10 @@ def main(): Unit =
 
     Drawing.beginCamera(camera2D)
 
-    Basics.lineBezier(Vector2(250, 50), Vector2(400, 100), 3.0f, Color.Magenta)
-    Basics.lineBezier(Vector2(250, 150), Vector2(400, 100), 3.0f, Color.Cyan)
-    Basics.lineBezier(Vector2(250, 100), Vector2(400, 150), 3.0f, Color.Blue)
-    Basics.lineBezier(Vector2(250, 100), Vector2(400, 50), 3.0f, Color.Yellow)
+    Basics.circleSectorOutline(Vector2(100, 200), 30.0f, 0.0f, 45.0f, 6, Color.Yellow)
+    Basics.circleSectorOutline(Vector2(200, 200), 30.0f, 0.0f, 120.0f, 8, Color.Magenta)
+    Basics.circleSectorOutline(Vector2(300, 200), 30.0f, 0.0f, 270.0f, 12, Color.Cyan)
+    Basics.circleSectorOutline(Vector2(400, 200), 30.0f, 0.0f, 359.0f, 16, Color.Orange)
 
     Drawing.endCamera()
     Drawing.endFrame()
