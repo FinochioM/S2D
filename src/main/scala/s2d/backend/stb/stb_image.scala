@@ -1,4 +1,4 @@
-package s2d.stb
+package s2d.backend.stb
 
 import scalanative.unsafe.*
 import scala.scalanative.unsigned.*

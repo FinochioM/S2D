@@ -3,9 +3,9 @@ package s2d.shapes
 import s2d.types.{Color, Vector2, Rectangle}
 import s2d.math.Matrix4
 import s2d.core.Window
-import s2d.gl.GL.*
-import s2d.gl.GLExtras.*
-import s2d.gl.GLEWHelper
+import s2d.backend.gl.GL.*
+import s2d.backend.gl.GLExtras.*
+import s2d.backend.gl.GLEWHelper
 import s2d.core.{Shaders, Drawing}
 import scalanative.unsafe.*
 import scalanative.unsigned.*

@@ -10,6 +10,19 @@ v_0.1.7-SNAPSHOT:
 - added shader functions to Shaders.scala.
 - moved all the shader functionality from GL to GLEWHelper.
 - shaders are working for 120 compatibility profile.
+- added BasicRenderer file.
+- added TextureRenderer file.
+- added math package with Matrix4 file inside.
+- updated Basics.scala to use GL 330 core instead of 120 comp.
+- updated Textures.scala to use GL 330 core instead of 120 comp.
+- fixed Shaders.scala, now it works with 330 core.
+- tested all the functions in Basics.scala and Textures.scala with 330 core.
+- fixed wrong formatting on readme file.
+- s2d-cli available on coursier --contrib.
+- updated Drawing and Window files to use CORE instead of COMPATIBILITY profile.
+- shapes and textures now use a default shader.
+- custom shaders are working for 330 core.
+- reorganized project, added backend package and put all the bindings inside.
 
 v_0.1.6-SNAPSHOT:
 - started the migration of the textures package.

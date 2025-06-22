@@ -3,9 +3,9 @@ package s2d.textures
 import s2d.types.{Color, Texture2D, Vector2, Rectangle}
 import s2d.math.Matrix4
 import s2d.core.{Window, Shaders, Drawing}
-import s2d.gl.GL.*
-import s2d.gl.GLExtras.*
-import s2d.gl.GLEWHelper
+import s2d.backend.gl.GL.*
+import s2d.backend.gl.GLExtras.*
+import s2d.backend.gl.GLEWHelper
 import scalanative.unsafe.*
 import scalanative.unsigned.*
 

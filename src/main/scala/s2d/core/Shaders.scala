@@ -1,8 +1,8 @@
 package s2d.core
 
-import s2d.gl.GL.*
-import s2d.gl.GLExtras.*
-import s2d.gl.GLEWHelper
+import s2d.backend.gl.GL.*
+import s2d.backend.gl.GLExtras.*
+import s2d.backend.gl.GLEWHelper
 import s2d.types.*
 import scalanative.unsafe.*
 import scalanative.unsigned.*
@@ -12,7 +12,7 @@ import scalanative.libc.string.*
 
 object Shaders:
 
-  import s2d.gl.GLEWHelper
+  import s2d.backend.gl.GLEWHelper
 
   def load(vsFilename: String, fsFilename: String): Option[Shader] =
     Zone {

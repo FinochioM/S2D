@@ -2,10 +2,10 @@ package s2d.textures
 
 import s2d.types.{Image, PixelFormat, Texture2D}
 import s2d.core.Window
-import s2d.gl.GL.*
-import s2d.gl.GLEWHelper
-import s2d.gl.GLExtras.*
-import s2d.stb.all.*
+import s2d.backend.gl.GL.*
+import s2d.backend.gl.GLEWHelper
+import s2d.backend.gl.GLExtras.*
+import s2d.backend.stb.all.*
 import scalanative.unsafe.*
 import scalanative.unsigned.*
 import scalanative.libc.stdio.*

@@ -1,9 +1,9 @@
-package s2d.gl
+package s2d.backend.gl
 
 import scalanative.unsafe.*
 import scalanative.unsigned.*
-import s2d.gl.GL.*
-import s2d.sdl2.SDL.*
+import s2d.backend.gl.GL.*
+import s2d.backend.sdl2.SDL.*
 @extern
 object GLEW:
   def glewInit(): GLenum = extern

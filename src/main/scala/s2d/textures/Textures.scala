@@ -3,9 +3,9 @@ package s2d.textures
 import s2d.textures.Images.*
 import s2d.textures.TextureRenderer
 import s2d.types.*
-import s2d.gl.GL.*
-import s2d.gl.GLExtras.*
-import s2d.gl.GLEWHelper
+import s2d.backend.gl.GL.*
+import s2d.backend.gl.GLExtras.*
+import s2d.backend.gl.GLEWHelper
 import scalanative.unsafe.*
 import scalanative.unsigned.*
 import scalanative.libc.stdio.*

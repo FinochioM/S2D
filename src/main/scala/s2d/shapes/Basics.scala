@@ -2,8 +2,8 @@ package s2d.shapes
 
 import s2d.shapes.BasicRenderer
 import s2d.types.{Color, Rectangle, Vector2}
-import s2d.gl.GL.*
-import s2d.gl.GLExtras.*
+import s2d.backend.gl.GL.*
+import s2d.backend.gl.GLExtras.*
 
 object Basics:
   def pixel(posX: Int, posY: Int, color: Color): Unit =
