@@ -25,10 +25,10 @@ def main(): Unit =
 
     Drawing.beginCamera(camera2D)
 
-    Basics.circleSectorOutline(Vector2(100, 200), 30.0f, 0.0f, 45.0f, 6, Color.Yellow)
-    Basics.circleSectorOutline(Vector2(200, 200), 30.0f, 0.0f, 120.0f, 8, Color.Magenta)
-    Basics.circleSectorOutline(Vector2(300, 200), 30.0f, 0.0f, 270.0f, 12, Color.Cyan)
-    Basics.circleSectorOutline(Vector2(400, 200), 30.0f, 0.0f, 359.0f, 16, Color.Orange)
+    Basics.circleOutline(Vector2(100, 320), 10.0f, Color.Red)
+    Basics.circleOutline(Vector2(150, 320), 20.0f, Color.Green)
+    Basics.circleOutline(Vector2(220, 320), 35.0f, Color.Blue)
+    Basics.circleOutline(Vector2(310, 320), 50.0f, Color.Yellow)
 
     Drawing.endCamera()
     Drawing.endFrame()
