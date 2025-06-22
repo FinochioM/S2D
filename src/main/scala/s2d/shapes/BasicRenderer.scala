@@ -709,4 +709,58 @@ object BasicRenderer:
 
         GLEWHelper.glBindVertexArray(0.toUInt)
     }
+
+  def renderTriangleStrip(points: Array[Vector2], color: Color): Unit =
+    if !isInitialized then
+      if !initialize() then return
+
+    if points.length < 3 then return
+
+    defaultShader.foreach { shader =>
+      GLEWHelper.glUseProgram(shader.id.toUInt)
+      setColor(color)
+
+      // note: every odd triangle has flipped winding order to maintain face orientation
+      val vertices = scala.collection.mutable.ArrayBuffer[Float]()
+
+      for i <- 0 until points.length - 2 do
+        if i % 2 == 0 then
+          vertices += points(i).x;
+          vertices += points(i).y
+          vertices += points(i + 1).x;
+          vertices += points(i + 1).y
+          vertices += points(i + 2).x;
+          vertices += points(i + 2).y
+        else
+          vertices += points(i).x;
+          vertices += points(i).y
+          vertices += points(i + 2).x;
+          vertices += points(i + 2).y
+          vertices += points(i + 1).x;
+          vertices += points(i + 1).y
+
+      if vertices.nonEmpty then
+        GLEWHelper.glBindVertexArray(VAO)
+        GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+
+        Zone {
+          val verticesPtr = stackalloc[GLfloat](vertices.length)
+          for i <- vertices.indices do
+            verticesPtr(i) = vertices(i)
+
+          GLEWHelper.glBufferData(
+            GL_ARRAY_BUFFER.toUInt,
+            (vertices.length * sizeof[GLfloat].toInt),
+            verticesPtr.asInstanceOf[Ptr[Byte]],
+            GL_DYNAMIC_DRAW.toUInt
+          )
+        }
+
+        GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
+        GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+
+        glDrawArrays(GL_TRIANGLES.toUInt, 0, (vertices.length / 2).toUInt)
+
+        GLEWHelper.glBindVertexArray(0.toUInt)
+    }
 end BasicRenderer

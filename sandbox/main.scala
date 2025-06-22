@@ -25,17 +25,19 @@ def main(): Unit =
 
     Drawing.beginCamera(camera2D)
 
-    val pentagon = Array(
-      Vector2(300, 100)
-    ) ++ (0 until 5).map { i =>
-      val angle = i * 2 * math.Pi / 5 - math.Pi / 2
-      val radius = 40.0f
-      Vector2(
-        300 + radius * math.cos(angle).toFloat,
-        100 + radius * math.sin(angle).toFloat
-      )
-    } :+ Vector2(300 + 40 * math.cos(-math.Pi / 2).toFloat, 100 + 40 * math.sin(-math.Pi / 2).toFloat)
-    Basics.triangleFan(pentagon, Color.Green)
+    val ribbonStrip = Array(
+      Vector2(350, 80),
+      Vector2(350, 120),
+      Vector2(400, 75),
+      Vector2(400, 125),
+      Vector2(450, 70),
+      Vector2(450, 130),
+      Vector2(500, 75),
+      Vector2(500, 125),
+      Vector2(550, 80),
+      Vector2(550, 120)
+    )
+    Basics.triangleStrip(ribbonStrip, Color.Blue)
 
     Drawing.endCamera()
     Drawing.endFrame()

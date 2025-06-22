@@ -648,14 +648,9 @@ object Basics:
   end triangleFan
 
   def triangleStrip(points: Array[Vector2], color: Color): Unit =
-    if points.length < 3 then return
-
-    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
-
-    glBegin(GL_TRIANGLE_STRIP.toUInt)
-    for point <- points do
-      glVertex2f(point.x, point.y)
-    glEnd()
+    BasicRenderer.updateProjectionFromDrawing()
+    BasicRenderer.renderTriangleStrip(points, color)
+  end triangleStrip
 
   def polygon(center: Vector2, sides: Int, radius: Float, rotation: Float, color: Color): Unit =
     if sides < 3 then return
