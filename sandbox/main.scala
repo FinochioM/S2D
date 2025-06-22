@@ -25,19 +25,10 @@ def main(): Unit =
 
     Drawing.beginCamera(camera2D)
 
-    val ribbonStrip = Array(
-      Vector2(350, 80),
-      Vector2(350, 120),
-      Vector2(400, 75),
-      Vector2(400, 125),
-      Vector2(450, 70),
-      Vector2(450, 130),
-      Vector2(500, 75),
-      Vector2(500, 125),
-      Vector2(550, 80),
-      Vector2(550, 120)
-    )
-    Basics.triangleStrip(ribbonStrip, Color.Blue)
+    Basics.polygonOutlineThick(Vector2(100, 200), 6, 40.0f, 0.0f, 2.0f, Color.Green)   // Thin thick
+    Basics.polygonOutlineThick(Vector2(200, 200), 6, 40.0f, 0.0f, 4.0f, Color.Blue)    // Medium thick
+    Basics.polygonOutlineThick(Vector2(300, 200), 6, 40.0f, 0.0f, 6.0f, Color.Yellow)  // Very thick
+    Basics.polygonOutlineThick(Vector2(400, 200), 6, 40.0f, 0.0f, 8.0f, Color.Magenta) // Extra thick
 
     Drawing.endCamera()
     Drawing.endFrame()

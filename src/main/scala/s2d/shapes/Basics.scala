@@ -653,46 +653,17 @@ object Basics:
   end triangleStrip
 
   def polygon(center: Vector2, sides: Int, radius: Float, rotation: Float, color: Color): Unit =
-    if sides < 3 then return
-
-    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
-
-    val rotationRad = math.toRadians(rotation).toFloat
-    val angleStep = (2.0f * math.Pi / sides.toFloat).toFloat
-
-    glBegin(GL_TRIANGLE_FAN.toUInt)
-    glVertex2f(center.x, center.y)
-
-    for i <- 0 to sides do
-      val angle = (i * angleStep) + rotationRad
-      val x = center.x + radius * math.cos(angle).toFloat
-      val y = center.y + radius * math.sin(angle).toFloat
-      glVertex2f(x, y)
-
-    glEnd()
+    BasicRenderer.updateProjectionFromDrawing()
+    BasicRenderer.renderPolygon(center, sides, radius, rotation, color)
+  end polygon
 
   def polygonOutline(center: Vector2, sides: Int, radius: Float, rotation: Float, color: Color): Unit =
-    if sides < 3 then return
-
-    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
-
-    val rotationRad = math.toRadians(rotation).toFloat
-    val angleStep = (2.0f * math.Pi / sides.toFloat).toFloat
-
-    glBegin(GL_LINE_LOOP.toUInt)
-
-    for i <- 0 until sides do
-      val angle = (i * angleStep) + rotationRad
-      val x = center.x + radius * math.cos(angle).toFloat
-      val y = center.y + radius * math.sin(angle).toFloat
-      glVertex2f(x, y)
-
-    glEnd()
+    BasicRenderer.updateProjectionFromDrawing()
+    BasicRenderer.renderPolygonOutline(center, sides, radius, rotation, color)
+  end polygonOutline
 
   def polygonOutlineThick(center: Vector2, sides: Int, radius: Float, rotation: Float, thick: Float, color: Color): Unit =
     if sides < 3 then return
-
-    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
 
     val rotationRad = math.toRadians(rotation).toFloat
     val angleStep = (2.0f * math.Pi / sides.toFloat).toFloat
@@ -707,5 +678,6 @@ object Basics:
       val y2 = center.y + radius * math.sin(nextAngle).toFloat
 
       lineThick(Vector2(x1, y1), Vector2(x2, y2), thick, color)
+  end polygonOutlineThick
 
 end Basics

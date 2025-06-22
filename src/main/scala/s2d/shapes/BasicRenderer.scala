@@ -763,4 +763,81 @@ object BasicRenderer:
 
         GLEWHelper.glBindVertexArray(0.toUInt)
     }
+
+  def renderPolygon(center: Vector2, sides: Int, radius: Float, rotation: Float, color: Color): Unit =
+    if !isInitialized then
+      if !initialize() then return
+
+    if sides < 3 then return
+
+    val rotationRad = math.toRadians(rotation).toFloat
+    val angleStep = (2.0f * math.Pi / sides.toFloat).toFloat
+
+    val points = Array.ofDim[Vector2](sides + 2)
+
+    points(0) = center
+
+    for i <- 0 until sides do
+      val angle = (i * angleStep) + rotationRad
+      val x = center.x + radius * math.cos(angle).toFloat
+      val y = center.y + radius * math.sin(angle).toFloat
+      points(i + 1) = Vector2(x, y)
+
+    points(sides + 1) = points(1)
+
+    renderTriangleFan(points, color)
+
+  def renderPolygonOutline(center: Vector2, sides: Int, radius: Float, rotation: Float, color: Color): Unit =
+    if !isInitialized then
+      if !initialize() then return
+
+    if sides < 3 then return
+
+    defaultShader.foreach { shader =>
+      GLEWHelper.glUseProgram(shader.id.toUInt)
+      setColor(color)
+
+      val rotationRad = math.toRadians(rotation).toFloat
+      val angleStep = (2.0f * math.Pi / sides.toFloat).toFloat
+
+      val vertices = scala.collection.mutable.ArrayBuffer[Float]()
+
+      val points = Array.ofDim[Vector2](sides)
+      for i <- 0 until sides do
+        val angle = (i * angleStep) + rotationRad
+        val x = center.x + radius * math.cos(angle).toFloat
+        val y = center.y + radius * math.sin(angle).toFloat
+        points(i) = Vector2(x, y)
+
+      for i <- 0 until sides do
+        val current = points(i)
+        val next = points((i + 1) % sides) // wrap around to first point
+
+        vertices += current.x; vertices += current.y
+        vertices += next.x; vertices += next.y
+
+      if vertices.nonEmpty then
+        GLEWHelper.glBindVertexArray(VAO)
+        GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+
+        Zone {
+          val verticesPtr = stackalloc[GLfloat](vertices.length)
+          for i <- vertices.indices do
+            verticesPtr(i) = vertices(i)
+
+          GLEWHelper.glBufferData(
+            GL_ARRAY_BUFFER.toUInt,
+            (vertices.length * sizeof[GLfloat].toInt),
+            verticesPtr.asInstanceOf[Ptr[Byte]],
+            GL_DYNAMIC_DRAW.toUInt
+          )
+        }
+
+        GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
+        GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+
+        glDrawArrays(GL_LINES.toUInt, 0, (vertices.length / 2).toUInt)
+
+        GLEWHelper.glBindVertexArray(0.toUInt)
+    }
 end BasicRenderer
