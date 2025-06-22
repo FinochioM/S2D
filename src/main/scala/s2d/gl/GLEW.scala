@@ -70,6 +70,12 @@ type PFNGLVERTEXATTRIBPOINTERPROC = CFuncPtr6[GLuint, GLint, GLenum, GLboolean, 
 type PFNGLENABLEVERTEXATTRIBARRAYPROC = CFuncPtr1[GLuint, Unit]
 type PFNGLDISABLEVERTEXATTRIBARRAYPROC = CFuncPtr1[GLuint, Unit]
 
+type PFNGLGENFRAMEBUFFERSPROC = CFuncPtr2[GLsizei, Ptr[GLuint], Unit]
+type PFNGLDELETEFRAMEBUFFERSPROC = CFuncPtr2[GLsizei, Ptr[GLuint], Unit]
+type PFNGLBINDFRAMEBUFFERPROC = CFuncPtr2[GLenum, GLuint, Unit]
+type PFNGLFRAMEBUFFERTEXTURE2DPROC = CFuncPtr5[GLenum, GLenum, GLenum, GLuint, GLint, Unit]
+type PFNGLCHECKFRAMEBUFFERSTATUSPROC = CFuncPtr1[GLenum, GLenum]
+
 object GLEWHelper:
   import GLEWConstants.*
 
@@ -122,6 +128,12 @@ object GLEWHelper:
   private var glVertexAttribPointerPtr: PFNGLVERTEXATTRIBPOINTERPROC = null
   private var glEnableVertexAttribArrayPtr: PFNGLENABLEVERTEXATTRIBARRAYPROC = null
   private var glDisableVertexAttribArrayPtr: PFNGLDISABLEVERTEXATTRIBARRAYPROC = null
+
+  private var glGenFramebuffersPtr: PFNGLGENFRAMEBUFFERSPROC = null
+  private var glDeleteFramebuffersPtr: PFNGLDELETEFRAMEBUFFERSPROC = null
+  private var glBindFramebufferPtr: PFNGLBINDFRAMEBUFFERPROC = null
+  private var glFramebufferTexture2DPtr: PFNGLFRAMEBUFFERTEXTURE2DPROC = null
+  private var glCheckFramebufferStatusPtr: PFNGLCHECKFRAMEBUFFERSTATUSPROC = null
 
   def initializeGLEW(): Boolean =
     val result = GLEW.glewInit()
@@ -186,6 +198,12 @@ object GLEWHelper:
       loadShaderFunction(c"glVertexAttribPointer", glVertexAttribPointerPtr, (ptr: Ptr[Byte]) => glVertexAttribPointerPtr = CFuncPtr.fromPtr[PFNGLVERTEXATTRIBPOINTERPROC](ptr))
       loadShaderFunction(c"glEnableVertexAttribArray", glEnableVertexAttribArrayPtr, (ptr: Ptr[Byte]) => glEnableVertexAttribArrayPtr = CFuncPtr.fromPtr[PFNGLENABLEVERTEXATTRIBARRAYPROC](ptr))
       loadShaderFunction(c"glDisableVertexAttribArray", glDisableVertexAttribArrayPtr, (ptr: Ptr[Byte]) => glDisableVertexAttribArrayPtr = CFuncPtr.fromPtr[PFNGLDISABLEVERTEXATTRIBARRAYPROC](ptr))
+
+      loadShaderFunction(c"glGenFramebuffers", glGenFramebuffersPtr, (ptr: Ptr[Byte]) => glGenFramebuffersPtr = CFuncPtr.fromPtr[PFNGLGENFRAMEBUFFERSPROC](ptr))
+      loadShaderFunction(c"glDeleteFramebuffers", glDeleteFramebuffersPtr, (ptr: Ptr[Byte]) => glDeleteFramebuffersPtr = CFuncPtr.fromPtr[PFNGLDELETEFRAMEBUFFERSPROC](ptr))
+      loadShaderFunction(c"glBindFramebuffer", glBindFramebufferPtr, (ptr: Ptr[Byte]) => glBindFramebufferPtr = CFuncPtr.fromPtr[PFNGLBINDFRAMEBUFFERPROC](ptr))
+      loadShaderFunction(c"glFramebufferTexture2D", glFramebufferTexture2DPtr, (ptr: Ptr[Byte]) => glFramebufferTexture2DPtr = CFuncPtr.fromPtr[PFNGLFRAMEBUFFERTEXTURE2DPROC](ptr))
+      loadShaderFunction(c"glCheckFramebufferStatus", glCheckFramebufferStatusPtr, (ptr: Ptr[Byte]) => glCheckFramebufferStatusPtr = CFuncPtr.fromPtr[PFNGLCHECKFRAMEBUFFERSTATUSPROC](ptr))
     }
 
   private def loadShaderFunction[T](name: CString, currentPtr: T, setPtr: Ptr[Byte] => Unit): Unit =
@@ -341,3 +359,18 @@ object GLEWHelper:
 
   def glDisableVertexAttribArray(index: GLuint): Unit =
     if glDisableVertexAttribArrayPtr != null then glDisableVertexAttribArrayPtr(index)
+
+  def glGenFramebuffers(n: GLsizei, framebuffers: Ptr[GLuint]): Unit =
+    if glGenFramebuffersPtr != null then glGenFramebuffersPtr(n, framebuffers)
+
+  def glDeleteFramebuffers(n: GLsizei, framebuffers: Ptr[GLuint]): Unit =
+    if glDeleteFramebuffersPtr != null then glDeleteFramebuffersPtr(n, framebuffers)
+
+  def glBindFramebuffer(target: GLenum, framebuffer: GLuint): Unit =
+    if glBindFramebufferPtr != null then glBindFramebufferPtr(target, framebuffer)
+
+  def glFramebufferTexture2D(target: GLenum, attachment: GLenum, textarget: GLenum, texture: GLuint, level: GLint): Unit =
+    if glFramebufferTexture2DPtr != null then glFramebufferTexture2DPtr(target, attachment, textarget, texture, level)
+
+  def glCheckFramebufferStatus(target: GLenum): GLenum =
+    if glCheckFramebufferStatusPtr != null then glCheckFramebufferStatusPtr(target) else 0.toUInt

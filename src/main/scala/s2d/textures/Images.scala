@@ -3,6 +3,7 @@ package s2d.textures
 import s2d.types.{Image, PixelFormat, Texture2D}
 import s2d.core.Window
 import s2d.gl.GL.*
+import s2d.gl.GLEWHelper
 import s2d.gl.GLExtras.*
 import s2d.stb.all.*
 import scalanative.unsafe.*
@@ -227,35 +228,60 @@ object Images:
         case _: Exception => None
 
   def loadFromTexture(texture: Texture2D): Option[Image] =
-      try
-        if texture.id == 0 then return None
+    if texture.id == 0 then return None
 
-        val pixelFormat = PixelFormat.fromValue(texture.format).getOrElse(PixelFormat.UncompressedR8G8B8A8)
-        val bytesPerPixel = pixelFormat.bytesPerPixel
-        val dataSize = texture.width * texture.height * bytesPerPixel
+    val pixelFormat = PixelFormat.fromValue(texture.format).getOrElse(PixelFormat.UncompressedR8G8B8A8)
+    val bytesPerPixel = pixelFormat.bytesPerPixel
+    val dataSize = texture.width * texture.height * bytesPerPixel
 
-        val pixelData = malloc(dataSize.toLong)
-        if pixelData == null then
+    val pixelData = malloc(dataSize.toLong)
+    if pixelData == null then
+      return None
+    try
+      Zone {
+        val framebufferArray = alloc[GLuint](1)
+        GLEWHelper.glGenFramebuffers(1.toUInt, framebufferArray)
+        val framebuffer = !framebufferArray
+
+        if framebuffer == 0.toUInt then
+          free(pixelData)
           return None
 
-        glBindTexture(GL_TEXTURE_2D, texture.id.toUInt)
+        GLEWHelper.glBindFramebuffer(GL_FRAMEBUFFER.toUInt, framebuffer)
+        GLEWHelper.glFramebufferTexture2D(GL_FRAMEBUFFER.toUInt, GL_COLOR_ATTACHMENT0.toUInt, GL_TEXTURE_2D.toUInt, texture.id.toUInt, 0)
+
+        val status = GLEWHelper.glCheckFramebufferStatus(GL_FRAMEBUFFER.toUInt)
+        if status != GL_FRAMEBUFFER_COMPLETE.toUInt then
+          GLEWHelper.glBindFramebuffer(GL_FRAMEBUFFER.toUInt, 0.toUInt)
+          val deleteArray = alloc[GLuint](1)
+          !deleteArray = framebuffer
+          GLEWHelper.glDeleteFramebuffers(1.toUInt, deleteArray)
+          free(pixelData)
+          return None
 
         val (glFormat, glType) = texture.format match
-          case f if f == PixelFormat.UncompressedGrayscale.value => (GL_LUMINANCE, GL_UNSIGNED_BYTE)
-          case f if f == PixelFormat.UncompressedGrayAlpha.value => (GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE)
-          case f if f == PixelFormat.UncompressedRGB8.value => (GL_RGB, GL_UNSIGNED_BYTE)
-          case f if f == PixelFormat.UncompressedR8G8B8A8.value => (GL_RGBA, GL_UNSIGNED_BYTE)
-          case f if f == PixelFormat.UncompressedR5G6B5.value => (GL_RGB, GL_UNSIGNED_SHORT_5_6_5)
-          case f if f == PixelFormat.UncompressedR5G6B5A1.value => (GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1)
-          case f if f == PixelFormat.UncompressedR4G4B4A4.value => (GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4)
-          case _ => (GL_RGBA, GL_UNSIGNED_BYTE)
+          case f if f == PixelFormat.UncompressedGrayscale.value => (GL_RED.toUInt, GL_UNSIGNED_BYTE.toUInt)
+          case f if f == PixelFormat.UncompressedGrayAlpha.value => (GL_RG.toUInt, GL_UNSIGNED_BYTE.toUInt)
+          case f if f == PixelFormat.UncompressedRGB8.value => (GL_RGB.toUInt, GL_UNSIGNED_BYTE.toUInt)
+          case f if f == PixelFormat.UncompressedR8G8B8A8.value => (GL_RGBA.toUInt, GL_UNSIGNED_BYTE.toUInt)
+          case f if f == PixelFormat.UncompressedR5G6B5.value => (GL_RGB.toUInt, GL_UNSIGNED_SHORT_5_6_5.toUInt)
+          case f if f == PixelFormat.UncompressedR5G6B5A1.value => (GL_RGBA.toUInt, GL_UNSIGNED_SHORT_5_5_5_1.toUInt)
+          case f if f == PixelFormat.UncompressedR4G4B4A4.value => (GL_RGBA.toUInt, GL_UNSIGNED_SHORT_4_4_4_4.toUInt)
+          case _ => (GL_RGBA.toUInt, GL_UNSIGNED_BYTE.toUInt)
 
-        glGetTexImage(GL_TEXTURE_2D, 0, glFormat, glType, pixelData.asInstanceOf[Ptr[Byte]])
-        glBindTexture(GL_TEXTURE_2D, 0.toUInt)
+        glReadPixels(0, 0, texture.width.toUInt, texture.height.toUInt, glFormat, glType, pixelData.asInstanceOf[Ptr[Byte]])
 
-        Some(Image(pixelData.asInstanceOf[Ptr[Byte]], texture.width, texture.height, texture.mipmaps, texture.format))
-      catch
-        case _: Exception => None
+        GLEWHelper.glBindFramebuffer(GL_FRAMEBUFFER.toUInt, 0.toUInt)
+        val deleteArray = alloc[GLuint](1)
+        !deleteArray = framebuffer
+        GLEWHelper.glDeleteFramebuffers(1.toUInt, deleteArray)
+      }
+
+      Some(Image(pixelData.asInstanceOf[Ptr[Byte]], texture.width, texture.height, texture.mipmaps, texture.format))
+    catch
+      case _: Exception =>
+        free(pixelData)
+        None
 
   def loadFromScreen(): Option[Image] =
       try
