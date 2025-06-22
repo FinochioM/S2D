@@ -469,4 +469,116 @@ object BasicRenderer:
 
         GLEWHelper.glBindVertexArray(0.toUInt)
     }
+
+  def renderRoundedRectangleOutline(rectangle: Rectangle, roundness: Float, segments: Int, color: Color): Unit =
+    if !isInitialized then
+      if !initialize() then return
+
+    if segments < 3 then return
+    if roundness <= 0.0f then
+      renderRectangleOutline(rectangle.x, rectangle.y, rectangle.width, rectangle.height, color)
+      return
+
+    defaultShader.foreach { shader =>
+      GLEWHelper.glUseProgram(shader.id.toUInt)
+      setColor(color)
+
+      val maxRadius = math.min(rectangle.width, rectangle.height) / 2.0f
+      val cornerRadius = (roundness * maxRadius).min(maxRadius)
+      val angleStep = (math.Pi / 2.0f) / segments.toFloat
+
+      val vertices = scala.collection.mutable.ArrayBuffer[Float]()
+
+      vertices += rectangle.x + cornerRadius;
+      vertices += rectangle.y
+      vertices += rectangle.x + rectangle.width - cornerRadius;
+      vertices += rectangle.y
+
+      for i <- 0 until segments do
+        val angle1 = (3 * math.Pi / 2.0f) + (i * angleStep)
+        val angle2 = (3 * math.Pi / 2.0f) + ((i + 1) * angleStep)
+
+        val x1 = rectangle.x + rectangle.width - cornerRadius + cornerRadius * math.cos(angle1).toFloat
+        val y1 = rectangle.y + cornerRadius + cornerRadius * math.sin(angle1).toFloat
+        val x2 = rectangle.x + rectangle.width - cornerRadius + cornerRadius * math.cos(angle2).toFloat
+        val y2 = rectangle.y + cornerRadius + cornerRadius * math.sin(angle2).toFloat
+
+        vertices += x1; vertices += y1
+        vertices += x2; vertices += y2
+
+      vertices += rectangle.x + rectangle.width;
+      vertices += rectangle.y + cornerRadius
+      vertices += rectangle.x + rectangle.width;
+      vertices += rectangle.y + rectangle.height - cornerRadius
+
+      for i <- 0 until segments do
+        val angle1 = (i * angleStep)
+        val angle2 = ((i + 1) * angleStep)
+
+        val x1 = rectangle.x + rectangle.width - cornerRadius + cornerRadius * math.cos(angle1).toFloat
+        val y1 = rectangle.y + rectangle.height - cornerRadius + cornerRadius * math.sin(angle1).toFloat
+        val x2 = rectangle.x + rectangle.width - cornerRadius + cornerRadius * math.cos(angle2).toFloat
+        val y2 = rectangle.y + rectangle.height - cornerRadius + cornerRadius * math.sin(angle2).toFloat
+
+        vertices += x1; vertices += y1
+        vertices += x2; vertices += y2
+
+      vertices += rectangle.x + rectangle.width - cornerRadius;
+      vertices += rectangle.y + rectangle.height
+      vertices += rectangle.x + cornerRadius;
+      vertices += rectangle.y + rectangle.height
+
+      for i <- 0 until segments do
+        val angle1 = (math.Pi / 2.0f) + (i * angleStep)
+        val angle2 = (math.Pi / 2.0f) + ((i + 1) * angleStep)
+
+        val x1 = rectangle.x + cornerRadius + cornerRadius * math.cos(angle1).toFloat
+        val y1 = rectangle.y + rectangle.height - cornerRadius + cornerRadius * math.sin(angle1).toFloat
+        val x2 = rectangle.x + cornerRadius + cornerRadius * math.cos(angle2).toFloat
+        val y2 = rectangle.y + rectangle.height - cornerRadius + cornerRadius * math.sin(angle2).toFloat
+
+        vertices += x1; vertices += y1
+        vertices += x2; vertices += y2
+
+      vertices += rectangle.x;
+      vertices += rectangle.y + rectangle.height - cornerRadius
+      vertices += rectangle.x;
+      vertices += rectangle.y + cornerRadius
+
+      for i <- 0 until segments do
+        val angle1 = math.Pi.toFloat + (i * angleStep)
+        val angle2 = math.Pi.toFloat + ((i + 1) * angleStep)
+
+        val x1 = rectangle.x + cornerRadius + cornerRadius * math.cos(angle1).toFloat
+        val y1 = rectangle.y + cornerRadius + cornerRadius * math.sin(angle1).toFloat
+        val x2 = rectangle.x + cornerRadius + cornerRadius * math.cos(angle2).toFloat
+        val y2 = rectangle.y + cornerRadius + cornerRadius * math.sin(angle2).toFloat
+
+        vertices += x1; vertices += y1
+        vertices += x2; vertices += y2
+
+      if vertices.nonEmpty then
+        GLEWHelper.glBindVertexArray(VAO)
+        GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+
+        Zone {
+          val verticesPtr = stackalloc[GLfloat](vertices.length)
+          for i <- vertices.indices do
+            verticesPtr(i) = vertices(i)
+
+          GLEWHelper.glBufferData(
+            GL_ARRAY_BUFFER.toUInt,
+            (vertices.length * sizeof[GLfloat].toInt),
+            verticesPtr.asInstanceOf[Ptr[Byte]],
+            GL_DYNAMIC_DRAW.toUInt
+          )
+        }
+
+        GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
+        GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+
+        glDrawArrays(GL_LINES.toUInt, 0, (vertices.length / 2).toUInt)
+
+        GLEWHelper.glBindVertexArray(0.toUInt)
+    }
 end BasicRenderer

@@ -26,7 +26,7 @@ def main(): Unit =
     Drawing.beginCamera(camera2D)
 
     val rect1 = Rectangle(100, 100, 150, 100)
-    Basics.rectangleRounded(rect1, 0.2f, 8, Color.Red)
+    Basics.rectangleRoundedOutlineThick(rect1, 0.2f, 8, 6, Color.Red)
 
     Drawing.endCamera()
     Drawing.endFrame()
