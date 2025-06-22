@@ -7,21 +7,13 @@ import s2d.gl.GLExtras.*
 
 object Basics:
   def pixel(posX: Int, posY: Int, color: Color): Unit =
-    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
-    glPointSize(1.0f)
-
-    glBegin(GL_POINTS.toUInt)
-    glVertex2f(posX.toFloat, posY.toFloat)
-    glEnd()
+    BasicRenderer.updateProjectionFromDrawing()
+    BasicRenderer.renderPixel(posX.toFloat, posY.toFloat, color)
   end pixel
 
   def pixel(position: Vector2, color: Color): Unit =
-    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
-    glPointSize(1.0f)
-
-    glBegin(GL_POINTS.toUInt)
-    glVertex2f(position.x, position.y)
-    glEnd()
+    BasicRenderer.updateProjectionFromDrawing()
+    BasicRenderer.renderPixel(position.x, position.y, color)
   end pixel
 
   def line(startPosX: Int, startPosY: Int, endPosX: Int, endPosY: Int, color: Color): Unit =

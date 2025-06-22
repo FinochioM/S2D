@@ -25,10 +25,20 @@ def main(): Unit =
 
     Drawing.beginCamera(camera2D)
 
-    Basics.polygonOutlineThick(Vector2(100, 200), 6, 40.0f, 0.0f, 2.0f, Color.Green)   // Thin thick
-    Basics.polygonOutlineThick(Vector2(200, 200), 6, 40.0f, 0.0f, 4.0f, Color.Blue)    // Medium thick
-    Basics.polygonOutlineThick(Vector2(300, 200), 6, 40.0f, 0.0f, 6.0f, Color.Yellow)  // Very thick
-    Basics.polygonOutlineThick(Vector2(400, 200), 6, 40.0f, 0.0f, 8.0f, Color.Magenta) // Extra thick
+    // small smiley face
+    val smileyPixels = Array(
+      (420, 180), (421, 179), (422, 178), (423, 178), (424, 178), (425, 178), (426, 178), (427, 179), (428, 180),
+      (419, 181), (429, 181), (418, 182), (430, 182), (418, 183), (430, 183), (418, 184), (430, 184),
+      (418, 185), (430, 185), (418, 186), (430, 186), (419, 187), (429, 187),
+      (420, 188), (421, 189), (422, 190), (423, 190), (424, 190), (425, 190), (426, 190), (427, 189), (428, 188),
+
+      (422, 182), (426, 182),
+
+      (422, 186), (423, 187), (424, 187), (425, 187), (426, 186)
+    )
+
+    for (x, y) <- smileyPixels do
+      Basics.pixel(x, y, Color.Yellow)
 
     Drawing.endCamera()
     Drawing.endFrame()

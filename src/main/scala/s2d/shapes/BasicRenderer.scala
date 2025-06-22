@@ -113,6 +113,10 @@ object BasicRenderer:
     val a = color.a / 255.0f
     GLEWHelper.glUniform4f(colorLocation, r, g, b, a)
 
+  def renderPixel(x: Float, y: Float, color: Color): Unit =
+    renderRectangle(x, y, 1.0f, 1.0f, color)
+  end renderPixel
+
   def renderLine(startPos: Vector2, endPos: Vector2, color: Color): Unit =
     if !isInitialized then
       if !initialize() then return
