@@ -633,32 +633,19 @@ object Basics:
   end rectangleRoundedOutlineThick
 
   def triangle(v1: Vector2, v2: Vector2, v3: Vector2, color: Color): Unit =
-    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
-
-    glBegin(GL_TRIANGLES.toUInt)
-    glVertex2f(v1.x, v1.y)
-    glVertex2f(v2.x, v2.y)
-    glVertex2f(v3.x, v3.y)
-    glEnd()
+    BasicRenderer.updateProjectionFromDrawing()
+    BasicRenderer.renderTriangle(v1, v2, v3, color)
+  end triangle
 
   def triangleOutline(v1: Vector2, v2: Vector2, v3: Vector2, color: Color): Unit =
-    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
-
-    glBegin(GL_LINE_LOOP.toUInt)
-    glVertex2f(v1.x, v1.y)
-    glVertex2f(v2.x, v2.y)
-    glVertex2f(v3.x, v3.y)
-    glEnd()
+    BasicRenderer.updateProjectionFromDrawing()
+    BasicRenderer.renderTriangleOutline(v1, v2, v3, color)
+  end triangleOutline
 
   def triangleFan(points: Array[Vector2], color: Color): Unit =
-    if points.length < 3 then return
-
-    glColor4f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f)
-
-    glBegin(GL_TRIANGLE_FAN.toUInt)
-    for point <- points do
-      glVertex2f(point.x, point.y)
-    glEnd()
+    BasicRenderer.updateProjectionFromDrawing()
+    BasicRenderer.renderTriangleFan(points, color)
+  end triangleFan
 
   def triangleStrip(points: Array[Vector2], color: Color): Unit =
     if points.length < 3 then return

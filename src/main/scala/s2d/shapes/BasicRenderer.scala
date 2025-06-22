@@ -581,4 +581,132 @@ object BasicRenderer:
 
         GLEWHelper.glBindVertexArray(0.toUInt)
     }
+
+  def renderTriangle(v1: Vector2, v2: Vector2, v3: Vector2, color: Color): Unit =
+    if !isInitialized then
+      if !initialize() then return
+
+    defaultShader.foreach { shader =>
+      GLEWHelper.glUseProgram(shader.id.toUInt)
+      setColor(color)
+
+      val vertices = Array(
+        v1.x, v1.y,
+        v2.x, v2.y,
+        v3.x, v3.y
+      )
+
+      GLEWHelper.glBindVertexArray(VAO)
+      GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+
+      Zone {
+        val verticesPtr = stackalloc[GLfloat](vertices.length)
+        for i <- vertices.indices do
+          verticesPtr(i) = vertices(i)
+
+        GLEWHelper.glBufferData(
+          GL_ARRAY_BUFFER.toUInt,
+          (vertices.length * sizeof[GLfloat].toInt),
+          verticesPtr.asInstanceOf[Ptr[Byte]],
+          GL_DYNAMIC_DRAW.toUInt
+        )
+      }
+
+      GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
+      GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+
+      glDrawArrays(GL_TRIANGLES.toUInt, 0, 3.toUInt)
+
+      GLEWHelper.glBindVertexArray(0.toUInt)
+    }
+
+  def renderTriangleOutline(v1: Vector2, v2: Vector2, v3: Vector2, color: Color): Unit =
+    if !isInitialized then
+      if !initialize() then return
+
+    defaultShader.foreach { shader =>
+      GLEWHelper.glUseProgram(shader.id.toUInt)
+      setColor(color)
+
+      val vertices = Array(
+        v1.x, v1.y,
+        v2.x, v2.y,
+
+        v2.x, v2.y,
+        v3.x, v3.y,
+
+        v3.x, v3.y,
+        v1.x, v1.y
+      )
+
+      GLEWHelper.glBindVertexArray(VAO)
+      GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+
+      Zone {
+        val verticesPtr = stackalloc[GLfloat](vertices.length)
+        for i <- vertices.indices do
+          verticesPtr(i) = vertices(i)
+
+        GLEWHelper.glBufferData(
+          GL_ARRAY_BUFFER.toUInt,
+          (vertices.length * sizeof[GLfloat].toInt),
+          verticesPtr.asInstanceOf[Ptr[Byte]],
+          GL_DYNAMIC_DRAW.toUInt
+        )
+      }
+
+      GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
+      GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+
+      glDrawArrays(GL_LINES.toUInt, 0, 6.toUInt)
+
+      GLEWHelper.glBindVertexArray(0.toUInt)
+    }
+
+  def renderTriangleFan(points: Array[Vector2], color: Color): Unit =
+    if !isInitialized then
+      if !initialize() then return
+
+    if points.length < 3 then return
+
+    defaultShader.foreach { shader =>
+      GLEWHelper.glUseProgram(shader.id.toUInt)
+      setColor(color)
+
+      val vertices = scala.collection.mutable.ArrayBuffer[Float]()
+
+      val centerPoint = points(0)
+
+      for i <- 1 until points.length - 1 do
+        val currentPoint = points(i)
+        val nextPoint = points(i + 1)
+
+        vertices += centerPoint.x; vertices += centerPoint.y
+        vertices += currentPoint.x; vertices += currentPoint.y
+        vertices += nextPoint.x; vertices += nextPoint.y
+
+      if vertices.nonEmpty then
+        GLEWHelper.glBindVertexArray(VAO)
+        GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+
+        Zone {
+          val verticesPtr = stackalloc[GLfloat](vertices.length)
+          for i <- vertices.indices do
+            verticesPtr(i) = vertices(i)
+
+          GLEWHelper.glBufferData(
+            GL_ARRAY_BUFFER.toUInt,
+            (vertices.length * sizeof[GLfloat].toInt),
+            verticesPtr.asInstanceOf[Ptr[Byte]],
+            GL_DYNAMIC_DRAW.toUInt
+          )
+        }
+
+        GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
+        GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+
+        glDrawArrays(GL_TRIANGLES.toUInt, 0, (vertices.length / 2).toUInt)
+
+        GLEWHelper.glBindVertexArray(0.toUInt)
+    }
 end BasicRenderer

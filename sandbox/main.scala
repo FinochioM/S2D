@@ -25,8 +25,17 @@ def main(): Unit =
 
     Drawing.beginCamera(camera2D)
 
-    val rect1 = Rectangle(100, 100, 150, 100)
-    Basics.rectangleRoundedOutlineThick(rect1, 0.2f, 8, 6, Color.Red)
+    val pentagon = Array(
+      Vector2(300, 100)
+    ) ++ (0 until 5).map { i =>
+      val angle = i * 2 * math.Pi / 5 - math.Pi / 2
+      val radius = 40.0f
+      Vector2(
+        300 + radius * math.cos(angle).toFloat,
+        100 + radius * math.sin(angle).toFloat
+      )
+    } :+ Vector2(300 + 40 * math.cos(-math.Pi / 2).toFloat, 100 + 40 * math.sin(-math.Pi / 2).toFloat)
+    Basics.triangleFan(pentagon, Color.Green)
 
     Drawing.endCamera()
     Drawing.endFrame()
