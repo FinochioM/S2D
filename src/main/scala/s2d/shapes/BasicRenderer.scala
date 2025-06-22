@@ -1,6 +1,6 @@
 package s2d.shapes
 
-import s2d.types.{Color, Vector2}
+import s2d.types.{Color, Vector2, Rectangle}
 import s2d.math.Matrix4
 import s2d.core.Window
 import s2d.gl.GL.*
@@ -238,6 +238,115 @@ object BasicRenderer:
       GLEWHelper.glEnableVertexAttribArray(0.toUInt)
 
       glDrawArrays(GL_TRIANGLES.toUInt, 0, 6.toUInt)
+
+      GLEWHelper.glBindVertexArray(0.toUInt)
+    }
+
+  def renderRotatedRectangle(rectangle: Rectangle, origin: Vector2, rotation: Float, color: Color): Unit =
+    if !isInitialized then
+      if !initialize() then return
+
+    defaultShader.foreach { shader =>
+      GLEWHelper.glUseProgram(shader.id.toUInt)
+      setColor(color)
+
+      val angleRad = math.toRadians(rotation).toFloat
+      val cos = math.cos(angleRad).toFloat
+      val sin = math.sin(angleRad).toFloat
+
+      val corners = Array(
+        (-origin.x, -origin.y), // top-left
+        (rectangle.width - origin.x, -origin.y), // top-right
+        (rectangle.width - origin.x, rectangle.height - origin.y), // bottom-right
+        (-origin.x, rectangle.height - origin.y) // bottom-left
+      )
+
+      val rotatedCorners = corners.map { case (x, y) =>
+        val rotX = x * cos - y * sin + rectangle.x + origin.x
+        val rotY = x * sin + y * cos + rectangle.y + origin.y
+        (rotX, rotY)
+      }
+
+      val vertices = Array(
+        rotatedCorners(0)._1, rotatedCorners(0)._2, // top-left
+        rotatedCorners(1)._1, rotatedCorners(1)._2, // top-right
+        rotatedCorners(2)._1, rotatedCorners(2)._2, // bottom-right
+
+        rotatedCorners(0)._1, rotatedCorners(0)._2, // top-left
+        rotatedCorners(2)._1, rotatedCorners(2)._2, // bottom-right
+        rotatedCorners(3)._1, rotatedCorners(3)._2 // bottom-left
+      )
+
+      GLEWHelper.glBindVertexArray(VAO)
+      GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+
+      Zone {
+        val verticesPtr = stackalloc[GLfloat](vertices.length)
+        for i <- vertices.indices do
+          verticesPtr(i) = vertices(i)
+
+        GLEWHelper.glBufferData(
+          GL_ARRAY_BUFFER.toUInt,
+          (vertices.length * sizeof[GLfloat].toInt),
+          verticesPtr.asInstanceOf[Ptr[Byte]],
+          GL_DYNAMIC_DRAW.toUInt
+        )
+      }
+
+      GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
+      GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+
+      glDrawArrays(GL_TRIANGLES.toUInt, 0, 6.toUInt)
+
+      GLEWHelper.glBindVertexArray(0.toUInt)
+    }
+
+  def renderRectangleOutline(x: Float, y: Float, width: Float, height: Float, color: Color): Unit =
+    if !isInitialized then
+      if !initialize() then return
+
+    defaultShader.foreach { shader =>
+      GLEWHelper.glUseProgram(shader.id.toUInt)
+      setColor(color)
+
+      val vertices = Array(
+        // Top edge
+        x, y,
+        x + width, y,
+
+        // Right edge
+        x + width, y,
+        x + width, y + height,
+
+        // Bottom edge
+        x + width, y + height,
+        x, y + height,
+
+        // Left edge
+        x, y + height,
+        x, y
+      )
+
+      GLEWHelper.glBindVertexArray(VAO)
+      GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+
+      Zone {
+        val verticesPtr = stackalloc[GLfloat](vertices.length)
+        for i <- vertices.indices do
+          verticesPtr(i) = vertices(i)
+
+        GLEWHelper.glBufferData(
+          GL_ARRAY_BUFFER.toUInt,
+          (vertices.length * sizeof[GLfloat].toInt),
+          verticesPtr.asInstanceOf[Ptr[Byte]],
+          GL_DYNAMIC_DRAW.toUInt
+        )
+      }
+
+      GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
+      GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+
+      glDrawArrays(GL_LINES.toUInt, 0, 8.toUInt)
 
       GLEWHelper.glBindVertexArray(0.toUInt)
     }
