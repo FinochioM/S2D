@@ -369,61 +369,19 @@ object Basics:
     glEnd()
   end ellipseOutlines
 
-  def rectangle(
-      posX: Int,
-      posY: Int,
-      width: Int,
-      height: Int,
-      color: Color
-  ): Unit =
-    glColor4f(
-      color.r / 255.0f,
-      color.g / 255.0f,
-      color.b / 255.0f,
-      color.a / 255.0f
-    )
-
-    glBegin(GL_QUADS.toUInt)
-    glVertex2f(posX.toFloat, posY.toFloat)
-    glVertex2f((posX + width).toFloat, posY.toFloat)
-    glVertex2f((posX + width).toFloat, (posY + height).toFloat)
-    glVertex2f(posX.toFloat, (posY + height).toFloat)
-    glEnd()
+  def rectangle(posX: Int, posY: Int, width: Int, height: Int, color: Color): Unit =
+    BasicRenderer.updateProjectionFromDrawing()
+    BasicRenderer.renderRectangle(posX.toFloat, posY.toFloat, width.toFloat, height.toFloat, color)
   end rectangle
 
   def rectangle(pos: Vector2, size: Vector2, color: Color): Unit =
-    glColor4f(
-      color.r / 255.0f,
-      color.g / 255.0f,
-      color.b / 255.0f,
-      color.a / 255.0f
-    )
-
-    glBegin(GL_QUADS.toUInt)
-    glVertex2f(pos.x, pos.y)
-    glVertex2f((pos.x + size.x), pos.y)
-    glVertex2f((pos.x + size.x), (pos.y + size.y))
-    glVertex2f(pos.x, (pos.y + size.y))
-    glEnd()
+    BasicRenderer.updateProjectionFromDrawing()
+    BasicRenderer.renderRectangle(pos.x, pos.y, size.x, size.y, color)
   end rectangle
 
   def rectangle(rectangle: Rectangle, color: Color): Unit =
-    glColor4f(
-      color.r / 255.0f,
-      color.g / 255.0f,
-      color.b / 255.0f,
-      color.a / 255.0f
-    )
-
-    glBegin(GL_QUADS.toUInt)
-    glVertex2f(rectangle.x, rectangle.y)
-    glVertex2f((rectangle.x + rectangle.width), rectangle.y)
-    glVertex2f(
-      (rectangle.x + rectangle.width),
-      (rectangle.y + rectangle.height)
-    )
-    glVertex2f(rectangle.x, (rectangle.y + rectangle.height))
-    glEnd()
+    BasicRenderer.updateProjectionFromDrawing()
+    BasicRenderer.renderRectangle(rectangle.x, rectangle.y, rectangle.width, rectangle.height, color)
   end rectangle
 
   def rectangleRotated(

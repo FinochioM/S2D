@@ -200,4 +200,45 @@ object BasicRenderer:
       GLEWHelper.glBindVertexArray(0.toUInt)
     }
 
+  def renderRectangle(x: Float, y: Float, width: Float, height: Float, color: Color): Unit =
+    if !isInitialized then
+      if !initialize() then return
+
+    defaultShader.foreach { shader =>
+      GLEWHelper.glUseProgram(shader.id.toUInt)
+      setColor(color)
+
+      val vertices = Array(
+        x, y, // top-left
+        x + width, y, // top-right
+        x, y + height, // bottom-left
+
+        x + width, y, // top-right
+        x + width, y + height, // bottom-right
+        x, y + height // bottom-left
+      )
+
+      GLEWHelper.glBindVertexArray(VAO)
+      GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+
+      Zone {
+        val verticesPtr = stackalloc[GLfloat](vertices.length)
+        for i <- vertices.indices do
+          verticesPtr(i) = vertices(i)
+
+        GLEWHelper.glBufferData(
+          GL_ARRAY_BUFFER.toUInt,
+          (vertices.length * sizeof[GLfloat].toInt),
+          verticesPtr.asInstanceOf[Ptr[Byte]],
+          GL_DYNAMIC_DRAW.toUInt
+        )
+      }
+
+      GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
+      GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+
+      glDrawArrays(GL_TRIANGLES.toUInt, 0, 6.toUInt)
+
+      GLEWHelper.glBindVertexArray(0.toUInt)
+    }
 end BasicRenderer

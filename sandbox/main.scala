@@ -3,7 +3,7 @@
 //> using nativeVersion 0.5.8
 //> using scalacOptions -Wconf:msg=indented:silent
 //> using repository "m2Local"
-//> using dep "io.github.finochiom:s2d_native0.5_3:0.1.72-SNAPSHOT"
+//> using dep "io.github.finochiom:s2d_native0.5_3:0.1.74-SNAPSHOT"
 
 package sandbox
 
@@ -25,7 +25,12 @@ def main(): Unit =
 
     Drawing.beginCamera(camera2D)
 
-    Basics.lineThick(Vector2(100, 300), Vector2(700, 300), 10.0f, Color.Red)
+    Basics.rectangle(50, 50, 150, 100, Color.Red)
+
+    Basics.rectangle(Vector2(250, 50), Vector2(150, 100), Color.Green)
+
+    val rect = Rectangle(450, 50, 150, 100)
+    Basics.rectangle(rect, Color.Blue)
 
     Drawing.endCamera()
     Drawing.endFrame()
