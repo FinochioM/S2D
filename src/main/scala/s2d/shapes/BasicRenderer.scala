@@ -350,4 +350,123 @@ object BasicRenderer:
 
       GLEWHelper.glBindVertexArray(0.toUInt)
     }
+
+  def renderRoundedRectangle(rect: Rectangle, roundness: Float, segments: Int, color: Color): Unit =
+    if !isInitialized then
+      if !initialize() then return
+
+    if segments < 3 then return
+    if roundness <= 0.0f then
+      renderRectangle(rect.x, rect.y, rect.width, rect.height, color)
+      return
+
+    defaultShader.foreach { shader =>
+      GLEWHelper.glUseProgram(shader.id.toUInt)
+      setColor(color)
+
+      val maxRadius = math.min(rect.width, rect.height) / 2.0f
+      val cornerRadius = (roundness * maxRadius).min(maxRadius)
+      val innerWidth = rect.width - 2 * cornerRadius
+      val innerHeight = rect.height - 2 * cornerRadius
+
+      val vertices = scala.collection.mutable.ArrayBuffer[Float]()
+
+      def addQuad(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float, x4: Float, y4: Float): Unit =
+        vertices += x1;
+        vertices += y1
+        vertices += x2;
+        vertices += y2
+        vertices += x3;
+        vertices += y3
+        vertices += x1;
+        vertices += y1
+        vertices += x3;
+        vertices += y3
+        vertices += x4;
+        vertices += y4
+
+      if innerWidth > 0 && innerHeight > 0 then
+        addQuad(
+          rect.x + cornerRadius, rect.y + cornerRadius,
+          rect.x + cornerRadius + innerWidth, rect.y + cornerRadius,
+          rect.x + cornerRadius + innerWidth, rect.y + cornerRadius + innerHeight,
+          rect.x + cornerRadius, rect.y + cornerRadius + innerHeight
+        )
+
+      if innerWidth > 0 then
+        addQuad(
+          rect.x + cornerRadius, rect.y,
+          rect.x + cornerRadius + innerWidth, rect.y,
+          rect.x + cornerRadius + innerWidth, rect.y + cornerRadius,
+          rect.x + cornerRadius, rect.y + cornerRadius
+        )
+
+      if innerWidth > 0 then
+        addQuad(
+          rect.x + cornerRadius, rect.y + cornerRadius + innerHeight,
+          rect.x + cornerRadius + innerWidth, rect.y + cornerRadius + innerHeight,
+          rect.x + cornerRadius + innerWidth, rect.y + rect.height,
+          rect.x + cornerRadius, rect.y + rect.height
+        )
+
+      if innerHeight > 0 then
+        addQuad(
+          rect.x, rect.y + cornerRadius,
+          rect.x + cornerRadius, rect.y + cornerRadius,
+          rect.x + cornerRadius, rect.y + cornerRadius + innerHeight,
+          rect.x, rect.y + cornerRadius + innerHeight
+        )
+
+      if innerHeight > 0 then
+        addQuad(
+          rect.x + cornerRadius + innerWidth, rect.y + cornerRadius,
+          rect.x + rect.width, rect.y + cornerRadius,
+          rect.x + rect.width, rect.y + cornerRadius + innerHeight,
+          rect.x + cornerRadius + innerWidth, rect.y + cornerRadius + innerHeight
+        )
+
+      def addCorner(centerX: Float, centerY: Float, startAngle: Float): Unit =
+        val angleStep = (math.Pi / 2.0f) / segments.toFloat
+        for i <- 0 until segments do
+          val angle1 = startAngle + (i * angleStep)
+          val angle2 = startAngle + ((i + 1) * angleStep)
+
+          val x1 = centerX + cornerRadius * math.cos(angle1).toFloat
+          val y1 = centerY + cornerRadius * math.sin(angle1).toFloat
+          val x2 = centerX + cornerRadius * math.cos(angle2).toFloat
+          val y2 = centerY + cornerRadius * math.sin(angle2).toFloat
+
+          vertices += centerX; vertices += centerY
+          vertices += x1; vertices += y1
+          vertices += x2; vertices += y2
+
+      addCorner(rect.x + cornerRadius, rect.y + cornerRadius, math.Pi.toFloat) // top-left
+      addCorner(rect.x + rect.width - cornerRadius, rect.y + cornerRadius, 3 * math.Pi.toFloat / 2) // top-right
+      addCorner(rect.x + rect.width - cornerRadius, rect.y + rect.height - cornerRadius, 0.0f) // bottom-right
+      addCorner(rect.x + cornerRadius, rect.y + rect.height - cornerRadius, math.Pi.toFloat / 2) // bottom-left
+
+      if vertices.nonEmpty then
+        GLEWHelper.glBindVertexArray(VAO)
+        GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+
+        Zone {
+          val verticesPtr = stackalloc[GLfloat](vertices.length)
+          for i <- vertices.indices do
+            verticesPtr(i) = vertices(i)
+
+          GLEWHelper.glBufferData(
+            GL_ARRAY_BUFFER.toUInt,
+            (vertices.length * sizeof[GLfloat].toInt),
+            verticesPtr.asInstanceOf[Ptr[Byte]],
+            GL_DYNAMIC_DRAW.toUInt
+          )
+        }
+
+        GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
+        GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+
+        glDrawArrays(GL_TRIANGLES.toUInt, 0, (vertices.length / 2).toUInt)
+
+        GLEWHelper.glBindVertexArray(0.toUInt)
+    }
 end BasicRenderer
