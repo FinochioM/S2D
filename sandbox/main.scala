@@ -25,10 +25,8 @@ def main(): Unit =
 
     Drawing.beginCamera(camera2D)
 
-    Basics.circleOutline(Vector2(100, 320), 10.0f, Color.Red)
-    Basics.circleOutline(Vector2(150, 320), 20.0f, Color.Green)
-    Basics.circleOutline(Vector2(220, 320), 35.0f, Color.Blue)
-    Basics.circleOutline(Vector2(310, 320), 50.0f, Color.Yellow)
+    Basics.ellipse(200, 200, 80.0f, 50.0f, Color.Red)
+    Basics.ellipseOutlines(500, 350, 100.0f, 60.0f, Color.Yellow)
 
     Drawing.endCamera()
     Drawing.endFrame()

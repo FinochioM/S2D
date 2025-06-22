@@ -101,61 +101,44 @@ object Basics:
     BasicRenderer.renderCircleOutline(center.x, center.y, radius, color)
   end circleOutline
 
-  def ellipse(
-      centerX: Int,
-      centerY: Int,
-      radiusH: Float,
-      radiusV: Float,
-      color: Color
-  ): Unit =
-    glColor4f(
-      color.r / 255.0f,
-      color.g / 255.0f,
-      color.b / 255.0f,
-      color.a / 255.0f
-    )
+  def ellipse(centerX: Int, centerY: Int, radiusH: Float, radiusV: Float, color: Color): Unit =
+    BasicRenderer.updateProjectionFromDrawing()
 
     val segments = 36
+    val points = Array.ofDim[Vector2](segments + 2)
 
-    glBegin(GL_TRIANGLE_FAN.toUInt)
-    glVertex2f(centerX.toFloat, centerY.toFloat)
+    points(0) = Vector2(centerX.toFloat, centerY.toFloat)
 
     for i <- 0 to segments do
       val angle = (i * 2.0f * math.Pi / segments).toFloat
       val x = centerX + radiusH * math.cos(angle).toFloat
       val y = centerY + radiusV * math.sin(angle).toFloat
-      glVertex2f(x, y)
+      points(i + 1) = Vector2(x, y)
     end for
 
-    glEnd()
+    BasicRenderer.renderTriangleFan(points, color)
   end ellipse
 
-  def ellipseOutlines(
-      centerX: Int,
-      centerY: Int,
-      radiusH: Float,
-      radiusV: Float,
-      color: Color
-  ): Unit =
-    glColor4f(
-      color.r / 255.0f,
-      color.g / 255.0f,
-      color.b / 255.0f,
-      color.a / 255.0f
-    )
+  def ellipseOutlines(centerX: Int, centerY: Int, radiusH: Float, radiusV: Float, color: Color): Unit =
+    BasicRenderer.updateProjectionFromDrawing()
 
     val segments = 36
+    val vertices = scala.collection.mutable.ArrayBuffer[Vector2]()
 
-    glBegin(GL_LINE_LOOP.toUInt)
+    for i <- 0 until segments do
+      val angle1 = (i * 2.0f * math.Pi / segments).toFloat
+      val angle2 = ((i + 1) * 2.0f * math.Pi / segments).toFloat
 
-    for i <- 0 to segments do
-      val angle = (i * 2.0f * math.Pi / segments).toFloat
-      val x = centerX + radiusH * math.cos(angle).toFloat
-      val y = centerY + radiusV * math.sin(angle).toFloat
-      glVertex2f(x, y)
+      val x1 = centerX + radiusH * math.cos(angle1).toFloat
+      val y1 = centerY + radiusV * math.sin(angle1).toFloat
+      val x2 = centerX + radiusH * math.cos(angle2).toFloat
+      val y2 = centerY + radiusV * math.sin(angle2).toFloat
+
+      vertices += Vector2(x1, y1)
+      vertices += Vector2(x2, y2)
     end for
 
-    glEnd()
+    BasicRenderer.renderLineStrip(vertices.toArray, color)
   end ellipseOutlines
 
   def rectangle(posX: Int, posY: Int, width: Int, height: Int, color: Color): Unit =
