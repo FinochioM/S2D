@@ -176,6 +176,8 @@ object Drawing:
         end match
       case SDL_KEYDOWN | SDL_KEYUP =>
         Input.processKeyEvent(event.key)
+      case SDL_TEXTINPUT =>
+        Input.processTextEvent(event.text)
       case _ =>
         ()
 

@@ -11,6 +11,7 @@ object Input:
     private val currentKeyStates = mutable.Set[Key]()
     private val previousKeyStates = mutable.Set[Key]()
     private val keyPressQueue = mutable.Queue[Key]()
+    private val charPressQueue = mutable.Queue[Int]()
 
     private[core] def processKeyEvent(event: Ptr[SDL_KeyboardEvent]): Unit =
       val keycode = event.keysym.sym
@@ -24,6 +25,21 @@ object Input:
       else
         currentKeyStates -= key
     end processKeyEvent
+
+    private[core] def processTextEvent(event: Ptr[SDL_TextInputEvent]): Unit =
+        val textBytes = event.text
+        
+        var i = 0
+        while i < 32 && textBytes(i) != 0 do // do 32 because SDL_TEXTINPUTEVENT_TEXT_SIZE is 32
+            val byte = textBytes(i).toInt & 0xFF
+            if byte == 0 then return
+            
+            if (byte & 0x80) == 0 then
+                charPressQueue.enqueue(byte)
+                i += 1
+            else
+                i += 1
+    end processTextEvent
 
     private[core] def updateKeyStates(): Unit =
         previousKeyStates.clear()
@@ -48,4 +64,11 @@ object Input:
         else
             Key.Unknown
     end getKeyPressed
+
+    def getCharPressed(): Int =
+        if charPressQueue.nonEmpty then
+            charPressQueue.dequeue()
+        else
+            0
+    end getCharPressed
 end Input
