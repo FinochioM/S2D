@@ -24,8 +24,8 @@ def main(): Unit =
     Drawing.beginFrame()
     Drawing.clear(Color.fromHex("#2C3E50").getOrElse(Color.Black))
 
-    if Input.isKeyPressed(Key.Space) then
-      println("Space key pressed!")
+    if Input.isMouseButtonPressed(MouseButton.Left) then
+      println("Left mouse button pressed")
 
     Drawing.endFrame()
   Window.close()

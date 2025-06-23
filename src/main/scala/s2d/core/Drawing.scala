@@ -29,6 +29,7 @@ object Drawing:
       throw new RuntimeException("Window not initialized!")
 
     Input.updateKeyStates()
+    Input.updateMouseStates()
 
     Zone {
       val event = stackalloc[SDL_Event]()
@@ -180,6 +181,8 @@ object Drawing:
           Window.shouldClose = true
       case SDL_TEXTINPUT =>
         Input.processTextEvent(event.text)
+      case SDL_MOUSEBUTTONDOWN | SDL_MOUSEBUTTONUP =>
+        Input.processMouseEvent(event.button)
       case _ =>
         ()
 

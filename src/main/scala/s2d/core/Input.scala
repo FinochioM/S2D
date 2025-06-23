@@ -1,6 +1,6 @@
 package s2d.core
 
-import s2d.types.Key
+import s2d.types.{Key, MouseButton}
 import s2d.backend.sdl2.SDL.* 
 import s2d.backend.sdl2.Extras.* 
 import scalanative.unsafe.* 
@@ -13,6 +13,8 @@ object Input:
     private val keyPressQueue = mutable.Queue[Key]()
     private val charPressQueue = mutable.Queue[Int]()
     private var exitKey: Key = Key.Escape
+    private val currentMouseStates = mutable.Set[MouseButton]()
+    private val previousMouseStates = mutable.Set[MouseButton]()
 
     private[core] def processKeyEvent(event: Ptr[SDL_KeyboardEvent]): Unit =
       val keycode = event.keysym.sym
@@ -47,6 +49,21 @@ object Input:
         previousKeyStates ++= currentKeyStates
     end updateKeyStates
 
+    private[core] def processMouseEvent(event: Ptr[SDL_MouseButtonEvent]): Unit =
+        val button = MouseButton.fromValue(event.button.toInt)
+        val isPressed = event.state == SDL_PRESSED.toUByte
+
+        if isPressed then
+            currentMouseStates += button
+        else
+            currentMouseStates -= button
+    end processMouseEvent
+
+    private[core] def updateMouseStates(): Unit =
+        previousMouseStates.clear()
+        previousMouseStates ++= currentMouseStates
+    end updateMouseStates
+
     private[core] def checkExitKey(): Boolean =
         isKeyPressed(exitKey)
     end checkExitKey
@@ -80,4 +97,16 @@ object Input:
         else
             0
     end getCharPressed
+
+    def isMouseButtonPressed(button: MouseButton): Boolean =
+        currentMouseStates.contains(button) && !previousMouseStates.contains(button)
+
+    def isMouseButtonDown(button: MouseButton): Boolean =
+        currentMouseStates.contains(button)
+
+    def isMouseButtonReleased(button: MouseButton): Boolean =
+        !currentMouseStates.contains(button) && previousMouseStates.contains(button)
+
+    def isMouseButtonUp(button: MouseButton): Boolean =
+        !currentMouseStates.contains(button)
 end Input
