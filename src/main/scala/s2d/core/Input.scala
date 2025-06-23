@@ -10,16 +10,19 @@ import scala.collection.mutable
 object Input:
     private val currentKeyStates = mutable.Set[Key]()
     private val previousKeyStates = mutable.Set[Key]()
+    private val keyPressQueue = mutable.Queue[Key]()
 
     private[core] def processKeyEvent(event: Ptr[SDL_KeyboardEvent]): Unit =
-        val keycode = event.keysym.sym
-        val key = Key.fromKeycode(keycode)
-        val isPressed = event.state == SDL_PRESSED.toUByte
-
-        if isPressed then
-            currentKeyStates += key
-        else
-            currentKeyStates -= key
+      val keycode = event.keysym.sym
+      val key = Key.fromKeycode(keycode)
+      val isPressed = event.state == SDL_PRESSED.toUByte
+        
+      if isPressed then
+        if !currentKeyStates.contains(key) then
+          keyPressQueue.enqueue(key)
+        currentKeyStates += key
+      else
+        currentKeyStates -= key
     end processKeyEvent
 
     private[core] def updateKeyStates(): Unit =
@@ -38,4 +41,11 @@ object Input:
 
     def isKeyUp(key: Key): Boolean =
         !currentKeyStates.contains(key)
+
+    def getKeyPressed(): Key =
+        if keyPressQueue.nonEmpty then
+            keyPressQueue.dequeue()
+        else
+            Key.Unknown
+    end getKeyPressed
 end Input

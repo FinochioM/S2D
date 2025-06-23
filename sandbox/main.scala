@@ -22,8 +22,9 @@ def main(): Unit =
     Drawing.beginFrame()
     Drawing.clear(Color.fromHex("#2C3E50").getOrElse(Color.Black))
 
-    if Input.isKeyPressed(Key.Space) then
-      println("Space key pressed!")
+    val singleKey = Input.getKeyPressed()
+    if singleKey != Key.Unknown then
+      println(s"First key pressed: $singleKey")
 
     Drawing.endFrame()
   Window.close()
