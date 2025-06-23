@@ -12,6 +12,7 @@ object Input:
     private val previousKeyStates = mutable.Set[Key]()
     private val keyPressQueue = mutable.Queue[Key]()
     private val charPressQueue = mutable.Queue[Int]()
+    private var exitKey: Key = Key.Escape
 
     private[core] def processKeyEvent(event: Ptr[SDL_KeyboardEvent]): Unit =
       val keycode = event.keysym.sym
@@ -45,6 +46,14 @@ object Input:
         previousKeyStates.clear()
         previousKeyStates ++= currentKeyStates
     end updateKeyStates
+
+    private[core] def checkExitKey(): Boolean =
+        isKeyPressed(exitKey)
+    end checkExitKey
+
+    def setExitKey(key: Key): Unit =
+        exitKey = key
+    end setExitKey
 
     def isKeyPressed(key: Key): Boolean =
         currentKeyStates.contains(key) && !previousKeyStates.contains(key)

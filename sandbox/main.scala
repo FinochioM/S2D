@@ -18,29 +18,15 @@ import scalanative.unsigned.*
 def main(): Unit =
   Window.create(800, 600, "S2D Framework - Custom Texture Shader Test")
 
-  var inputText = ""
+  Input.setExitKey(Key.Escape)
 
   while !Window.shouldCloseWindow() do
     Drawing.beginFrame()
     Drawing.clear(Color.fromHex("#2C3E50").getOrElse(Color.Black))
 
-    var char = Input.getCharPressed()
-    while char != 0 do
-      if char >= 32 && char <= 126 then
-        inputText += char.toChar
-        println(s"Character pressed: ${char.toChar} (code: $char)")
-      char = Input.getCharPressed()
+    if Input.isKeyPressed(Key.Space) then
+      println("Space key pressed!")
 
-    if Input.isKeyPressed(Key.Backspace) then
-      if inputText.nonEmpty then
-        inputText = inputText.dropRight(1)
-        println("Backspace pressed.")
-
-    if Input.isKeyPressed(Key.Enter) then
-      println(s"Input text: $inputText")
-      inputText = ""
-
-    println(s"Current text: $inputText")
     Drawing.endFrame()
   Window.close()
 end main

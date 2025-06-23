@@ -176,6 +176,8 @@ object Drawing:
         end match
       case SDL_KEYDOWN | SDL_KEYUP =>
         Input.processKeyEvent(event.key)
+        if Input.checkExitKey() then
+          Window.shouldClose = true
       case SDL_TEXTINPUT =>
         Input.processTextEvent(event.text)
       case _ =>
