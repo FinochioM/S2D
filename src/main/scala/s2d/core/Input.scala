@@ -15,6 +15,8 @@ object Input:
     private var exitKey: Key = Key.Escape
     private val currentMouseStates = mutable.Set[MouseButton]()
     private val previousMouseStates = mutable.Set[MouseButton]()
+    private var mouseX: Int = 0
+    private var mouseY: Int = 0
 
     private[core] def processKeyEvent(event: Ptr[SDL_KeyboardEvent]): Unit =
       val keycode = event.keysym.sym
@@ -64,6 +66,18 @@ object Input:
         previousMouseStates ++= currentMouseStates
     end updateMouseStates
 
+    private[core] def updateMousePosition(): Unit =
+        if !Window.isWindowInitialized then return
+
+        Zone {
+            val x = stackalloc[CInt]()
+            val y = stackalloc[CInt]()
+            SDL_GetMouseState(x, y)
+            mouseX = !x
+            mouseY = !y
+        }
+    end updateMousePosition
+
     private[core] def checkExitKey(): Boolean =
         isKeyPressed(exitKey)
     end checkExitKey
@@ -109,4 +123,7 @@ object Input:
 
     def isMouseButtonUp(button: MouseButton): Boolean =
         !currentMouseStates.contains(button)
+
+    def getMouseX(): Int = mouseX
+    def getMouseY(): Int = mouseY
 end Input

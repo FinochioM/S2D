@@ -30,6 +30,7 @@ object Drawing:
 
     Input.updateKeyStates()
     Input.updateMouseStates()
+    Input.updateMousePosition()
 
     Zone {
       val event = stackalloc[SDL_Event]()

@@ -24,8 +24,13 @@ def main(): Unit =
     Drawing.beginFrame()
     Drawing.clear(Color.fromHex("#2C3E50").getOrElse(Color.Black))
 
+    val mouseX = Input.getMouseX()
+    val mouseY = Input.getMouseY()
+
+    println(s"Mouse position: X=$mouseX, Y=$mouseY")
+
     if Input.isMouseButtonPressed(MouseButton.Left) then
-      println("Left mouse button pressed")
+      println(s"Left mouse button pressed at: ($mouseX, $mouseY)")
 
     Drawing.endFrame()
   Window.close()
