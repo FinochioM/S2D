@@ -1,6 +1,6 @@
 package s2d.core
 
-import s2d.types.{Key, MouseButton}
+import s2d.types.{Key, MouseButton, Vector2}
 import s2d.backend.sdl2.SDL.* 
 import s2d.backend.sdl2.Extras.* 
 import scalanative.unsafe.* 
@@ -17,6 +17,8 @@ object Input:
     private val previousMouseStates = mutable.Set[MouseButton]()
     private var mouseX: Int = 0
     private var mouseY: Int = 0
+    private var previousMouseX: Int = 0
+    private var previousMouseY: Int = 0
 
     private[core] def processKeyEvent(event: Ptr[SDL_KeyboardEvent]): Unit =
       val keycode = event.keysym.sym
@@ -68,6 +70,9 @@ object Input:
 
     private[core] def updateMousePosition(): Unit =
         if !Window.isWindowInitialized then return
+
+        previousMouseX = mouseX
+        previousMouseY = mouseY
 
         Zone {
             val x = stackalloc[CInt]()
@@ -126,4 +131,8 @@ object Input:
 
     def getMouseX(): Int = mouseX
     def getMouseY(): Int = mouseY
+    def getMousePosition(): Vector2 =
+        Vector2(mouseX.toFloat, mouseY.toFloat)
+    def getMouseDelta(): Vector2 =
+        Vector2((mouseX - previousMouseX).toFloat, (mouseY - previousMouseY).toFloat)
 end Input

@@ -24,8 +24,8 @@ def main(): Unit =
     Drawing.beginFrame()
     Drawing.clear(Color.fromHex("#2C3E50").getOrElse(Color.Black))
 
-    val mouseX = Input.getMouseX()
-    val mouseY = Input.getMouseY()
+    val mouseX = Input.getMouseDelta().x
+    val mouseY = Input.getMouseDelta().y
 
     println(s"Mouse position: X=$mouseX, Y=$mouseY")
 
