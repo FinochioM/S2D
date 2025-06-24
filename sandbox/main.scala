@@ -19,14 +19,22 @@ def main(): Unit =
   val screenWidth = 800
   val screenHeight = 450
   
-  Window.create(screenWidth, screenHeight, "S2D Framework - Basic Shapes Drawing")
+  Window.create(screenWidth, screenHeight, "S2D Library")
   Input.setExitKey(Key.Escape)
 
   while !Window.shouldCloseWindow() do    
     Drawing.beginFrame()
 
     Drawing.clear(Color.White)
+
+    val wheelMove = Input.getWheelMove()
+    val wheelVector = Input.getWheelMoveVector()
+
+    if wheelMove != 0.0f then
+      println(s"Wheel move: ${wheelMove}")
+
+    if wheelVector.x != 0.0f || wheelVector.y != 0.0f then
+      println(s"Wheel vector: X=${wheelVector.x}, Y={$wheelVector.y}")
     
     Drawing.endFrame()
-  
   Window.close()

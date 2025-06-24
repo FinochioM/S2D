@@ -23,6 +23,8 @@ object Input:
     private var mouseOffsetY: Int = 0
     private var mouseScaleX: Float = 1.0f
     private var mouseScaleY: Float = 1.0f
+    private var mouseWheelX: Float = 0.0f
+    private var mouseWheelY: Float = 0.0f
 
     private[core] def processKeyEvent(event: Ptr[SDL_KeyboardEvent]): Unit =
       val keycode = event.keysym.sym
@@ -86,6 +88,20 @@ object Input:
             mouseY = !y
         }
     end updateMousePosition
+    
+    private[core] def processMouseWheelEvent(event: Ptr[SDL_Event]): Unit =
+        val eventData = event.asInstanceOf[Ptr[Byte]]
+        val x = !(event + 16).asInstanceOf[Ptr[Int]]
+        val y = !(event + 20).asInstanceOf[Ptr[Int]]
+
+        mouseWheelX = x.toFloat
+        mouseWheelY = y.toFloat
+    end processMouseWheelEvent
+
+    private[core] def resetMouseWheel(): Unit =
+        mouseWheelX = 0.0f
+        mouseWheelY = 0.0f
+    end resetMouseWheel
 
     private[core] def checkExitKey(): Boolean =
         isKeyPressed(exitKey)
@@ -161,4 +177,10 @@ object Input:
         mouseScaleX = scaleX
         mouseScaleY = scaleY
     end setMouseScale
+
+    def getWheelMove(): Float =
+        if math.abs(mouseWheelX) > math.abs(mouseWheelY) then mouseWheelX else mouseWheelY
+    
+    def getWheelMoveVector(): Vector2 =
+        Vector2(mouseWheelX, mouseWheelY)
 end Input

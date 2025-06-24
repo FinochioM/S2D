@@ -51,6 +51,8 @@ object Drawing:
       throw new RuntimeException("Window not initialized!")
 
     SDL_GL_SwapWindow(Window.windowHandle)
+
+    Input.resetMouseWheel()
   end endFrame
 
   def beginCamera(camera: Camera2D): Unit =
@@ -184,6 +186,8 @@ object Drawing:
         Input.processTextEvent(event.text)
       case SDL_MOUSEBUTTONDOWN | SDL_MOUSEBUTTONUP =>
         Input.processMouseEvent(event.button)
+      case SDL_MOUSEWHEEL =>
+        Input.processMouseWheelEvent(event)
       case _ =>
         ()
 
