@@ -20,7 +20,8 @@ Don't forget to give the repo a star! Thanks again!
 
 _**Go to the _[CONTRIBUTING](https://github.com/FinochioM/S2D/blob/master/.github/CONTRIBUTING.md)_ file to see what are the requirements of building and running the project.**_
 
-## Basic Example
+## Examples
+**Basic example of S2D**
 
 ```scala
 import S2D.core.{Drawing, Window}
@@ -58,6 +59,9 @@ def main(): Unit =
 
   Window.close()
 ```
+S2D does not have an official documentation at the moment, so I have written some examples based on the `RAYLIB` library. <br>
+Inside the folder you will also find a `README.md` file that explains the structure of the folder more in depth.<br>
+**You can find these examples in the _[s2d_examples](https://github.com/FinochioM/S2D/tree/master/s2d_examples)_ folder.**
 
 ## Installation
 S2D has a custom CLI Tool that lets you create a new template project with either SBT or Scala CLI.<br>
