@@ -19,6 +19,10 @@ object Input:
     private var mouseY: Int = 0
     private var previousMouseX: Int = 0
     private var previousMouseY: Int = 0
+    private var mouseOffsetX: Int = 0
+    private var mouseOffsetY: Int = 0
+    private var mouseScaleX: Float = 1.0f
+    private var mouseScaleY: Float = 1.0f
 
     private[core] def processKeyEvent(event: Ptr[SDL_KeyboardEvent]): Unit =
       val keycode = event.keysym.sym
@@ -129,10 +133,32 @@ object Input:
     def isMouseButtonUp(button: MouseButton): Boolean =
         !currentMouseStates.contains(button)
 
-    def getMouseX(): Int = mouseX
-    def getMouseY(): Int = mouseY
+    def getMouseX(): Int = 
+        ((mouseX + mouseOffsetX) * mouseScaleX).toInt
+    
+    def getMouseY(): Int = 
+        ((mouseY + mouseOffsetY) * mouseScaleY).toInt
+
     def getMousePosition(): Vector2 =
-        Vector2(mouseX.toFloat, mouseY.toFloat)
+        Vector2(getMouseX().toFloat, getMouseY().toFloat)
+    
     def getMouseDelta(): Vector2 =
-        Vector2((mouseX - previousMouseX).toFloat, (mouseY - previousMouseY).toFloat)
+        val deltaX = ((mouseX - previousMouseX) * mouseScaleX).toFloat
+        val deltaY = ((mouseY - previousMouseY) * mouseScaleY).toFloat
+        Vector2(deltaX, deltaY)
+
+    def setMousePosition(x: Int, y: Int): Unit =
+        if !Window.isWindowInitialized then return
+        SDL_WarpMouseInWindow(Window.windowHandle, x, y)
+    end setMousePosition
+
+    def setMouseOffset(offsetX: Int, offsetY: Int): Unit =
+        mouseOffsetX = offsetX
+        mouseOffsetY = offsetY
+    end setMouseOffset
+
+    def setMouseScale(scaleX: Float, scaleY: Float): Unit =
+        mouseScaleX = scaleX
+        mouseScaleY = scaleY
+    end setMouseScale
 end Input
