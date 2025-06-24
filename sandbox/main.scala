@@ -16,22 +16,17 @@ import scalanative.unsigned.*
 
 @main
 def main(): Unit =
-  Window.create(800, 600, "S2D Framework - Custom Texture Shader Test")
-
+  val screenWidth = 800
+  val screenHeight = 450
+  
+  Window.create(screenWidth, screenHeight, "S2D Framework - Basic Shapes Drawing")
   Input.setExitKey(Key.Escape)
 
-  while !Window.shouldCloseWindow() do
+  while !Window.shouldCloseWindow() do    
     Drawing.beginFrame()
-    Drawing.clear(Color.fromHex("#2C3E50").getOrElse(Color.Black))
 
-    val mouseX = Input.getMouseDelta().x
-    val mouseY = Input.getMouseDelta().y
-
-    println(s"Mouse position: X=$mouseX, Y=$mouseY")
-
-    if Input.isMouseButtonPressed(MouseButton.Left) then
-      println(s"Left mouse button pressed at: ($mouseX, $mouseY)")
-
+    Drawing.clear(Color.White)
+    
     Drawing.endFrame()
+  
   Window.close()
-end main

@@ -8,7 +8,8 @@ lazy val root = (project in file("."))
   .settings(
     name := "s2d",
     Compile / unmanagedSourceDirectories := (Compile / unmanagedSourceDirectories).value
-      .filterNot(_.getName == "sandbox"),
+      .filterNot(_.getName == "sandbox")
+      .filterNot(_.getName == "examples"),
     scalacOptions ++= Seq(
       "-Wconf:msg=indented:silent"
     ),

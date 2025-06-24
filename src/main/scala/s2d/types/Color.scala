@@ -74,6 +74,7 @@ object Color:
   val Lavender = Color(230, 230, 250)
   val TransparentWhite = Color(255, 255, 255, 128)
   val TransparentBlack = Color(0, 0, 0, 128)
+  val DarkBlue = Color.fromHex("#0B4D6B").getOrElse(Color.Blue)
 
   def fromNormalized(r: Float, g: Float, b: Float, a: Float = 1.0f): Color =
     Color(
