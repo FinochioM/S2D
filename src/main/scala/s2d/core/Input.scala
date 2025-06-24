@@ -90,12 +90,10 @@ object Input:
     end updateMousePosition
     
     private[core] def processMouseWheelEvent(event: Ptr[SDL_Event]): Unit =
-        val eventData = event.asInstanceOf[Ptr[Byte]]
-        val x = !(event + 16).asInstanceOf[Ptr[Int]]
-        val y = !(event + 20).asInstanceOf[Ptr[Int]]
+        val wheelEvent = event.wheel
 
-        mouseWheelX = x.toFloat
-        mouseWheelY = y.toFloat
+        mouseWheelX = wheelEvent.x.toFloat
+        mouseWheelY = wheelEvent.y.toFloat
     end processMouseWheelEvent
 
     private[core] def resetMouseWheel(): Unit =

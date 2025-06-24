@@ -750,6 +750,16 @@ object Extras:
     def msg: Ptr[SDL_SysWMmsg] = self._3
   end SDL_SysWMEventOps
 
+  implicit class SDL_MouseWheelEventOps(val self: Ptr[SDL_MouseWheelEvent]) extends AnyVal:
+    def type_ : UInt = self._1
+    def timestamp: UInt = self._2  
+    def windowID: UInt = self._3
+    def which: UInt = self._4
+    def x: Int = self._5
+    def y: Int = self._6
+    def direction: UInt = self._7
+  end SDL_MouseWheelEventOps
+  
   implicit class SDL_EventOps(val self: Ptr[SDL_Event]) extends AnyVal:
     def type_ : UInt = self._1
 
@@ -764,7 +774,8 @@ object Extras:
       self.asInstanceOf[Ptr[SDL_MouseMotionEvent]]
     def button: Ptr[SDL_MouseButtonEvent] =
       self.asInstanceOf[Ptr[SDL_MouseButtonEvent]]
-    // def wheel: Ptr[SDL_MouseWheelEvent] = self.asInstanceOf[Ptr[SDL_MouseWheelEvent]]
+    def wheel: Ptr[SDL_MouseWheelEvent] = 
+      self.asInstanceOf[Ptr[SDL_MouseWheelEvent]]
     // def jaxis: Ptr[SDL_JoyAxisEvent] = self.asInstanceOf[Ptr[SDL_JoyAxisEvent]]
     // def jball: Ptr[SDL_JoyBallEvent] = self.asInstanceOf[Ptr[SDL_JoyBallEvent]]
     // def jhat: Ptr[SDL_JoyHatEvent] = self.asInstanceOf[Ptr[SDL_JoyHatEvent]]

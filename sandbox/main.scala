@@ -34,7 +34,7 @@ def main(): Unit =
       println(s"Wheel move: ${wheelMove}")
 
     if wheelVector.x != 0.0f || wheelVector.y != 0.0f then
-      println(s"Wheel vector: X=${wheelVector.x}, Y={$wheelVector.y}")
+      println(s"Wheel vector: x=${wheelVector.x}, y={$wheelVector.y}")
     
     Drawing.endFrame()
   Window.close()
