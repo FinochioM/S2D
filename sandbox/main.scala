@@ -16,25 +16,29 @@ import scalanative.unsigned.*
 
 @main
 def main(): Unit =
-  val screenWidth = 800
-  val screenHeight = 450
-  
-  Window.create(screenWidth, screenHeight, "S2D Library")
-  Input.setExitKey(Key.Escape)
+  Window.create(800, 600, "Mouse Cursor Test")
 
-  while !Window.shouldCloseWindow() do    
+  var currentCursor = 0
+  val cursors = Array(
+    CursorStyle.Arrow,
+    CursorStyle.IBeam, 
+    CursorStyle.Wait,
+    CursorStyle.Crosshair,
+    CursorStyle.Hand,
+    CursorStyle.SizeAll,
+    CursorStyle.No
+  )
+
+  while !Window.shouldCloseWindow() do
     Drawing.beginFrame()
+    Drawing.clear(Color.Black)
 
-    Drawing.clear(Color.White)
+    if Input.isKeyPressed(Key.Space) then
+      currentCursor = (currentCursor + 1) % cursors.length
+      Input.setMouseCursor(cursors(currentCursor))
+      println(s"Cursor changed to: ${cursors(currentCursor)}")
 
-    val wheelMove = Input.getWheelMove()
-    val wheelVector = Input.getWheelMoveVector()
-
-    if wheelMove != 0.0f then
-      println(s"Wheel move: ${wheelMove}")
-
-    if wheelVector.x != 0.0f || wheelVector.y != 0.0f then
-      println(s"Wheel vector: x=${wheelVector.x}, y={$wheelVector.y}")
-    
     Drawing.endFrame()
+  
   Window.close()
+end main

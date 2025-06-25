@@ -1,11 +1,12 @@
 package s2d.core
 
-import s2d.types.{Key, MouseButton, Vector2}
+import s2d.types.{Key, MouseButton, Vector2, CursorStyle}
 import s2d.backend.sdl2.SDL.* 
 import s2d.backend.sdl2.Extras.* 
 import scalanative.unsafe.* 
 import scalanative.unsigned.*
 import scala.collection.mutable
+import s2d.types.CursorStyle
 
 object Input:
     private val currentKeyStates = mutable.Set[Key]()
@@ -181,4 +182,12 @@ object Input:
     
     def getWheelMoveVector(): Vector2 =
         Vector2(mouseWheelX, mouseWheelY)
+
+    def setMouseCursor(cursorStyle: CursorStyle): Unit =
+        if !Window.isWindowInitialized then return
+
+        val cursor = SDL_CreateSystemCursor(cursorStyle.value)
+        if cursor != null then
+            SDL_SetCursor(cursor)
+    end setMouseCursor
 end Input
