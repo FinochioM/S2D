@@ -1,4 +1,4 @@
-ThisBuild / version := "0.1.75-SNAPSHOT"
+ThisBuild / version := "0.1.7"
 ThisBuild / scalaVersion := "3.3.6"
 ThisBuild / organization := "io.github.finochiom"
 ThisBuild / versionScheme := Some("early-semver")
