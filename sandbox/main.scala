@@ -16,29 +16,35 @@ import scalanative.unsigned.*
 
 @main
 def main(): Unit =
-  Window.create(800, 600, "Mouse Cursor Test")
+  val screenWidth = 800
+  val screenHeight = 450
 
-  var currentCursor = 0
-  val cursors = Array(
-    CursorStyle.Arrow,
-    CursorStyle.IBeam, 
-    CursorStyle.Wait,
-    CursorStyle.Crosshair,
-    CursorStyle.Hand,
-    CursorStyle.SizeAll,
-    CursorStyle.No
-  )
+  Window.create(screenWidth, screenHeight, "S2D Framework - Bouncy Ball Example")
+  Input.setExitKey(Key.Escape)
+
+  var ballPosition = Vector2(Window.width / 2.0f, Window.height / 2.0f)
+  var ballSpeed = Vector2(3.0f, 2.0f)
+  val ballRadius = 20.0f
+  var pause = false
 
   while !Window.shouldCloseWindow() do
     Drawing.beginFrame()
-    Drawing.clear(Color.Black)
-
+    
     if Input.isKeyPressed(Key.Space) then
-      currentCursor = (currentCursor + 1) % cursors.length
-      Input.setMouseCursor(cursors(currentCursor))
-      println(s"Cursor changed to: ${cursors(currentCursor)}")
+      pause = !pause
+
+    if !pause then
+      ballPosition = ballPosition + ballSpeed
+
+      if ballPosition.x >= (Window.width - ballRadius) || ballPosition.x <= ballRadius then
+        ballSpeed = Vector2(-ballSpeed.x, ballSpeed.y)
+      if ballPosition.y >= (Window.height - ballRadius) || ballPosition.y <= ballRadius then
+        ballSpeed = Vector2(ballSpeed.x, -ballSpeed.y)
+    
+    Drawing.clear(Color.fromHex("#2C3E50").getOrElse(Color.Black))
+
+    Basics.circle(ballPosition, ballRadius, Color.fromHex("#8000000").getOrElse(Color.Red))
 
     Drawing.endFrame()
-  
   Window.close()
 end main

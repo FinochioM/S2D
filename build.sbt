@@ -30,7 +30,7 @@ lazy val root = (project in file("."))
         url = url("https://github.com/FinochioM")
       )
     ),
-    pgpSigningKey := Some("FD3BD1C64C106A9B"),
+    pgpSigningKey := Some("E566FB27021A557C"),
     description := "A simple to use 2D videogames programming library written in Scala",
     publishTo := Some(
       Resolver
