@@ -1,6 +1,16 @@
-# S2D
+<br />
+<div align="center">
+  <a href="https://github.com/FinochioM/S2D">
+    <img src="images/S2D-logo.svg" alt="Logo" width="270" height="270">
+  </a>
 
-A simple 2D graphics library for Scala-Native, built on top of SDL2 and OpenGL. S2D provides an easy-to-use API for creating 2D games and graphics applications.
+  <h3 align="center">S2D</h3>
+
+  <p align="center">
+    A simple 2D graphics library for Scala-Native, built on top of SDL2 and OpenGL. S2D provides an easy-to-use API for creating 2D games and graphics applications.
+    <br />
+  </p>
+</div>
 
 ## Changelog & TO-DO
 You can take a look at what packages/functions I will add in the future in the _[LIBRARY_EXPANSION.TXT](https://github.com/FinochioM/S2D/blob/master/LIBRARY_EXPANSION.txt)_ file.
