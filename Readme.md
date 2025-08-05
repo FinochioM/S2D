@@ -1,7 +1,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/FinochioM/S2D">
-    <img src="images/S2D-logo.svg" alt="Logo" width="270" height="270">
+    <img src="images/S2D-Logo.svg" alt="Logo" width="270" height="270">
   </a>
 
   <h3 align="center">S2D</h3>
