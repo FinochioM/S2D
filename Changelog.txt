@@ -23,6 +23,10 @@ v_0.1.7-SNAPSHOT:
 - shapes and textures now use a default shader.
 - custom shaders are working for 330 core.
 - reorganized project, added backend package and put all the bindings inside.
+- added Input package.
+- added first implementation of Screen Space functions.
+- added examples folder.
+- started creating some examples as a way of documentation, taking from raylib.
 
 v_0.1.6-SNAPSHOT:
 - started the migration of the textures package.
