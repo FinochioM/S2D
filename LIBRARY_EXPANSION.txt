@@ -3,7 +3,7 @@ In here I will add whatever ideas I come up with and also anything that could ma
 If you want to help improve the library you can also make a push request or just let me know what you would like to see in S2D.
 
 WORKING ON:
-INPUT PACKAGE.
+
 
 Currently Available Packages:
 
@@ -28,12 +28,6 @@ TEXTURES PACKAGE:
 - Color/Pixel related functions.
 
 Future Packages:
-
-INPUT PACKAGE:
-- Create Input package.
-- Mouse functions.
-- Gamepad functions.
-- Keyboard functions.
 
 CAMERA PACKAGE.
 FONT PACKAGE.

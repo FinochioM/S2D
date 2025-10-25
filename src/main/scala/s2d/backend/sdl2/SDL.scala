@@ -1018,4 +1018,5 @@ object SDL:
   def SDL_SetClipboardText(text: CString): CInt = extern
   def SDL_GetClipboardText(): CString = extern
   def SDL_free(mem: Ptr[Byte]): Unit = extern
+  def SDL_GetTicks(): UInt = extern
 end SDL

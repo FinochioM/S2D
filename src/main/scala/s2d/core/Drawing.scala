@@ -28,6 +28,8 @@ object Drawing:
     if !Window.isWindowInitialized then
       throw new RuntimeException("Window not initialized!")
 
+    Timing.updateDelta()
+
     Input.updateKeyStates()
     Input.updateMouseStates()
     Input.updateMousePosition()
