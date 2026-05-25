@@ -11,24 +11,24 @@ object Timing:
     private var frameStartTime: Double = 0.0
 
     private[core] def updateDelta(): Unit =
-        val currentTime = getTime()
+        val currentTime = time
         deltaTime = currentTime - lastFrameTime
         lastFrameTime = currentTime
         frameStartTime = currentTime
 
     private[core] def waitForTargetFPS(): Unit =
         if targetFPS > 0 then
-            val currentTime = getTime()
+            val currentTime = time
             val frameTime = currentTime - frameStartTime
             val waitTime = targetFrameTime - frameTime
 
             if waitTime > 0.0 then
                 SDL_Delay((waitTime * 1000.0).toInt.toUInt)
 
-    def getTime(): Double =
+    def time: Double = 
         SDL_GetTicks().toDouble / 1000.0
 
-    def getDelta(): Double =
+    def delta: Double = 
         deltaTime
 
     def setTargetFPS(fps: Int): Unit =

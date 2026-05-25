@@ -103,7 +103,7 @@ object BasicRenderer:
     }
 
   def updateProjectionFromDrawing(): Unit =
-    val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+    val matrix = Matrix4.ortho(0.0f, Window.width.toFloat, Window.height.toFloat, 0.0f, -1.0f, 1.0f)
     setProjectionMatrix(matrix)
 
   private def setColor(color: Color): Unit =
@@ -133,7 +133,7 @@ object BasicRenderer:
           val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
 
           if projLocation >= 0 then
-            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrix = Matrix4.ortho(0.0f, Window.width.toFloat, Window.height.toFloat, 0.0f, -1.0f, 1.0f)
             val matrixPtr = stackalloc[GLfloat](16)
             for i <- matrix.indices do
               matrixPtr(i) = matrix(i)
@@ -192,7 +192,7 @@ object BasicRenderer:
           val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
 
           if projLocation >= 0 then
-            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrix = Matrix4.ortho(0.0f, Window.width.toFloat, Window.height.toFloat, 0.0f, -1.0f, 1.0f)
             val matrixPtr = stackalloc[GLfloat](16)
             for i <- matrix.indices do
               matrixPtr(i) = matrix(i)
@@ -266,7 +266,7 @@ object BasicRenderer:
           val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
 
           if projLocation >= 0 then
-            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrix = Matrix4.ortho(0.0f, Window.width.toFloat, Window.height.toFloat, 0.0f, -1.0f, 1.0f)
             val matrixPtr = stackalloc[GLfloat](16)
             for i <- matrix.indices do
               matrixPtr(i) = matrix(i)
@@ -330,7 +330,7 @@ object BasicRenderer:
           val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
 
           if projLocation >= 0 then
-            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrix = Matrix4.ortho(0.0f, Window.width.toFloat, Window.height.toFloat, 0.0f, -1.0f, 1.0f)
             val matrixPtr = stackalloc[GLfloat](16)
             for i <- matrix.indices do
               matrixPtr(i) = matrix(i)
@@ -394,7 +394,7 @@ object BasicRenderer:
           val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
 
           if projLocation >= 0 then
-            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrix = Matrix4.ortho(0.0f, Window.width.toFloat, Window.height.toFloat, 0.0f, -1.0f, 1.0f)
             val matrixPtr = stackalloc[GLfloat](16)
             for i <- matrix.indices do
               matrixPtr(i) = matrix(i)
@@ -475,7 +475,7 @@ object BasicRenderer:
           val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
 
           if projLocation >= 0 then
-            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrix = Matrix4.ortho(0.0f, Window.width.toFloat, Window.height.toFloat, 0.0f, -1.0f, 1.0f)
             val matrixPtr = stackalloc[GLfloat](16)
             for i <- matrix.indices do
               matrixPtr(i) = matrix(i)
@@ -552,7 +552,7 @@ object BasicRenderer:
           val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
 
           if projLocation >= 0 then
-            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrix = Matrix4.ortho(0.0f, Window.width.toFloat, Window.height.toFloat, 0.0f, -1.0f, 1.0f)
             val matrixPtr = stackalloc[GLfloat](16)
             for i <- matrix.indices do
               matrixPtr(i) = matrix(i)
@@ -693,7 +693,7 @@ object BasicRenderer:
           val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
 
           if projLocation >= 0 then
-            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrix = Matrix4.ortho(0.0f, Window.width.toFloat, Window.height.toFloat, 0.0f, -1.0f, 1.0f)
             val matrixPtr = stackalloc[GLfloat](16)
             for i <- matrix.indices do
               matrixPtr(i) = matrix(i)
@@ -822,7 +822,7 @@ object BasicRenderer:
           val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
 
           if projLocation >= 0 then
-            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrix = Matrix4.ortho(0.0f, Window.width.toFloat, Window.height.toFloat, 0.0f, -1.0f, 1.0f)
             val matrixPtr = stackalloc[GLfloat](16)
             for i <- matrix.indices do
               matrixPtr(i) = matrix(i)
@@ -882,7 +882,7 @@ object BasicRenderer:
           val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
 
           if projLocation >= 0 then
-            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrix = Matrix4.ortho(0.0f, Window.width.toFloat, Window.height.toFloat, 0.0f, -1.0f, 1.0f)
             val matrixPtr = stackalloc[GLfloat](16)
             for i <- matrix.indices do
               matrixPtr(i) = matrix(i)
@@ -949,7 +949,7 @@ object BasicRenderer:
           val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
 
           if projLocation >= 0 then
-            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrix = Matrix4.ortho(0.0f, Window.width.toFloat, Window.height.toFloat, 0.0f, -1.0f, 1.0f)
             val matrixPtr = stackalloc[GLfloat](16)
             for i <- matrix.indices do
               matrixPtr(i) = matrix(i)
@@ -1018,7 +1018,7 @@ object BasicRenderer:
           val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
 
           if projLocation >= 0 then
-            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrix = Matrix4.ortho(0.0f, Window.width.toFloat, Window.height.toFloat, 0.0f, -1.0f, 1.0f)
             val matrixPtr = stackalloc[GLfloat](16)
             for i <- matrix.indices do
               matrixPtr(i) = matrix(i)
@@ -1117,7 +1117,7 @@ object BasicRenderer:
           val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
 
           if projLocation >= 0 then
-            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrix = Matrix4.ortho(0.0f, Window.width.toFloat, Window.height.toFloat, 0.0f, -1.0f, 1.0f)
             val matrixPtr = stackalloc[GLfloat](16)
             for i <- matrix.indices do
               matrixPtr(i) = matrix(i)
@@ -1235,7 +1235,7 @@ object BasicRenderer:
           val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
 
           if projLocation >= 0 then
-            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrix = Matrix4.ortho(0.0f, Window.width.toFloat, Window.height.toFloat, 0.0f, -1.0f, 1.0f)
             val matrixPtr = stackalloc[GLfloat](16)
             for i <- matrix.indices do
               matrixPtr(i) = matrix(i)
@@ -1323,7 +1323,7 @@ object BasicRenderer:
           val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
 
           if projLocation >= 0 then
-            val matrix = Matrix4.ortho(0.0f, Window.windowWidth.toFloat, Window.windowHeight.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrix = Matrix4.ortho(0.0f, Window.width.toFloat, Window.height.toFloat, 0.0f, -1.0f, 1.0f)
             val matrixPtr = stackalloc[GLfloat](16)
             for i <- matrix.indices do
               matrixPtr(i) = matrix(i)

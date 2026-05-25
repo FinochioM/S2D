@@ -119,7 +119,7 @@ object Basics:
     BasicRenderer.renderTriangleFan(points, color)
   end ellipse
 
-  def ellipseOutlines(centerX: Int, centerY: Int, radiusH: Float, radiusV: Float, color: Color): Unit =
+  def ellipseOutline(centerX: Int, centerY: Int, radiusH: Float, radiusV: Float, color: Color): Unit =
     BasicRenderer.updateProjectionFromDrawing()
 
     val segments = 36
@@ -139,7 +139,7 @@ object Basics:
     end for
 
     BasicRenderer.renderLineStrip(vertices.toArray, color)
-  end ellipseOutlines
+  end ellipseOutline
 
   def rectangle(posX: Int, posY: Int, width: Int, height: Int, color: Color): Unit =
     BasicRenderer.updateProjectionFromDrawing()

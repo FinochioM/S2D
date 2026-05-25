@@ -11,21 +11,21 @@ import scalanative.unsigned.*
 import scala.util.boundary, boundary.break
 
 object Window:
-  var windowHandle: Ptr[SDL_Window] = null
-  var windowWidth: Int = 0
-  var windowHeight: Int = 0
-  var windowTitle: String = ""
-  var isWindowInitialized: Boolean = false
-  var shouldClose: Boolean = false
-  var windowResizedThisFrame: Boolean = false
-  var sdlInitialized: Boolean = false
-  var windowedX: Int = 0
-  var windowedY: Int = 0
-  var windowedWidth: Int = 0
-  var windowedHeight: Int = 0
-  var isBorderlessWindowed: Boolean = false
-  var eventWaitingEnabled: Boolean = false
-  var glContext: SDL_GLContext = null
+  private[core] var windowHandle: Ptr[SDL_Window] = null
+  private[core] var windowWidth: Int = 0
+  private[core] var windowHeight: Int = 0
+  private[core] var windowTitle: String = ""
+  private[core] var isWindowInitialized: Boolean = false
+  private[core] var shouldClose: Boolean = false
+  private[core] var windowResizedThisFrame: Boolean = false
+  private[core] var sdlInitialized: Boolean = false
+  private[core] var windowedX: Int = 0
+  private[core] var windowedY: Int = 0
+  private[core] var windowedWidth: Int = 0
+  private[core] var windowedHeight: Int = 0
+  private[core] var isBorderlessWindowed: Boolean = false
+  private[core] var eventWaitingEnabled: Boolean = false
+  private[core] var glContext: SDL_GLContext = null
 
   def create(width: Int, height: Int, title: String): Unit =
     if isWindowInitialized then
@@ -101,9 +101,9 @@ object Window:
 
       isWindowInitialized = false
 
-  def shouldCloseWindow(): Boolean =
-    if !isWindowInitialized then return true
-    shouldClose
+  def isOpen(): Boolean =
+    if !isWindowInitialized then false
+    else !shouldClose
 
   def isReady: Boolean = isWindowInitialized
 

@@ -23,11 +23,11 @@ def main(): Unit =
   Input.setExitKey(Key.Escape)
   Timing.setTargetFPS(60)
 
-  while !Window.shouldCloseWindow() do
+  while Window.isOpen() do
     Drawing.beginFrame()
     Drawing.clear(Color.White)
 
-    val fps = (1.0 / Timing.getDelta()).toInt
+    val fps = (1.0 / Timing.delta).toInt
     println(s"FPS: $fps")
 
     Basics.circle(Vector2(400.0f, 225.0f), 30.0f, Color.Red)
