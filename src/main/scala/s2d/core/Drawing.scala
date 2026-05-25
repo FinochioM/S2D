@@ -21,9 +21,6 @@ object Drawing:
     glClearColor(r, g, b, a)
     glClear(GL_COLOR_BUFFER_BIT)
 
-  def clearRGB(r: Int, g: Int, b: Int): Unit =
-    clear(Color(r, g, b, 255))
-
   def beginFrame(): Unit =
     if !Window.isWindowInitialized then
       throw new RuntimeException("Window not initialized!")
@@ -67,8 +64,8 @@ object Drawing:
 
     glOrtho(
       0.0,
-      Window.windowWidth.toDouble,
-      Window.windowHeight.toDouble,
+      Window.width.toDouble,
+      Window.height.toDouble,
       0.0,
       -1.0,
       1.0
@@ -105,7 +102,7 @@ object Drawing:
     if !Window.isWindowInitialized then return
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0.toUInt)
-    glViewport(0, 0, Window.windowWidth.toUInt, Window.windowHeight.toUInt)
+    glViewport(0, 0, Window.width.toUInt, Window.height.toUInt)
   end endTexture
 
   def beginShader(shader: Shader): Unit =

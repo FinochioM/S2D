@@ -31,6 +31,10 @@ object Timing:
     def delta: Double = 
         deltaTime
 
+    def fps: Int =
+        if deltaTime <= 0.0 then 0
+        else (1.0 / deltaTime).toInt
+
     def setTargetFPS(fps: Int): Unit =
         targetFPS = fps
         if fps > 0 then
