@@ -1,6 +1,11 @@
 S2D Changelog File.
 In this file you can find the changes made to every version of the library.
 
+05/2026
+v_0.1.8-SNAPSHOT:
+- fixed a bug on Timing.scala file where FPS were spiking to INT.MAXSIZE
+- added waitForTargetFPS and setTargetFPS functions on Timing.scala.
+
 06/2025
 v_0.1.7-SNAPSHOT:
 - created Shaders.scala file.

@@ -55,6 +55,7 @@ object Drawing:
     SDL_GL_SwapWindow(Window.windowHandle)
 
     Input.resetMouseWheel()
+    Timing.waitForTargetFPS()
   end endFrame
 
   def beginCamera(camera: Camera2D): Unit =
