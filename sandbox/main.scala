@@ -16,22 +16,42 @@ import s2d.types.*
 
 @main
 def main(): Unit =
-  val screenWidth = 800
-  val screenHeight = 450
-
-  Window.create(screenWidth, screenHeight, "Testing Timing.getDelta()")
+  Window.create(800, 450, "Testing cllision")
   Input.setExitKey(Key.Escape)
   Timing.setTargetFPS(60)
+
+  val box     = Rectangle(300.0f, 150.0f, 200.0f, 150.0f)
+  val circleCenter = Vector2(150.0f, 225.0f)
+  val circleRadius = 40.0f
 
   while Window.isOpen() do
     Drawing.beginFrame()
     Drawing.clear(Color.White)
 
-    val fps = (1.0 / Timing.delta).toInt
-    println(s"FPS: $fps")
+    val mouse = Input.getMousePosition()
 
-    Basics.circle(Vector2(400.0f, 225.0f), 30.0f, Color.Red)
+    val mouseRect = Rectangle(mouse.x - 20, mouse.y - 20, 40.0f, 40.0f)
+    val rectHit   = Collision.rects(mouseRect, box)
+    val circleHit = Collision.circleRect(circleCenter, circleRadius, box)
+    val pointInC  = Collision.pointInCircle(mouse, circleCenter, circleRadius)
+
+    val overlap   = Collision.rectOverlap(mouseRect, box)
+    val boxColor = if rectHit then Color.Red else Color.DarkBlue
+
+    Basics.rectangleOutline(box, boxColor)
+
+    val cColor = if pointInC then Color.Orange else Color.Green
+
+    Basics.circleOutline(circleCenter, circleRadius, cColor)
+
+    overlap.foreach(r => Basics.rectangle(r, Color(255, 0, 0, 80)))
+
+    Basics.rectangleOutline(mouseRect, Color.Black)
+
+    if rectHit then  println("rect rect hit")
+    if pointInC then println("point circle hit")
+    if circleHit then println("circle rect hit")
 
     Drawing.endFrame()
-  
+
   Window.close()
