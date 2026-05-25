@@ -14,43 +14,36 @@ import s2d.core.*
 import s2d.shapes.*
 import s2d.types.*
 
+case class Circle(pos: Vector2, radius: Float, color: Color)
+
 @main
 def main(): Unit =
-  Window.create(800, 450, "Testing cllision")
+  Window.create(800, 450, "Testing random")
   Input.setExitKey(Key.Escape)
   Timing.setTargetFPS(60)
 
-  val box     = Rectangle(300.0f, 150.0f, 200.0f, 150.0f)
-  val circleCenter = Vector2(150.0f, 225.0f)
-  val circleRadius = 40.0f
+  var circles = List.empty[Circle]
 
   while Window.isOpen() do
     Drawing.beginFrame()
     Drawing.clear(Color.White)
 
-    val mouse = Input.getMousePosition()
+    if Input.isMouseButtonPressed(MouseButton.Left) then
+      val pos    = Input.getMousePosition()
+      val radius = Random.float(10.0f, 40.0f)
+      val color  = Random.color(255)
+      circles = Circle(pos, radius, color) :: circles
+      println(s"Spawned circle at (${pos.x.toInt}, ${pos.y.toInt}) r=${"%.1f".format(radius)}")
 
-    val mouseRect = Rectangle(mouse.x - 20, mouse.y - 20, 40.0f, 40.0f)
-    val rectHit   = Collision.rects(mouseRect, box)
-    val circleHit = Collision.circleRect(circleCenter, circleRadius, box)
-    val pointInC  = Collision.pointInCircle(mouse, circleCenter, circleRadius)
+    if Input.isKeyPressed(Key.R) then
+      circles = List.empty
+      println("Cleared")
 
-    val overlap   = Collision.rectOverlap(mouseRect, box)
-    val boxColor = if rectHit then Color.Red else Color.DarkBlue
+    if Input.isKeyPressed(Key.S) then
+      Random.seed(42)
+      println("Seed set to 42")
 
-    Basics.rectangleOutline(box, boxColor)
-
-    val cColor = if pointInC then Color.Orange else Color.Green
-
-    Basics.circleOutline(circleCenter, circleRadius, cColor)
-
-    overlap.foreach(r => Basics.rectangle(r, Color(255, 0, 0, 80)))
-
-    Basics.rectangleOutline(mouseRect, Color.Black)
-
-    if rectHit then  println("rect rect hit")
-    if pointInC then println("point circle hit")
-    if circleHit then println("circle rect hit")
+    circles.foreach(c => Basics.circle(c.pos, c.radius, c.color))
 
     Drawing.endFrame()
 
