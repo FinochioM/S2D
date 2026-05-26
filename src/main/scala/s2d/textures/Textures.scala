@@ -348,3 +348,38 @@ object Textures:
   def drawPro(texture: Texture2D, source: Rectangle, dest: Rectangle, origin: Vector2, rotation: Float, tint: Color): Unit =
     TextureRenderer.updateProjectionFromDrawing()
     TextureRenderer.renderTexturePro(texture, source, dest, origin, rotation, tint)
+  
+  def setFilter(texture: Texture2D, filter: TextureFilter): Unit = 
+    if !isValid(texture) then return
+
+    glBindTexture(GL_TEXTURE_2D.toUInt, texture.id.toUInt)
+
+    filter match
+      case TextureFilter.Point =>
+        glTexParameteri(GL_TEXTURE_2D.toUInt, GL_TEXTURE_MIN_FILTER.toUInt, GL_NEAREST.toInt)
+        glTexParameteri(GL_TEXTURE_2D.toUInt, GL_TEXTURE_MAG_FILTER.toUInt, GL_NEAREST.toInt)
+      case TextureFilter.Bilinear =>
+        glTexParameteri(GL_TEXTURE_2D.toUInt, GL_TEXTURE_MIN_FILTER.toUInt, GL_LINEAR.toInt)
+        glTexParameteri(GL_TEXTURE_2D.toUInt, GL_TEXTURE_MAG_FILTER.toUInt, GL_LINEAR.toInt)
+      case TextureFilter.Trilinear =>
+        glTexParameteri(GL_TEXTURE_2D.toUInt, GL_TEXTURE_MIN_FILTER.toUInt, GL_LINEAR_MIPMAP_LINEAR.toInt)
+        glTexParameteri(GL_TEXTURE_2D.toUInt, GL_TEXTURE_MAG_FILTER.toUInt, GL_LINEAR.toInt)
+
+    glBindTexture(GL_TEXTURE_2D.toUInt, 0.toUInt)
+
+  def setWrap(texture: Texture2D, wrap: TextureWrap): Unit =
+    if !isValid(texture) then return
+
+    glBindTexture(GL_TEXTURE_2D.toUInt, texture.id.toUInt)
+
+    val mode = wrap match
+        case TextureWrap.Repeat => GL_REPEAT.toInt
+        case TextureWrap.Clamp  => GL_CLAMP_TO_EDGE.toInt
+        case TextureWrap.Mirror => GL_MIRRORED_REPEAT.toInt
+
+    glTexParameteri(GL_TEXTURE_2D.toUInt, GL_TEXTURE_WRAP_S.toUInt, mode)
+    glTexParameteri(GL_TEXTURE_2D.toUInt, GL_TEXTURE_WRAP_T.toUInt, mode)
+
+    glBindTexture(GL_TEXTURE_2D.toUInt, 0.toUInt)
+
+end Textures
