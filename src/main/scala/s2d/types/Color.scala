@@ -37,6 +37,36 @@ case class Color(r: Int, g: Int, b: Int, a: Int = 255):
 
   def toHex: String = f"#$r%02x$g%02x$b%02x" // Fixed typo: was $g%02x$g%02x
   def toHexWithAlpha: String = f"#$r%02x$g%02x$b%02x$a%02x"
+  def invert: Color =
+    Color(255 - r, 255 - g,  255 - b, a)
+  def toGrayscale: Color =
+    val lum = (0.299f * r + 0.587f * g + 0.114f * b).toInt.max(0).min(255)
+    Color(lum, lum, lum, a)
+  def tint(other: Color): Color =
+    Color(
+      (r * other.r / 255.0f).toInt.max(0).min(255),
+      (g * other.g / 255.0f).toInt.max(0).min(255),
+      (b * other.b / 255.0f).toInt.max(0).min(255),
+      (a * other.a / 255.0f).toInt.max(0).min(255)
+    )
+  def toHSV: HSV = 
+    val rf = r / 255.0f
+    val gf = g / 255.0f
+    val bf = b / 255.0f
+    val max = rf.max(gf).max(bf)
+    val min = rf.min(gf).min(bf)
+    val delta = max - min
+
+    val h =
+      if delta == 0.0f then 0.0f
+      else if max == rf then 60.0f * (((gf - bf) / delta) % 6.0f)
+      else if max == gf then 60.0f * (((bf - rf) / delta) + 2.0f)
+      else 60.0f * (((rf - gf) / delta) + 4.0f)
+
+    val hNorm = if h < 0.0f then h + 360.0f else h
+    val s = if max == 0.0f then 0.0f else delta / max
+
+    HSV(hNorm, s, max)
 end Color
 
 object Color:
@@ -103,4 +133,24 @@ object Color:
     catch case _: NumberFormatException => None
     end try
   end fromHex
+
+  def fromHSV(hsv: HSV): Color =
+    val c = hsv.v * hsv.s
+    val x = c * (1.0f - math.abs((hsv.h / 60.0f)  % 2.0f - 1.0f).toFloat)
+    val m = hsv.v - c
+
+    val (rf, gf, bf) = (hsv.h / 60.0f).toInt match
+      case 0 => (c, x, 0.0f)
+      case 1 => (x, c, 0.0f)
+      case 2 => (0.0f, c, x)
+      case 3 => (0.0f, x, c)
+      case 4 => (x, 0.0f, c)
+      case _ => (c, 0.0f, x)
+
+    Color(
+      ((rf + m) * 255).toInt.max(0).min(255),
+      ((gf + m) * 255).toInt.max(0).min(255),
+      ((bf + m) * 255).toInt.max(0).min(255)
+    ) 
+  end fromHSV
 end Color

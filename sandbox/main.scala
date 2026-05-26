@@ -16,10 +16,7 @@ import s2d.types.*
 
 @main
 def main(): Unit =
-  val screenWidth  = 800
-  val screenHeight = 450
-
-  Window.create(screenWidth, screenHeight, "S2D [shapes] example - bullet hell")
+  Window.create(800, 450, "sandbox")
   Input.setExitKey(Key.Escape)
   Timing.setTargetFPS(60)
 
