@@ -9,6 +9,7 @@ import s2d.backend.gl.GLEWHelper
 import s2d.core.{Shaders, Drawing}
 import scalanative.unsafe.*
 import scalanative.unsigned.*
+import scala.scalanative.libc.stdlib
 
 object BasicRenderer:
   private val vertexShaderSource = """
@@ -44,6 +45,8 @@ object BasicRenderer:
   private var projectionLocation: Int = -1
   private var colorLocation: Int = -1
   private var isInitialized: Boolean = false
+  private val scratchBuffer: Ptr[GLfloat] =
+    stdlib.malloc(sizeof[GLfloat] * 2048.toULong).asInstanceOf[Ptr[GLfloat]]
 
   def initialize(): Boolean =
     if isInitialized then return true
@@ -94,12 +97,9 @@ object BasicRenderer:
   def setProjectionMatrix(matrix: Array[Float]): Unit =
     defaultShader.foreach { shader =>
       GLEWHelper.glUseProgram(shader.id.toUInt)
-      Zone {
-        val matrixPtr = stackalloc[GLfloat](16)
-        for i <- matrix.indices do
-          matrixPtr(i) = matrix(i)
-        GLEWHelper.glUniformMatrix4fv(projectionLocation, 1.toUInt, GL_FALSE, matrixPtr)
-      }
+      var i = 0
+      while i < 16 do { scratchBuffer(i) = matrix(i); i += 1}
+      GLEWHelper.glUniformMatrix4fv(projectionLocation, 1.toUInt, GL_FALSE, scratchBuffer)
     }
 
   def updateProjectionFromDrawing(): Unit =
@@ -148,26 +148,12 @@ object BasicRenderer:
           setColor(color)
         }
 
-    val vertices = Array(
-      startPos.x, startPos.y,
-      endPos.x, endPos.y
-    )
+    scratchBuffer(0) = startPos.x; scratchBuffer(1) = startPos.y
+    scratchBuffer(2) = endPos.x; scratchBuffer(3) = endPos.y
 
     GLEWHelper.glBindVertexArray(VAO)
     GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
-
-    Zone {
-      val verticesPtr = stackalloc[GLfloat](vertices.length)
-      for i <- vertices.indices do
-        verticesPtr(i) = vertices(i)
-
-      GLEWHelper.glBufferData(
-        GL_ARRAY_BUFFER.toUInt,
-        (vertices.length * sizeof[GLfloat].toInt),
-        verticesPtr.asInstanceOf[Ptr[Byte]],
-        GL_DYNAMIC_DRAW.toUInt
-      )
-    }
+    GLEWHelper.glBufferData(GL_ARRAY_BUFFER.toUInt, (4 * sizeof[GLfloat].toInt), scratchBuffer.asInstanceOf[Ptr[Byte]], GL_DYNAMIC_DRAW.toUInt)
 
     GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
     GLEWHelper.glEnableVertexAttribArray(0.toUInt)
@@ -215,31 +201,16 @@ object BasicRenderer:
     val perpX = -dy / length * (thick / 2.0f)
     val perpY = dx / length * (thick / 2.0f)
 
-    val vertices = Array(
-      startPos.x + perpX, startPos.y + perpY, // top-left
-      startPos.x - perpX, startPos.y - perpY, // bottom-left
-      endPos.x - perpX, endPos.y - perpY, // bottom-right
-
-      startPos.x + perpX, startPos.y + perpY, // top-left
-      endPos.x - perpX, endPos.y - perpY, // bottom-right
-      endPos.x + perpX, endPos.y + perpY // top-right
-    )
+    scratchBuffer(0) = startPos.x + perpX; scratchBuffer(1) = startPos.y + perpY
+    scratchBuffer(2) = startPos.x - perpX; scratchBuffer(3) = startPos.y - perpY
+    scratchBuffer(4) = endPos.x - perpX; scratchBuffer(5) = endPos.y - perpY
+    scratchBuffer(6) = startPos.x + perpX; scratchBuffer(7) = startPos.y + perpY
+    scratchBuffer(8) = endPos.x - perpX; scratchBuffer(9) = endPos.y - perpY
+    scratchBuffer(10) = endPos.x + perpX; scratchBuffer(11) = endPos.y + perpY
 
     GLEWHelper.glBindVertexArray(VAO)
     GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
-
-    Zone {
-      val verticesPtr = stackalloc[GLfloat](vertices.length)
-      for i <- vertices.indices do
-        verticesPtr(i) = vertices(i)
-
-      GLEWHelper.glBufferData(
-        GL_ARRAY_BUFFER.toUInt,
-        (vertices.length * sizeof[GLfloat].toInt),
-        verticesPtr.asInstanceOf[Ptr[Byte]],
-        GL_DYNAMIC_DRAW.toUInt
-      )
-    }
+    GLEWHelper.glBufferData(GL_ARRAY_BUFFER.toUInt, (12 * sizeof[GLfloat].toInt), scratchBuffer.asInstanceOf[Ptr[Byte]], GL_DYNAMIC_DRAW.toUInt)
 
     GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
     GLEWHelper.glEnableVertexAttribArray(0.toUInt)
@@ -281,37 +252,20 @@ object BasicRenderer:
           setColor(color)
         }
 
-    val vertices = scala.collection.mutable.ArrayBuffer[Float]()
+    var n = 0
+    var i = 0
+    while i < points.length - 1 do
+      scratchBuffer(n) = points(i).x;     n += 1; scratchBuffer(n) = points(i).y;     n += 1
+      scratchBuffer(n) = points(i+1).x;   n += 1; scratchBuffer(n) = points(i+1).y;   n += 1
+      i += 1
 
-    for i <- 0 until points.length - 1 do
-      val current = points(i)
-      val next = points(i + 1)
-
-      vertices += current.x; vertices += current.y
-      vertices += next.x; vertices += next.y
-
-    if vertices.nonEmpty then
+    if n > 0 then
       GLEWHelper.glBindVertexArray(VAO)
       GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
-
-      Zone {
-        val verticesPtr = stackalloc[GLfloat](vertices.length)
-        for i <- vertices.indices do
-          verticesPtr(i) = vertices(i)
-
-        GLEWHelper.glBufferData(
-          GL_ARRAY_BUFFER.toUInt,
-          (vertices.length * sizeof[GLfloat].toInt),
-          verticesPtr.asInstanceOf[Ptr[Byte]],
-          GL_DYNAMIC_DRAW.toUInt
-        )
-      }
-
+      GLEWHelper.glBufferData(GL_ARRAY_BUFFER.toUInt, (n * sizeof[GLfloat].toInt), scratchBuffer.asInstanceOf[Ptr[Byte]], GL_DYNAMIC_DRAW.toUInt)
       GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
       GLEWHelper.glEnableVertexAttribArray(0.toUInt)
-
-      glDrawArrays(GL_LINES.toUInt, 0, (vertices.length / 2).toUInt)
-
+      glDrawArrays(GL_LINES.toUInt, 0, (n / 2).toUInt)
       GLEWHelper.glBindVertexArray(0.toUInt)
 
   def renderRectangle(x: Float, y: Float, width: Float, height: Float, color: Color): Unit =
@@ -345,31 +299,15 @@ object BasicRenderer:
           setColor(color)
         }
 
-    val vertices = Array(
-      x, y, // top-left
-      x + width, y, // top-right
-      x, y + height, // bottom-left
-
-      x + width, y, // top-right
-      x + width, y + height, // bottom-right
-      x, y + height // bottom-left
-    )
-
+    scratchBuffer(0)  = x; scratchBuffer(1) = y
+    scratchBuffer(2)  = x + width; scratchBuffer(3) = y
+    scratchBuffer(4)  = x; scratchBuffer(5) = y + height
+    scratchBuffer(6)  = x + width; scratchBuffer(7) = y
+    scratchBuffer(8)  = x + width; scratchBuffer(9) = y + height
+    scratchBuffer(10) = x; scratchBuffer(11) = y + height
     GLEWHelper.glBindVertexArray(VAO)
     GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
-
-    Zone {
-      val verticesPtr = stackalloc[GLfloat](vertices.length)
-      for i <- vertices.indices do
-        verticesPtr(i) = vertices(i)
-
-      GLEWHelper.glBufferData(
-        GL_ARRAY_BUFFER.toUInt,
-        (vertices.length * sizeof[GLfloat].toInt),
-        verticesPtr.asInstanceOf[Ptr[Byte]],
-        GL_DYNAMIC_DRAW.toUInt
-      )
-    }
+    GLEWHelper.glBufferData(GL_ARRAY_BUFFER.toUInt, (12 * sizeof[GLfloat].toInt), scratchBuffer.asInstanceOf[Ptr[Byte]], GL_DYNAMIC_DRAW.toUInt)
 
     GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
     GLEWHelper.glEnableVertexAttribArray(0.toUInt)
@@ -413,44 +351,26 @@ object BasicRenderer:
     val cos = math.cos(angleRad).toFloat
     val sin = math.sin(angleRad).toFloat
 
-    val corners = Array(
-      (-origin.x, -origin.y), // top-left
-      (rectangle.width - origin.x, -origin.y), // top-right
-      (rectangle.width - origin.x, rectangle.height - origin.y), // bottom-right
-      (-origin.x, rectangle.height - origin.y) // bottom-left
-    )
+    val ox = rectangle.x + origin.x
+    val oy = rectangle.y + origin.y
 
-    val rotatedCorners = corners.map { case (x, y) =>
-      val rotX = x * cos - y * sin + rectangle.x + origin.x
-      val rotY = x * sin + y * cos + rectangle.y + origin.y
-      (rotX, rotY)
-    }
+    def rx(lx: Float, ly: Float): Float = lx * cos - ly * sin + ox
+    def ry(lx: Float, ly: Float): Float = lx * sin + ly * cos + oy
 
-    val vertices = Array(
-      rotatedCorners(0)._1, rotatedCorners(0)._2, // top-left
-      rotatedCorners(1)._1, rotatedCorners(1)._2, // top-right
-      rotatedCorners(2)._1, rotatedCorners(2)._2, // bottom-right
+    val lx0 = -origin.x; val ly0 = -origin.y
+    val lx1 = rectangle.width - origin.x; val ly1 = -origin.y
+    val lx2 = rectangle.width - origin.x; val ly2 = rectangle.height - origin.y
+    val lx3 = -origin.x; val ly3 = rectangle.height - origin.y
 
-      rotatedCorners(0)._1, rotatedCorners(0)._2, // top-left
-      rotatedCorners(2)._1, rotatedCorners(2)._2, // bottom-right
-      rotatedCorners(3)._1, rotatedCorners(3)._2 // bottom-left
-    )
-
+    scratchBuffer(0) = rx(lx0, ly0); scratchBuffer(1) = ry(lx0, ly0)
+    scratchBuffer(2) = rx(lx1, ly1); scratchBuffer(3) = ry(lx1, ly1)
+    scratchBuffer(4) = rx(lx2, ly2); scratchBuffer(5) = ry(lx2, ly2)
+    scratchBuffer(6) = rx(lx0, ly0); scratchBuffer(7) = ry(lx0, ly0)
+    scratchBuffer(8) = rx(lx2, ly2); scratchBuffer(9) = ry(lx2, ly2)
+    scratchBuffer(10) = rx(lx3, ly3); scratchBuffer(11) = ry(lx3, ly3)
     GLEWHelper.glBindVertexArray(VAO)
     GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
-
-    Zone {
-      val verticesPtr = stackalloc[GLfloat](vertices.length)
-      for i <- vertices.indices do
-        verticesPtr(i) = vertices(i)
-
-      GLEWHelper.glBufferData(
-        GL_ARRAY_BUFFER.toUInt,
-        (vertices.length * sizeof[GLfloat].toInt),
-        verticesPtr.asInstanceOf[Ptr[Byte]],
-        GL_DYNAMIC_DRAW.toUInt
-      )
-    }
+    GLEWHelper.glBufferData(GL_ARRAY_BUFFER.toUInt, (12 * sizeof[GLfloat].toInt), scratchBuffer.asInstanceOf[Ptr[Byte]], GL_DYNAMIC_DRAW.toUInt)
 
     GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
     GLEWHelper.glEnableVertexAttribArray(0.toUInt)
@@ -490,39 +410,17 @@ object BasicRenderer:
           setColor(color)
         }
 
-    val vertices = Array(
-      // Top edge
-      x, y,
-      x + width, y,
-
-      // Right edge
-      x + width, y,
-      x + width, y + height,
-
-      // Bottom edge
-      x + width, y + height,
-      x, y + height,
-
-      // Left edge
-      x, y + height,
-      x, y
-    )
-
+    scratchBuffer(0) = x; scratchBuffer(1) = y
+    scratchBuffer(2) = x + width; scratchBuffer(3) = y
+    scratchBuffer(4) = x + width; scratchBuffer(5) = y
+    scratchBuffer(6) = x + width; scratchBuffer(7) = y + height
+    scratchBuffer(8) = x + width; scratchBuffer(9) = y + height
+    scratchBuffer(10) = x; scratchBuffer(11) = y + height
+    scratchBuffer(12) = x; scratchBuffer(13) = y + height
+    scratchBuffer(14) = x; scratchBuffer(15) = y
     GLEWHelper.glBindVertexArray(VAO)
     GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
-
-    Zone {
-      val verticesPtr = stackalloc[GLfloat](vertices.length)
-      for i <- vertices.indices do
-        verticesPtr(i) = vertices(i)
-
-      GLEWHelper.glBufferData(
-        GL_ARRAY_BUFFER.toUInt,
-        (vertices.length * sizeof[GLfloat].toInt),
-        verticesPtr.asInstanceOf[Ptr[Byte]],
-        GL_DYNAMIC_DRAW.toUInt
-      )
-    }
+    GLEWHelper.glBufferData(GL_ARRAY_BUFFER.toUInt, (16 * sizeof[GLfloat].toInt), scratchBuffer.asInstanceOf[Ptr[Byte]], GL_DYNAMIC_DRAW.toUInt)
 
     GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
     GLEWHelper.glEnableVertexAttribArray(0.toUInt)
@@ -572,21 +470,15 @@ object BasicRenderer:
     val innerWidth = rect.width - 2 * cornerRadius
     val innerHeight = rect.height - 2 * cornerRadius
 
-    val vertices = scala.collection.mutable.ArrayBuffer[Float]()
+    var n = 0
 
     def addQuad(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float, x4: Float, y4: Float): Unit =
-      vertices += x1;
-      vertices += y1
-      vertices += x2;
-      vertices += y2
-      vertices += x3;
-      vertices += y3
-      vertices += x1;
-      vertices += y1
-      vertices += x3;
-      vertices += y3
-      vertices += x4;
-      vertices += y4
+      scratchBuffer(n) = x1; n += 1; scratchBuffer(n) = y1; n += 1
+      scratchBuffer(n) = x2; n += 1; scratchBuffer(n) = y2; n += 1
+      scratchBuffer(n) = x3; n += 1; scratchBuffer(n) = y3; n += 1
+      scratchBuffer(n) = x1; n += 1; scratchBuffer(n) = y1; n += 1
+      scratchBuffer(n) = x3; n += 1; scratchBuffer(n) = y3; n += 1
+      scratchBuffer(n) = x4; n += 1; scratchBuffer(n) = y4; n += 1
 
     if innerWidth > 0 && innerHeight > 0 then
       addQuad(
@@ -630,49 +522,35 @@ object BasicRenderer:
 
     def addCorner(centerX: Float, centerY: Float, startAngle: Float): Unit =
       val angleStep = (math.Pi / 2.0f) / segments.toFloat
-      for i <- 0 until segments do
+      var i = 0
+      while i < segments do
         val angle1 = startAngle + (i * angleStep)
         val angle2 = startAngle + ((i + 1) * angleStep)
-
         val x1 = centerX + cornerRadius * math.cos(angle1).toFloat
         val y1 = centerY + cornerRadius * math.sin(angle1).toFloat
         val x2 = centerX + cornerRadius * math.cos(angle2).toFloat
         val y2 = centerY + cornerRadius * math.sin(angle2).toFloat
-
-        vertices += centerX; vertices += centerY
-        vertices += x1; vertices += y1
-        vertices += x2; vertices += y2
+        scratchBuffer(n) = centerX; n += 1; scratchBuffer(n) = centerY; n += 1
+        scratchBuffer(n) = x1;      n += 1; scratchBuffer(n) = y1;      n += 1
+        scratchBuffer(n) = x2;      n += 1; scratchBuffer(n) = y2;      n += 1
+        i += 1
 
     addCorner(rect.x + cornerRadius, rect.y + cornerRadius, math.Pi.toFloat) // top-left
     addCorner(rect.x + rect.width - cornerRadius, rect.y + cornerRadius, 3 * math.Pi.toFloat / 2) // top-right
     addCorner(rect.x + rect.width - cornerRadius, rect.y + rect.height - cornerRadius, 0.0f) // bottom-right
     addCorner(rect.x + cornerRadius, rect.y + rect.height - cornerRadius, math.Pi.toFloat / 2) // bottom-left
 
-    if vertices.nonEmpty then
+    if n > 0 then
       GLEWHelper.glBindVertexArray(VAO)
       GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
-
-      Zone {
-        val verticesPtr = stackalloc[GLfloat](vertices.length)
-        for i <- vertices.indices do
-          verticesPtr(i) = vertices(i)
-
-        GLEWHelper.glBufferData(
-          GL_ARRAY_BUFFER.toUInt,
-          (vertices.length * sizeof[GLfloat].toInt),
-          verticesPtr.asInstanceOf[Ptr[Byte]],
-          GL_DYNAMIC_DRAW.toUInt
-        )
-      }
-
+      GLEWHelper.glBufferData(GL_ARRAY_BUFFER.toUInt, (n * sizeof[GLfloat].toInt), scratchBuffer.asInstanceOf[Ptr[Byte]], GL_DYNAMIC_DRAW.toUInt)
       GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
       GLEWHelper.glEnableVertexAttribArray(0.toUInt)
-
-      glDrawArrays(GL_TRIANGLES.toUInt, 0, (vertices.length / 2).toUInt)
-
+      glDrawArrays(GL_TRIANGLES.toUInt, 0, (n / 2).toUInt)
       GLEWHelper.glBindVertexArray(0.toUInt)
 
   def renderRoundedRectangleOutline(rectangle: Rectangle, roundness: Float, segments: Int, color: Color): Unit =
+    // mati todo -> update function with scratchbuffer for better performance
     if !isInitialized then
       if !initialize() then return
 
@@ -837,27 +715,12 @@ object BasicRenderer:
           setColor(color)
         }
 
-    val vertices = Array(
-      v1.x, v1.y,
-      v2.x, v2.y,
-      v3.x, v3.y
-    )
-
+    scratchBuffer(0) = v1.x; scratchBuffer(1) = v1.y
+    scratchBuffer(2) = v2.x; scratchBuffer(3) = v2.y
+    scratchBuffer(4) = v3.x; scratchBuffer(5) = v3.y
     GLEWHelper.glBindVertexArray(VAO)
     GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
-
-    Zone {
-      val verticesPtr = stackalloc[GLfloat](vertices.length)
-      for i <- vertices.indices do
-        verticesPtr(i) = vertices(i)
-
-      GLEWHelper.glBufferData(
-        GL_ARRAY_BUFFER.toUInt,
-        (vertices.length * sizeof[GLfloat].toInt),
-        verticesPtr.asInstanceOf[Ptr[Byte]],
-        GL_DYNAMIC_DRAW.toUInt
-      )
-    }
+    GLEWHelper.glBufferData(GL_ARRAY_BUFFER.toUInt, (6 * sizeof[GLfloat].toInt), scratchBuffer.asInstanceOf[Ptr[Byte]], GL_DYNAMIC_DRAW.toUInt)
 
     GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
     GLEWHelper.glEnableVertexAttribArray(0.toUInt)
@@ -897,32 +760,15 @@ object BasicRenderer:
           setColor(color)
         }
 
-    val vertices = Array(
-      v1.x, v1.y,
-      v2.x, v2.y,
-
-      v2.x, v2.y,
-      v3.x, v3.y,
-
-      v3.x, v3.y,
-      v1.x, v1.y
-    )
-
+    scratchBuffer(0) = v1.x; scratchBuffer(1) = v1.y
+    scratchBuffer(2) = v2.x; scratchBuffer(3) = v2.y
+    scratchBuffer(4) = v2.x; scratchBuffer(5) = v2.y
+    scratchBuffer(6) = v3.x; scratchBuffer(7) = v3.y
+    scratchBuffer(8) = v3.x; scratchBuffer(9) = v3.y
+    scratchBuffer(10) = v1.x; scratchBuffer(11) = v1.y
     GLEWHelper.glBindVertexArray(VAO)
     GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
-
-    Zone {
-      val verticesPtr = stackalloc[GLfloat](vertices.length)
-      for i <- vertices.indices do
-        verticesPtr(i) = vertices(i)
-
-      GLEWHelper.glBufferData(
-        GL_ARRAY_BUFFER.toUInt,
-        (vertices.length * sizeof[GLfloat].toInt),
-        verticesPtr.asInstanceOf[Ptr[Byte]],
-        GL_DYNAMIC_DRAW.toUInt
-      )
-    }
+    GLEWHelper.glBufferData(GL_ARRAY_BUFFER.toUInt, (12 * sizeof[GLfloat].toInt), scratchBuffer.asInstanceOf[Ptr[Byte]], GL_DYNAMIC_DRAW.toUInt)
 
     GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
     GLEWHelper.glEnableVertexAttribArray(0.toUInt)
@@ -964,40 +810,22 @@ object BasicRenderer:
           setColor(color)
         }
 
-    val vertices = scala.collection.mutable.ArrayBuffer[Float]()
-
+    var n = 0
     val centerPoint = points(0)
+    var i = 1
+    while i < points.length - 1 do
+      scratchBuffer(n) = centerPoint.x; n += 1; scratchBuffer(n) = centerPoint.y; n += 1
+      scratchBuffer(n)= points(i).x; n += 1; scratchBuffer(n) = points(i).y; n += 1
+      scratchBuffer(n) = points(i + 1).x; n += 1; scratchBuffer(n) = points(i + 1).y; n += 1
+      i += 1
 
-    for i <- 1 until points.length - 1 do
-      val currentPoint = points(i)
-      val nextPoint = points(i + 1)
-
-      vertices += centerPoint.x; vertices += centerPoint.y
-      vertices += currentPoint.x; vertices += currentPoint.y
-      vertices += nextPoint.x; vertices += nextPoint.y
-
-    if vertices.nonEmpty then
+    if n > 0 then
       GLEWHelper.glBindVertexArray(VAO)
       GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
-
-      Zone {
-        val verticesPtr = stackalloc[GLfloat](vertices.length)
-        for i <- vertices.indices do
-          verticesPtr(i) = vertices(i)
-
-        GLEWHelper.glBufferData(
-          GL_ARRAY_BUFFER.toUInt,
-          (vertices.length * sizeof[GLfloat].toInt),
-          verticesPtr.asInstanceOf[Ptr[Byte]],
-          GL_DYNAMIC_DRAW.toUInt
-        )
-      }
-
+      GLEWHelper.glBufferData(GL_ARRAY_BUFFER.toUInt, (n * sizeof[GLfloat].toInt), scratchBuffer.asInstanceOf[Ptr[Byte]], GL_DYNAMIC_DRAW.toUInt)
       GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
       GLEWHelper.glEnableVertexAttribArray(0.toUInt)
-
-      glDrawArrays(GL_TRIANGLES.toUInt, 0, (vertices.length / 2).toUInt)
-
+      glDrawArrays(GL_TRIANGLES.toUInt, 0, (n / 2).toUInt)
       GLEWHelper.glBindVertexArray(0.toUInt)
 
   def renderTriangleStrip(points: Array[Vector2], color: Color): Unit =
@@ -1033,47 +861,26 @@ object BasicRenderer:
           setColor(color)
         }
 
-    // note: every odd triangle has flipped winding order to maintain face orientation
-    val vertices = scala.collection.mutable.ArrayBuffer[Float]()
-
-    for i <- 0 until points.length - 2 do
+    var n = 0
+    var i = 0
+    while i < points.length - 2 do
       if i % 2 == 0 then
-        vertices += points(i).x;
-        vertices += points(i).y
-        vertices += points(i + 1).x;
-        vertices += points(i + 1).y
-        vertices += points(i + 2).x;
-        vertices += points(i + 2).y
+        scratchBuffer(n) = points(i).x; n += 1; scratchBuffer(n) = points(i).y; n += 1
+        scratchBuffer(n) = points(i+1).x; n += 1; scratchBuffer(n) = points(i+1).y; n += 1
+        scratchBuffer(n) = points(i+2).x; n += 1; scratchBuffer(n) = points(i+2).y; n += 1
       else
-        vertices += points(i).x;
-        vertices += points(i).y
-        vertices += points(i + 2).x;
-        vertices += points(i + 2).y
-        vertices += points(i + 1).x;
-        vertices += points(i + 1).y
+        scratchBuffer(n) = points(i).x; n += 1; scratchBuffer(n) = points(i).y; n += 1
+        scratchBuffer(n) = points(i+2).x; n += 1; scratchBuffer(n) = points(i+2).y; n += 1
+        scratchBuffer(n) = points(i+1).x; n += 1; scratchBuffer(n) = points(i+1).y; n += 1
+      i += 1
 
-    if vertices.nonEmpty then
+    if n > 0 then
       GLEWHelper.glBindVertexArray(VAO)
       GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
-
-      Zone {
-        val verticesPtr = stackalloc[GLfloat](vertices.length)
-        for i <- vertices.indices do
-          verticesPtr(i) = vertices(i)
-
-        GLEWHelper.glBufferData(
-          GL_ARRAY_BUFFER.toUInt,
-          (vertices.length * sizeof[GLfloat].toInt),
-          verticesPtr.asInstanceOf[Ptr[Byte]],
-          GL_DYNAMIC_DRAW.toUInt
-        )
-      }
-
+      GLEWHelper.glBufferData(GL_ARRAY_BUFFER.toUInt, (n * sizeof[GLfloat].toInt), scratchBuffer.asInstanceOf[Ptr[Byte]], GL_DYNAMIC_DRAW.toUInt)
       GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
       GLEWHelper.glEnableVertexAttribArray(0.toUInt)
-
-      glDrawArrays(GL_TRIANGLES.toUInt, 0, (vertices.length / 2).toUInt)
-
+      glDrawArrays(GL_TRIANGLES.toUInt, 0, (n / 2).toUInt)
       GLEWHelper.glBindVertexArray(0.toUInt)
 
   def renderPolygon(center: Vector2, sides: Int, radius: Float, rotation: Float, color: Color): Unit =
@@ -1134,45 +941,24 @@ object BasicRenderer:
 
     val rotationRad = math.toRadians(rotation).toFloat
     val angleStep = (2.0f * math.Pi / sides.toFloat).toFloat
-
-    val vertices = scala.collection.mutable.ArrayBuffer[Float]()
-
-    val points = Array.ofDim[Vector2](sides)
-    for i <- 0 until sides do
+    var n = 0
+    var i = 0
+    while i < sides do
       val angle = (i * angleStep) + rotationRad
-      val x = center.x + radius * math.cos(angle).toFloat
-      val y = center.y + radius * math.sin(angle).toFloat
-      points(i) = Vector2(x, y)
+      val angleN = ((i + 1) % sides * angleStep) + rotationRad
+      scratchBuffer(n) =center.x + radius * math.cos(angle).toFloat; n += 1
+      scratchBuffer(n) = center.y + radius * math.sin(angle).toFloat; n += 1
+      scratchBuffer(n) = center.x + radius * math.cos(angleN).toFloat; n += 1
+      scratchBuffer(n) = center.y + radius * math.sin(angleN).toFloat; n += 1
+      i += 1
 
-    for i <- 0 until sides do
-      val current = points(i)
-      val next = points((i + 1) % sides) // wrap around to first point
-
-      vertices += current.x; vertices += current.y
-      vertices += next.x; vertices += next.y
-
-    if vertices.nonEmpty then
+    if n > 0 then
       GLEWHelper.glBindVertexArray(VAO)
       GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
-
-      Zone {
-        val verticesPtr = stackalloc[GLfloat](vertices.length)
-        for i <- vertices.indices do
-          verticesPtr(i) = vertices(i)
-
-        GLEWHelper.glBufferData(
-          GL_ARRAY_BUFFER.toUInt,
-          (vertices.length * sizeof[GLfloat].toInt),
-          verticesPtr.asInstanceOf[Ptr[Byte]],
-          GL_DYNAMIC_DRAW.toUInt
-        )
-      }
-
+      GLEWHelper.glBufferData(GL_ARRAY_BUFFER.toUInt, (n * sizeof[GLfloat].toInt), scratchBuffer.asInstanceOf[Ptr[Byte]], GL_DYNAMIC_DRAW.toUInt)
       GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
       GLEWHelper.glEnableVertexAttribArray(0.toUInt)
-
-      glDrawArrays(GL_LINES.toUInt, 0, (vertices.length / 2).toUInt)
-
+      glDrawArrays(GL_LINES.toUInt, 0, (n / 2).toUInt)
       GLEWHelper.glBindVertexArray(0.toUInt)
 
   def renderCircle(centerX: Float, centerY: Float, radius: Float, color: Color): Unit =
@@ -1253,58 +1039,31 @@ object BasicRenderer:
     val startRad = math.toRadians(startAngle).toFloat
     val endRad = math.toRadians(endAngle).toFloat
     val angleStep = (endRad - startRad) / segments.toFloat
-
-    val vertices = scala.collection.mutable.ArrayBuffer[Float]()
-
-    for i <- 0 until segments do
+    var n = 0
+    var i = 0
+    while i < segments do
       val angle1 = startRad + (i * angleStep)
       val angle2 = startRad + ((i + 1) * angleStep)
+      scratchBuffer(n) = center.x + radius * math.cos(angle1).toFloat; n += 1
+      scratchBuffer(n) = center.y + radius * math.sin(angle1).toFloat; n += 1
+      scratchBuffer(n) = center.x + radius * math.cos(angle2).toFloat; n += 1
+      scratchBuffer(n) = center.y + radius * math.sin(angle2).toFloat; n += 1
+      i += 1
 
-      val x1 = center.x + radius * math.cos(angle1).toFloat
-      val y1 = center.y + radius * math.sin(angle1).toFloat
-      val x2 = center.x + radius * math.cos(angle2).toFloat
-      val y2 = center.y + radius * math.sin(angle2).toFloat
+    scratchBuffer(n) = center.x; n += 1; scratchBuffer(n) = center.y; n += 1
+    scratchBuffer(n) = center.x + radius * math.cos(startRad).toFloat; n += 1
+    scratchBuffer(n) = center.y + radius * math.sin(startRad).toFloat; n += 1
+    scratchBuffer(n) = center.x; n += 1; scratchBuffer(n) = center.y; n += 1
+    scratchBuffer(n) = center.x + radius * math.cos(endRad).toFloat; n += 1
+    scratchBuffer(n) = center.y + radius * math.sin(endRad).toFloat; n += 1
 
-      vertices += x1; vertices += y1
-      vertices += x2; vertices += y2
-
-    val startX = center.x + radius * math.cos(startRad).toFloat
-    val startY = center.y + radius * math.sin(startRad).toFloat
-    val endX = center.x + radius * math.cos(endRad).toFloat
-    val endY = center.y + radius * math.sin(endRad).toFloat
-
-    vertices += center.x;
-    vertices += center.y
-    vertices += startX;
-    vertices += startY
-
-    vertices += center.x;
-    vertices += center.y
-    vertices += endX;
-    vertices += endY
-
-    if vertices.nonEmpty then
+    if n > 0 then
       GLEWHelper.glBindVertexArray(VAO)
       GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
-
-      Zone {
-        val verticesPtr = stackalloc[GLfloat](vertices.length)
-        for i <- vertices.indices do
-          verticesPtr(i) = vertices(i)
-
-        GLEWHelper.glBufferData(
-          GL_ARRAY_BUFFER.toUInt,
-          (vertices.length * sizeof[GLfloat].toInt),
-          verticesPtr.asInstanceOf[Ptr[Byte]],
-          GL_DYNAMIC_DRAW.toUInt
-        )
-      }
-
+      GLEWHelper.glBufferData(GL_ARRAY_BUFFER.toUInt, (n * sizeof[GLfloat].toInt), scratchBuffer.asInstanceOf[Ptr[Byte]], GL_DYNAMIC_DRAW.toUInt)
       GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
       GLEWHelper.glEnableVertexAttribArray(0.toUInt)
-
-      glDrawArrays(GL_LINES.toUInt, 0, (vertices.length / 2).toUInt)
-
+      glDrawArrays(GL_LINES.toUInt, 0, (n / 2).toUInt)
       GLEWHelper.glBindVertexArray(0.toUInt)
 
   def renderCircleOutline(centerX: Float, centerY: Float, radius: Float, color: Color): Unit =
@@ -1339,43 +1098,24 @@ object BasicRenderer:
         }
 
     val segments = 36
-    val vertices = scala.collection.mutable.ArrayBuffer[Float]()
+    var n = 0
+    var i = 0
+    while i < segments do
+      val angle= (i * 2.0f * math.Pi / segments).toFloat
+      val angleN = ((i + 1) % segments * 2.0f * math.Pi / segments).toFloat
+      scratchBuffer(n) = centerX + radius * math.cos(angle).toFloat;  n += 1
+      scratchBuffer(n) = centerY + radius * math.sin(angle).toFloat;  n += 1
+      scratchBuffer(n) = centerX + radius * math.cos(angleN).toFloat; n += 1
+      scratchBuffer(n) = centerY + radius * math.sin(angleN).toFloat; n += 1
+      i += 1
 
-    val points = Array.ofDim[Vector2](segments)
-    for i <- 0 until segments do
-      val angle = (i * 2.0f * math.Pi / segments).toFloat
-      val x = centerX + radius * math.cos(angle).toFloat
-      val y = centerY + radius * math.sin(angle).toFloat
-      points(i) = Vector2(x, y)
-
-    for i <- 0 until segments do
-      val current = points(i)
-      val next = points((i + 1) % segments)
-
-      vertices += current.x; vertices += current.y
-      vertices += next.x; vertices += next.y
-
-    if vertices.nonEmpty then
+    if n > 0 then
       GLEWHelper.glBindVertexArray(VAO)
       GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
-
-      Zone {
-        val verticesPtr = stackalloc[GLfloat](vertices.length)
-        for i <- vertices.indices do
-          verticesPtr(i) = vertices(i)
-
-        GLEWHelper.glBufferData(
-          GL_ARRAY_BUFFER.toUInt,
-          (vertices.length * sizeof[GLfloat].toInt),
-          verticesPtr.asInstanceOf[Ptr[Byte]],
-          GL_DYNAMIC_DRAW.toUInt
-        )
-      }
-
+      GLEWHelper.glBufferData(GL_ARRAY_BUFFER.toUInt, (n * sizeof[GLfloat].toInt), scratchBuffer.asInstanceOf[Ptr[Byte]], GL_DYNAMIC_DRAW.toUInt)
       GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (2 * sizeof[GLfloat].toInt).toUInt, null)
       GLEWHelper.glEnableVertexAttribArray(0.toUInt)
-
-      glDrawArrays(GL_LINES.toUInt, 0, (vertices.length / 2).toUInt)
-
+      glDrawArrays(GL_LINES.toUInt, 0, (n / 2).toUInt)
       GLEWHelper.glBindVertexArray(0.toUInt)
+
 end BasicRenderer

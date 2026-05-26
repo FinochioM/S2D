@@ -8,6 +8,7 @@ import s2d.backend.gl.GLExtras.*
 import s2d.backend.gl.GLEWHelper
 import scalanative.unsafe.*
 import scalanative.unsigned.*
+import scalanative.libc.stdlib
 
 object TextureRenderer:
   private val vertexShaderSource = """
@@ -50,6 +51,8 @@ object TextureRenderer:
   private var colorLocation: Int = -1
   private var textureLocation: Int = -1
   private var isInitialized: Boolean = false
+  private val scratchBuffer: Ptr[GLfloat] =
+    stdlib.malloc(sizeof[GLfloat] * 64.toULong).asInstanceOf[Ptr[GLfloat]]
 
   def initialize(): Boolean =
     if isInitialized then return true
