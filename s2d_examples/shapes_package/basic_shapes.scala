@@ -26,7 +26,7 @@ def main(): Unit =
   
   var rotation = 0.0f
 
-  while !Window.shouldCloseWindow() do
+  while !Window.isOpen() do
     rotation += 0.2f
     
     Drawing.beginFrame()

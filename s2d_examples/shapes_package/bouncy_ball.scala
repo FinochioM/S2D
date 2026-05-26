@@ -29,7 +29,7 @@ def main(): Unit =
   val ballRadius = 20.0f
   var pause = false
 
-  while !Window.shouldCloseWindow() do
+  while !Window.isOpen() do
     Drawing.beginFrame()
     
     if Input.isKeyPressed(Key.Space) then
