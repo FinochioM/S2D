@@ -52,7 +52,7 @@ object TextureRenderer:
   private var textureLocation: Int = -1
   private var isInitialized: Boolean = false
   private val scratchBuffer: Ptr[GLfloat] =
-    stdlib.malloc(sizeof[GLfloat] * 64.toULong).asInstanceOf[Ptr[GLfloat]]
+    stdlib.malloc(sizeof[GLfloat] * 64.toUInt).asInstanceOf[Ptr[GLfloat]]
 
   def initialize(): Boolean =
     if isInitialized then return true
@@ -109,12 +109,9 @@ object TextureRenderer:
   private def setProjectionMatrix(matrix: Array[Float]): Unit =
     textureShader.foreach { shader =>
       GLEWHelper.glUseProgram(shader.id.toUInt)
-      Zone {
-        val matrixPtr = stackalloc[GLfloat](16)
-        for i <- matrix.indices do
-          matrixPtr(i) = matrix(i)
-        GLEWHelper.glUniformMatrix4fv(projectionLocation, 1.toUInt, GL_FALSE, matrixPtr)
-      }
+      var i = 0
+      while i < 16 do { scratchBuffer(i) = matrix(i); i += 1 }
+      GLEWHelper.glUniformMatrix4fv(projectionLocation, 1.toUInt, GL_FALSE, scratchBuffer)
     }
 
   private def setColor(color: Color): Unit =
@@ -169,35 +166,19 @@ object TextureRenderer:
           GLEWHelper.glUniform1i(textureLocation, 0)
         }
 
-    val vertices = Array(
-      x, y,               0.0f, 0.0f, // top-left
-      x + width, y,       1.0f, 0.0f, // top-right
-      x, y + height,      0.0f, 1.0f, // bottom-left
-
-      x + width, y,       1.0f, 0.0f, // top-right
-      x + width, y + height, 1.0f, 1.0f, // bottom-right
-      x, y + height,      0.0f, 1.0f  // bottom-left
-    )
+    scratchBuffer(0)  = x;         scratchBuffer(1)  = y;            scratchBuffer(2)  = 0.0f; scratchBuffer(3)  = 0.0f
+    scratchBuffer(4)  = x + width; scratchBuffer(5)  = y;            scratchBuffer(6)  = 1.0f; scratchBuffer(7)  = 0.0f
+    scratchBuffer(8)  = x;         scratchBuffer(9)  = y + height;   scratchBuffer(10) = 0.0f; scratchBuffer(11) = 1.0f
+    scratchBuffer(12) = x + width; scratchBuffer(13) = y;            scratchBuffer(14) = 1.0f; scratchBuffer(15) = 0.0f
+    scratchBuffer(16) = x + width; scratchBuffer(17) = y + height;   scratchBuffer(18) = 1.0f; scratchBuffer(19) = 1.0f
+    scratchBuffer(20) = x;         scratchBuffer(21) = y + height;   scratchBuffer(22) = 0.0f; scratchBuffer(23) = 1.0f
 
     GLEWHelper.glBindVertexArray(VAO)
     GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
-
-    Zone {
-      val verticesPtr = stackalloc[GLfloat](vertices.length)
-      for i <- vertices.indices do
-        verticesPtr(i) = vertices(i)
-
-      GLEWHelper.glBufferData(
-        GL_ARRAY_BUFFER.toUInt,
-        (vertices.length * sizeof[GLfloat].toInt),
-        verticesPtr.asInstanceOf[Ptr[Byte]],
-        GL_DYNAMIC_DRAW.toUInt
-      )
-    }
+    GLEWHelper.glBufferData(GL_ARRAY_BUFFER.toUInt, (24 * sizeof[GLfloat].toInt), scratchBuffer.asInstanceOf[Ptr[Byte]], GL_DYNAMIC_DRAW.toUInt)
 
     GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (4 * sizeof[GLfloat].toInt).toUInt, null)
     GLEWHelper.glEnableVertexAttribArray(0.toUInt)
-
     GLEWHelper.glVertexAttribPointer(1.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (4 * sizeof[GLfloat].toInt).toUInt, (2 * sizeof[GLfloat].toInt).toPtr.asInstanceOf[Ptr[Byte]])
     GLEWHelper.glEnableVertexAttribArray(1.toUInt)
 
@@ -251,55 +232,35 @@ object TextureRenderer:
           GLEWHelper.glUniform1i(textureLocation, 0)
         }
 
-    val width = texture.width * scale
-    val height = texture.height * scale
+    val width  = texture.width.toFloat * scale
+    val height = texture.height.toFloat * scale
 
     val angleRad = math.toRadians(rotation).toFloat
     val cos = math.cos(angleRad).toFloat
     val sin = math.sin(angleRad).toFloat
 
-    val corners = Array(
-      (0.0f, 0.0f), // top-left
-      (width, 0.0f), // top-right
-      (width, height), // bottom-right
-      (0.0f, height) // bottom-left
-    )
+    val r0x = position.x
+    val r0y = position.y
+    val r1x = width * cos + position.x
+    val r1y = width * sin + position.y
+    val r2x = width * cos - height * sin + position.x
+    val r2y = width * sin + height * cos + position.y
+    val r3x = -height * sin + position.x
+    val r3y =  height * cos + position.y
 
-    val transformedCorners = corners.map { case (x, y) =>
-      val rotX = x * cos - y * sin + position.x
-      val rotY = x * sin + y * cos + position.y
-      (rotX, rotY)
-    }
-
-    val vertices = Array(
-      transformedCorners(0)._1, transformedCorners(0)._2, 0.0f, 0.0f, // top-left
-      transformedCorners(1)._1, transformedCorners(1)._2, 1.0f, 0.0f, // top-right
-      transformedCorners(2)._1, transformedCorners(2)._2, 1.0f, 1.0f, // bottom-right
-
-      transformedCorners(0)._1, transformedCorners(0)._2, 0.0f, 0.0f, // top-left
-      transformedCorners(2)._1, transformedCorners(2)._2, 1.0f, 1.0f, // bottom-right
-      transformedCorners(3)._1, transformedCorners(3)._2, 0.0f, 1.0f // bottom-left
-    )
+    scratchBuffer(0)  = r0x; scratchBuffer(1)  = r0y; scratchBuffer(2)  = 0.0f; scratchBuffer(3)  = 0.0f
+    scratchBuffer(4)  = r1x; scratchBuffer(5)  = r1y; scratchBuffer(6)  = 1.0f; scratchBuffer(7)  = 0.0f
+    scratchBuffer(8)  = r2x; scratchBuffer(9)  = r2y; scratchBuffer(10) = 1.0f; scratchBuffer(11) = 1.0f
+    scratchBuffer(12) = r0x; scratchBuffer(13) = r0y; scratchBuffer(14) = 0.0f; scratchBuffer(15) = 0.0f
+    scratchBuffer(16) = r2x; scratchBuffer(17) = r2y; scratchBuffer(18) = 1.0f; scratchBuffer(19) = 1.0f
+    scratchBuffer(20) = r3x; scratchBuffer(21) = r3y; scratchBuffer(22) = 0.0f; scratchBuffer(23) = 1.0f
 
     GLEWHelper.glBindVertexArray(VAO)
     GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
-
-    Zone {
-      val verticesPtr = stackalloc[GLfloat](vertices.length)
-      for i <- vertices.indices do
-        verticesPtr(i) = vertices(i)
-
-      GLEWHelper.glBufferData(
-        GL_ARRAY_BUFFER.toUInt,
-        (vertices.length * sizeof[GLfloat].toInt),
-        verticesPtr.asInstanceOf[Ptr[Byte]],
-        GL_DYNAMIC_DRAW.toUInt
-      )
-    }
+    GLEWHelper.glBufferData(GL_ARRAY_BUFFER.toUInt, (24 * sizeof[GLfloat].toInt), scratchBuffer.asInstanceOf[Ptr[Byte]], GL_DYNAMIC_DRAW.toUInt)
 
     GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (4 * sizeof[GLfloat].toInt).toUInt, null)
     GLEWHelper.glEnableVertexAttribArray(0.toUInt)
-
     GLEWHelper.glVertexAttribPointer(1.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (4 * sizeof[GLfloat].toInt).toUInt, (2 * sizeof[GLfloat].toInt).toPtr.asInstanceOf[Ptr[Byte]])
     GLEWHelper.glEnableVertexAttribArray(1.toUInt)
 
@@ -354,40 +315,24 @@ object TextureRenderer:
           GLEWHelper.glUniform1i(textureLocation, 0)
         }
 
-    val texLeft = source.x / texture.width.toFloat
-    val texTop = source.y / texture.height.toFloat
-    val texRight = (source.x + source.width) / texture.width.toFloat
+    val texLeft   = source.x / texture.width.toFloat
+    val texTop    = source.y / texture.height.toFloat
+    val texRight  = (source.x + source.width)  / texture.width.toFloat
     val texBottom = (source.y + source.height) / texture.height.toFloat
 
-    val vertices = Array(
-      position.x, position.y, texLeft, texTop, // top-left
-      position.x + source.width, position.y, texRight, texTop, // top-right
-      position.x, position.y + source.height, texLeft, texBottom, // bottom-left
-
-      position.x + source.width, position.y, texRight, texTop, // top-right
-      position.x + source.width, position.y + source.height, texRight, texBottom, // bottom-right
-      position.x, position.y + source.height, texLeft, texBottom // bottom-left
-    )
+    scratchBuffer(0)  = position.x;                scratchBuffer(1)  = position.y;                 scratchBuffer(2)  = texLeft;  scratchBuffer(3)  = texTop
+    scratchBuffer(4)  = position.x + source.width; scratchBuffer(5)  = position.y;                 scratchBuffer(6)  = texRight; scratchBuffer(7)  = texTop
+    scratchBuffer(8)  = position.x;                scratchBuffer(9)  = position.y + source.height; scratchBuffer(10) = texLeft;  scratchBuffer(11) = texBottom
+    scratchBuffer(12) = position.x + source.width; scratchBuffer(13) = position.y;                 scratchBuffer(14) = texRight; scratchBuffer(15) = texTop
+    scratchBuffer(16) = position.x + source.width; scratchBuffer(17) = position.y + source.height; scratchBuffer(18) = texRight; scratchBuffer(19) = texBottom
+    scratchBuffer(20) = position.x;                scratchBuffer(21) = position.y + source.height; scratchBuffer(22) = texLeft;  scratchBuffer(23) = texBottom
 
     GLEWHelper.glBindVertexArray(VAO)
     GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
-
-    Zone {
-      val verticesPtr = stackalloc[GLfloat](vertices.length)
-      for i <- vertices.indices do
-        verticesPtr(i) = vertices(i)
-
-      GLEWHelper.glBufferData(
-        GL_ARRAY_BUFFER.toUInt,
-        (vertices.length * sizeof[GLfloat].toInt),
-        verticesPtr.asInstanceOf[Ptr[Byte]],
-        GL_DYNAMIC_DRAW.toUInt
-      )
-    }
+    GLEWHelper.glBufferData(GL_ARRAY_BUFFER.toUInt, (24 * sizeof[GLfloat].toInt), scratchBuffer.asInstanceOf[Ptr[Byte]], GL_DYNAMIC_DRAW.toUInt)
 
     GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (4 * sizeof[GLfloat].toInt).toUInt, null)
     GLEWHelper.glEnableVertexAttribArray(0.toUInt)
-
     GLEWHelper.glVertexAttribPointer(1.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (4 * sizeof[GLfloat].toInt).toUInt, (2 * sizeof[GLfloat].toInt).toPtr.asInstanceOf[Ptr[Byte]])
     GLEWHelper.glEnableVertexAttribArray(1.toUInt)
 
@@ -443,57 +388,41 @@ object TextureRenderer:
           GLEWHelper.glUniform1i(textureLocation, 0)
         }
 
-    val texLeft = source.x / texture.width.toFloat
-    val texTop = source.y / texture.height.toFloat
-    val texRight = (source.x + source.width) / texture.width.toFloat
+    val texLeft   = source.x / texture.width.toFloat
+    val texTop    = source.y / texture.height.toFloat
+    val texRight  = (source.x + source.width)  / texture.width.toFloat
     val texBottom = (source.y + source.height) / texture.height.toFloat
 
     val angleRad = math.toRadians(rotation).toFloat
     val cos = math.cos(angleRad).toFloat
     val sin = math.sin(angleRad).toFloat
 
-    val corners = Array(
-      (-origin.x, -origin.y), // top-left
-      (dest.width - origin.x, -origin.y), // top-right
-      (dest.width - origin.x, dest.height - origin.y), // bottom-right
-      (-origin.x, dest.height - origin.y) // bottom-left
-    )
+    val ox = dest.x + origin.x
+    val oy = dest.y + origin.y
 
-    val transformedCorners = corners.map { case (x, y) =>
-      val rotX = x * cos - y * sin + dest.x + origin.x
-      val rotY = x * sin + y * cos + dest.y + origin.y
-      (rotX, rotY)
-    }
+    val lx0 = -origin.x;                 val ly0 = -origin.y
+    val lx1 = dest.width - origin.x;     val ly1 = -origin.y
+    val lx2 = dest.width - origin.x;     val ly2 = dest.height - origin.y
+    val lx3 = -origin.x;                 val ly3 = dest.height - origin.y
 
-    val vertices = Array(
-      transformedCorners(0)._1, transformedCorners(0)._2, texLeft, texTop, // top-left
-      transformedCorners(1)._1, transformedCorners(1)._2, texRight, texTop, // top-right
-      transformedCorners(2)._1, transformedCorners(2)._2, texRight, texBottom, // bottom-right
+    val r0x = lx0 * cos - ly0 * sin + ox; val r0y = lx0 * sin + ly0 * cos + oy
+    val r1x = lx1 * cos - ly1 * sin + ox; val r1y = lx1 * sin + ly1 * cos + oy
+    val r2x = lx2 * cos - ly2 * sin + ox; val r2y = lx2 * sin + ly2 * cos + oy
+    val r3x = lx3 * cos - ly3 * sin + ox; val r3y = lx3 * sin + ly3 * cos + oy
 
-      transformedCorners(0)._1, transformedCorners(0)._2, texLeft, texTop, // top-left
-      transformedCorners(2)._1, transformedCorners(2)._2, texRight, texBottom, // bottom-right
-      transformedCorners(3)._1, transformedCorners(3)._2, texLeft, texBottom // bottom-left
-    )
+    scratchBuffer(0)  = r0x; scratchBuffer(1)  = r0y; scratchBuffer(2)  = texLeft;  scratchBuffer(3)  = texTop
+    scratchBuffer(4)  = r1x; scratchBuffer(5)  = r1y; scratchBuffer(6)  = texRight; scratchBuffer(7)  = texTop
+    scratchBuffer(8)  = r2x; scratchBuffer(9)  = r2y; scratchBuffer(10) = texRight; scratchBuffer(11) = texBottom
+    scratchBuffer(12) = r0x; scratchBuffer(13) = r0y; scratchBuffer(14) = texLeft;  scratchBuffer(15) = texTop
+    scratchBuffer(16) = r2x; scratchBuffer(17) = r2y; scratchBuffer(18) = texRight; scratchBuffer(19) = texBottom
+    scratchBuffer(20) = r3x; scratchBuffer(21) = r3y; scratchBuffer(22) = texLeft;  scratchBuffer(23) = texBottom
 
     GLEWHelper.glBindVertexArray(VAO)
     GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
-
-    Zone {
-      val verticesPtr = stackalloc[GLfloat](vertices.length)
-      for i <- vertices.indices do
-        verticesPtr(i) = vertices(i)
-
-      GLEWHelper.glBufferData(
-        GL_ARRAY_BUFFER.toUInt,
-        (vertices.length * sizeof[GLfloat].toInt),
-        verticesPtr.asInstanceOf[Ptr[Byte]],
-        GL_DYNAMIC_DRAW.toUInt
-      )
-    }
+    GLEWHelper.glBufferData(GL_ARRAY_BUFFER.toUInt, (24 * sizeof[GLfloat].toInt), scratchBuffer.asInstanceOf[Ptr[Byte]], GL_DYNAMIC_DRAW.toUInt)
 
     GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (4 * sizeof[GLfloat].toInt).toUInt, null)
     GLEWHelper.glEnableVertexAttribArray(0.toUInt)
-
     GLEWHelper.glVertexAttribPointer(1.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (4 * sizeof[GLfloat].toInt).toUInt, (2 * sizeof[GLfloat].toInt).toPtr.asInstanceOf[Ptr[Byte]])
     GLEWHelper.glEnableVertexAttribArray(1.toUInt)
 

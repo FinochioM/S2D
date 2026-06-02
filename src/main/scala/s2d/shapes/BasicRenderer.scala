@@ -46,7 +46,7 @@ object BasicRenderer:
   private var colorLocation: Int = -1
   private var isInitialized: Boolean = false
   private val scratchBuffer: Ptr[GLfloat] =
-    stdlib.malloc(sizeof[GLfloat] * 2048.toULong).asInstanceOf[Ptr[GLfloat]]
+    stdlib.malloc(sizeof[GLfloat] * 2048.toUInt).asInstanceOf[Ptr[GLfloat]]
 
   def initialize(): Boolean =
     if isInitialized then return true
