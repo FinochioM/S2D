@@ -52,7 +52,7 @@ def main(): Unit =
   )
 
   // Main game loop
-  while !Window.isOpen() do
+  while Window.isOpen() do
     Drawing.beginFrame()
     Drawing.clear(Color.Blue)
 
