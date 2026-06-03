@@ -7,11 +7,13 @@ import s2d.types.*
 import s2d.backend.sdl2.SDL.*
 import s2d.backend.sdl2.Extras.*
 import s2d.core.{Window, Input}
+import s2d.math.*
 import scalanative.unsafe.*
 import scalanative.unsigned.*
 
 object Drawing:
   private var currentCustomShader: Option[Shader] = None
+  private var cachedProjection: Array[Float] = Matrix4.ortho(0.0f, 800.0f, 600.0f, 0.0f, -1.0f, 1.0f)
 
   def clear(color: Color): Unit =
     glClearColor(color.rNorm, color.gNorm, color.bNorm, color.aNorm)
@@ -26,6 +28,8 @@ object Drawing:
       throw new RuntimeException("Window not initialized!")
 
     Timing.updateDelta()
+
+    updateProjection()
 
     Input.updateKeyStates()
     Input.updateMouseStates()
@@ -165,6 +169,11 @@ object Drawing:
     if !Window.isWindowInitialized then return
 
     glDisable(GL_SCISSOR_TEST)
+
+  def updateProjection(): Unit =
+    cachedProjection = Matrix4.ortho(0.0f, Window.width.toFloat, Window.height.toFloat, 0.0f, -1.0f, 1.0f)
+
+  def getProjection(): Array[Float] = cachedProjection
 
   private def processEvent(event: Ptr[SDL_Event]): Unit =
     event.type_ match

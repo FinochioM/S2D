@@ -80,6 +80,14 @@ object TextureRenderer:
         VAO = !vaoArray
         VBO = !vboArray
 
+        GLEWHelper.glBindVertexArray(VAO)
+        GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
+        GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (4 * sizeof[GLfloat].toInt).toUInt, null)
+        GLEWHelper.glEnableVertexAttribArray(0.toUInt)
+        GLEWHelper.glVertexAttribPointer(1.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (4 * sizeof[GLfloat].toInt).toUInt, (2 * sizeof[GLfloat].toInt).toPtr.asInstanceOf[Ptr[Byte]])
+        GLEWHelper.glEnableVertexAttribArray(1.toUInt)
+        GLEWHelper.glBindVertexArray(0.toUInt)
+
         isInitialized = true
         true
 
@@ -103,8 +111,7 @@ object TextureRenderer:
       isInitialized = false
 
   def updateProjectionFromDrawing(): Unit =
-    val matrix = Matrix4.ortho(0.0f, Window.width.toFloat, Window.height.toFloat, 0.0f, -1.0f, 1.0f)
-    setProjectionMatrix(matrix)
+    setProjectionMatrix(Drawing.getProjection())
 
   private def setProjectionMatrix(matrix: Array[Float]): Unit =
     textureShader.foreach { shader =>
@@ -141,10 +148,9 @@ object TextureRenderer:
           val textureLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, texName)
 
           if projLocation >= 0 then
-            val matrix = Matrix4.ortho(0.0f, Window.width.toFloat, Window.height.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrix = Drawing.getProjection()
             val matrixPtr = stackalloc[GLfloat](16)
-            for i <- matrix.indices do
-              matrixPtr(i) = matrix(i)
+            var i = 0; while i < 16 do { matrixPtr(i) = matrix(i); i += 1 }
             GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
 
           if colorLocation >= 0 then
@@ -177,10 +183,7 @@ object TextureRenderer:
     GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
     GLEWHelper.glBufferData(GL_ARRAY_BUFFER.toUInt, (24 * sizeof[GLfloat].toInt), scratchBuffer.asInstanceOf[Ptr[Byte]], GL_DYNAMIC_DRAW.toUInt)
 
-    GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (4 * sizeof[GLfloat].toInt).toUInt, null)
-    GLEWHelper.glEnableVertexAttribArray(0.toUInt)
-    GLEWHelper.glVertexAttribPointer(1.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (4 * sizeof[GLfloat].toInt).toUInt, (2 * sizeof[GLfloat].toInt).toPtr.asInstanceOf[Ptr[Byte]])
-    GLEWHelper.glEnableVertexAttribArray(1.toUInt)
+
 
     glDrawArrays(GL_TRIANGLES.toUInt, 0, 6.toUInt)
 
@@ -207,10 +210,9 @@ object TextureRenderer:
           val textureLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, texName)
 
           if projLocation >= 0 then
-            val matrix = Matrix4.ortho(0.0f, Window.width.toFloat, Window.height.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrix = Drawing.getProjection()
             val matrixPtr = stackalloc[GLfloat](16)
-            for i <- matrix.indices do
-              matrixPtr(i) = matrix(i)
+            var i = 0; while i < 16 do { matrixPtr(i) = matrix(i); i += 1 }
             GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
 
           if colorLocation >= 0 then
@@ -259,10 +261,7 @@ object TextureRenderer:
     GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
     GLEWHelper.glBufferData(GL_ARRAY_BUFFER.toUInt, (24 * sizeof[GLfloat].toInt), scratchBuffer.asInstanceOf[Ptr[Byte]], GL_DYNAMIC_DRAW.toUInt)
 
-    GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (4 * sizeof[GLfloat].toInt).toUInt, null)
-    GLEWHelper.glEnableVertexAttribArray(0.toUInt)
-    GLEWHelper.glVertexAttribPointer(1.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (4 * sizeof[GLfloat].toInt).toUInt, (2 * sizeof[GLfloat].toInt).toPtr.asInstanceOf[Ptr[Byte]])
-    GLEWHelper.glEnableVertexAttribArray(1.toUInt)
+
 
     glDrawArrays(GL_TRIANGLES.toUInt, 0, 6.toUInt)
 
@@ -290,10 +289,9 @@ object TextureRenderer:
           val textureLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, texName)
 
           if projLocation >= 0 then
-            val matrix = Matrix4.ortho(0.0f, Window.width.toFloat, Window.height.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrix = Drawing.getProjection()
             val matrixPtr = stackalloc[GLfloat](16)
-            for i <- matrix.indices do
-              matrixPtr(i) = matrix(i)
+            var i = 0; while i < 16 do { matrixPtr(i) = matrix(i); i += 1 }
             GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
 
           if colorLocation >= 0 then
@@ -331,10 +329,7 @@ object TextureRenderer:
     GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
     GLEWHelper.glBufferData(GL_ARRAY_BUFFER.toUInt, (24 * sizeof[GLfloat].toInt), scratchBuffer.asInstanceOf[Ptr[Byte]], GL_DYNAMIC_DRAW.toUInt)
 
-    GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (4 * sizeof[GLfloat].toInt).toUInt, null)
-    GLEWHelper.glEnableVertexAttribArray(0.toUInt)
-    GLEWHelper.glVertexAttribPointer(1.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (4 * sizeof[GLfloat].toInt).toUInt, (2 * sizeof[GLfloat].toInt).toPtr.asInstanceOf[Ptr[Byte]])
-    GLEWHelper.glEnableVertexAttribArray(1.toUInt)
+
 
     glDrawArrays(GL_TRIANGLES.toUInt, 0, 6.toUInt)
 
@@ -363,10 +358,9 @@ object TextureRenderer:
           val textureLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, texName)
 
           if projLocation >= 0 then
-            val matrix = Matrix4.ortho(0.0f, Window.width.toFloat, Window.height.toFloat, 0.0f, -1.0f, 1.0f)
+            val matrix = Drawing.getProjection()
             val matrixPtr = stackalloc[GLfloat](16)
-            for i <- matrix.indices do
-              matrixPtr(i) = matrix(i)
+            var i = 0; while i < 16 do { matrixPtr(i) = matrix(i); i += 1 }
             GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
 
           if colorLocation >= 0 then
@@ -421,10 +415,7 @@ object TextureRenderer:
     GLEWHelper.glBindBuffer(GL_ARRAY_BUFFER.toUInt, VBO)
     GLEWHelper.glBufferData(GL_ARRAY_BUFFER.toUInt, (24 * sizeof[GLfloat].toInt), scratchBuffer.asInstanceOf[Ptr[Byte]], GL_DYNAMIC_DRAW.toUInt)
 
-    GLEWHelper.glVertexAttribPointer(0.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (4 * sizeof[GLfloat].toInt).toUInt, null)
-    GLEWHelper.glEnableVertexAttribArray(0.toUInt)
-    GLEWHelper.glVertexAttribPointer(1.toUInt, 2, GL_FLOAT.toUInt, GL_FALSE, (4 * sizeof[GLfloat].toInt).toUInt, (2 * sizeof[GLfloat].toInt).toPtr.asInstanceOf[Ptr[Byte]])
-    GLEWHelper.glEnableVertexAttribArray(1.toUInt)
+
 
     glDrawArrays(GL_TRIANGLES.toUInt, 0, 6.toUInt)
 
