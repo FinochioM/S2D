@@ -8,6 +8,7 @@ import s2d.backend.sdl2.SDL.*
 import s2d.backend.sdl2.Extras.*
 import s2d.core.{Window, Input}
 import s2d.math.*
+import s2d.shapes.BasicRenderer
 import scalanative.unsafe.*
 import scalanative.unsigned.*
 import scalanative.libc.stdlib
@@ -61,47 +62,24 @@ object Drawing:
     if !Window.isWindowInitialized then
       throw new RuntimeException("Window not initialized!")
 
+    BasicRenderer.flush()
     SDL_GL_SwapWindow(Window.windowHandle)
-
     Input.resetMouseWheel()
     Timing.waitForTargetFPS()
-  end endFrame
 
   def beginCamera(camera: Camera2D): Unit =
     if !Window.isWindowInitialized then return
 
-    glMatrixMode(GL_PROJECTION)
-    glPushMatrix()
-    glLoadIdentity()
+    BasicRenderer.flush()
 
-    glOrtho(
-      0.0,
-      Window.width.toDouble,
-      Window.height.toDouble,
-      0.0,
-      -1.0,
-      1.0
-    )
-
-    glMatrixMode(GL_MODELVIEW)
-    glPushMatrix()
-    glLoadIdentity()
-
-    glTranslatef(camera.offset.x, camera.offset.y, 0.0f)
-    glRotatef(camera.rotation, 0.0f, 0.0f, 1.0f)
-    glScalef(camera.zoom, camera.zoom, 1.0f)
-    glTranslatef(-camera.target.x, -camera.target.y, 0.0f)
-  end beginCamera
+    val matrix = Matrix4.getCameraMatrix(camera, Window.width, Window.height)
+    var i = 0; while i < 16 do {projectionPtr(i) = matrix(i); i+= 1}
 
   def endCamera(): Unit =
     if !Window.isWindowInitialized then return
-
-    glMatrixMode(GL_PROJECTION)
-    glPopMatrix()
-
-    glMatrixMode(GL_MODELVIEW)
-    glPopMatrix()
-  end endCamera
+    
+    BasicRenderer.flush()
+    updateProjection()
 
   def beginTexture(target: RenderTexture2D): Unit =
     if !Window.isWindowInitialized then return
@@ -119,7 +97,7 @@ object Drawing:
 
   def beginShader(shader: Shader): Unit =
     if !Window.isWindowInitialized then return
-
+    BasicRenderer.flush()
     Zone {
       cachedProjLoc  = GLEWHelper.glGetUniformLocation(shader.id.toUInt, toCString("uProjection"))
       cachedColorLoc = GLEWHelper.glGetUniformLocation(shader.id.toUInt, toCString("uColor"))

@@ -110,16 +110,14 @@ object TextureRenderer:
       textureShader = None
       isInitialized = false
 
-  def updateProjectionFromDrawing(): Unit =
-    setProjectionMatrix(Drawing.getProjection())
-
-  private def setProjectionMatrix(matrix: Array[Float]): Unit =
+  private def setProjectionMatrix(): Unit =
     textureShader.foreach { shader =>
       Drawing.useProgram(shader.id.toUInt)
-      var i = 0
-      while i < 16 do { scratchBuffer(i) = matrix(i); i += 1 }
-      GLEWHelper.glUniformMatrix4fv(projectionLocation, 1.toUInt, GL_FALSE, scratchBuffer)
+      GLEWHelper.glUniformMatrix4fv(projectionLocation, 1.toUInt, GL_FALSE, Drawing.getProjectionPtr)
     }
+
+  def updateProjectionFromDrawing(): Unit =
+    setProjectionMatrix()
 
   private def setColor(color: Color): Unit =
     val r = color.r / 255.0f
