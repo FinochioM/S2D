@@ -47,6 +47,8 @@ object BasicRenderer:
   private var isInitialized: Boolean = false
   private val scratchBuffer: Ptr[GLfloat] =
     stdlib.malloc(sizeof[GLfloat] * 2048.toUInt).asInstanceOf[Ptr[GLfloat]]
+  private inline def circleSegments(radius: Float): Int =
+    math.max(8, math.min(64, (radius * 0.5f).toInt))
 
   def initialize(): Boolean =
     if isInitialized then return true
@@ -102,7 +104,7 @@ object BasicRenderer:
 
   def setProjectionMatrix(matrix: Array[Float]): Unit =
     defaultShader.foreach { shader =>
-      GLEWHelper.glUseProgram(shader.id.toUInt)
+      Drawing.useProgram(shader.id.toUInt)
       var i = 0
       while i < 16 do { scratchBuffer(i) = matrix(i); i += 1}
       GLEWHelper.glUniformMatrix4fv(projectionLocation, 1.toUInt, GL_FALSE, scratchBuffer)
@@ -128,27 +130,16 @@ object BasicRenderer:
 
     Drawing.getCurrentShader match
       case Some(customShader) =>
-        GLEWHelper.glUseProgram(customShader.id.toUInt)
-
-        Zone {
-          val projName = toCString("uProjection")
-          val colorName = toCString("uColor")
-
-          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
-          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
-
-          if projLocation >= 0 then
-            val matrix = Drawing.getProjection()
-            val matrixPtr = stackalloc[GLfloat](16)
-            var i = 0; while i < 16 do { matrixPtr(i) = matrix(i); i += 1 }
-            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
-
-          if colorLocation >= 0 then
-            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
-        }
+        Drawing.useProgram(customShader.id.toUInt)
+        val projLoc  = Drawing.getCustomProjLoc
+        val colorLoc = Drawing.getCustomColorLoc
+        if projLoc >= 0 then
+          GLEWHelper.glUniformMatrix4fv(projLoc, 1.toUInt, GL_FALSE, Drawing.getProjectionPtr)
+        if colorLoc >= 0 then
+          GLEWHelper.glUniform4f(colorLoc, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
       case None =>
         defaultShader.foreach { shader =>
-          GLEWHelper.glUseProgram(shader.id.toUInt)
+          Drawing.useProgram(shader.id.toUInt)
           setColor(color)
         }
 
@@ -169,27 +160,17 @@ object BasicRenderer:
 
     Drawing.getCurrentShader match
       case Some(customShader) =>
-        GLEWHelper.glUseProgram(customShader.id.toUInt)
+        Drawing.useProgram(customShader.id.toUInt)
+        val projLoc  = Drawing.getCustomProjLoc
+        val colorLoc = Drawing.getCustomColorLoc
+        if projLoc >= 0 then
+          GLEWHelper.glUniformMatrix4fv(projLoc, 1.toUInt, GL_FALSE, Drawing.getProjectionPtr)
+        if colorLoc >= 0 then
+          GLEWHelper.glUniform4f(colorLoc, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
 
-        Zone {
-          val projName = toCString("uProjection")
-          val colorName = toCString("uColor")
-
-          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
-          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
-
-          if projLocation >= 0 then
-            val matrix = Drawing.getProjection()
-            val matrixPtr = stackalloc[GLfloat](16)
-            var i = 0; while i < 16 do { matrixPtr(i) = matrix(i); i += 1 }
-            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
-
-          if colorLocation >= 0 then
-            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
-        }
       case None =>
         defaultShader.foreach { shader =>
-          GLEWHelper.glUseProgram(shader.id.toUInt)
+          Drawing.useProgram(shader.id.toUInt)
           setColor(color)
         }
 
@@ -224,27 +205,17 @@ object BasicRenderer:
 
     Drawing.getCurrentShader match
       case Some(customShader) =>
-        GLEWHelper.glUseProgram(customShader.id.toUInt)
+        Drawing.useProgram(customShader.id.toUInt)
+        val projLoc  = Drawing.getCustomProjLoc
+        val colorLoc = Drawing.getCustomColorLoc
+        if projLoc >= 0 then
+          GLEWHelper.glUniformMatrix4fv(projLoc, 1.toUInt, GL_FALSE, Drawing.getProjectionPtr)
+        if colorLoc >= 0 then
+          GLEWHelper.glUniform4f(colorLoc, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
 
-        Zone {
-          val projName = toCString("uProjection")
-          val colorName = toCString("uColor")
-
-          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
-          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
-
-          if projLocation >= 0 then
-            val matrix = Drawing.getProjection()
-            val matrixPtr = stackalloc[GLfloat](16)
-            var i = 0; while i < 16 do { matrixPtr(i) = matrix(i); i += 1 }
-            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
-
-          if colorLocation >= 0 then
-            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
-        }
       case None =>
         defaultShader.foreach { shader =>
-          GLEWHelper.glUseProgram(shader.id.toUInt)
+          Drawing.useProgram(shader.id.toUInt)
           setColor(color)
         }
 
@@ -268,27 +239,17 @@ object BasicRenderer:
 
     Drawing.getCurrentShader match
       case Some(customShader) =>
-        GLEWHelper.glUseProgram(customShader.id.toUInt)
+        Drawing.useProgram(customShader.id.toUInt)
+        val projLoc  = Drawing.getCustomProjLoc
+        val colorLoc = Drawing.getCustomColorLoc
+        if projLoc >= 0 then
+          GLEWHelper.glUniformMatrix4fv(projLoc, 1.toUInt, GL_FALSE, Drawing.getProjectionPtr)
+        if colorLoc >= 0 then
+          GLEWHelper.glUniform4f(colorLoc, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
 
-        Zone {
-          val projName = toCString("uProjection")
-          val colorName = toCString("uColor")
-
-          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
-          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
-
-          if projLocation >= 0 then
-            val matrix = Drawing.getProjection()
-            val matrixPtr = stackalloc[GLfloat](16)
-            var i = 0; while i < 16 do { matrixPtr(i) = matrix(i); i += 1 }
-            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
-
-          if colorLocation >= 0 then
-            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
-        }
       case None =>
         defaultShader.foreach { shader =>
-          GLEWHelper.glUseProgram(shader.id.toUInt)
+          Drawing.useProgram(shader.id.toUInt)
           setColor(color)
         }
 
@@ -312,27 +273,17 @@ object BasicRenderer:
 
     Drawing.getCurrentShader match
       case Some(customShader) =>
-        GLEWHelper.glUseProgram(customShader.id.toUInt)
+        Drawing.useProgram(customShader.id.toUInt)
+        val projLoc  = Drawing.getCustomProjLoc
+        val colorLoc = Drawing.getCustomColorLoc
+        if projLoc >= 0 then
+          GLEWHelper.glUniformMatrix4fv(projLoc, 1.toUInt, GL_FALSE, Drawing.getProjectionPtr)
+        if colorLoc >= 0 then
+          GLEWHelper.glUniform4f(colorLoc, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
 
-        Zone {
-          val projName = toCString("uProjection")
-          val colorName = toCString("uColor")
-
-          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
-          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
-
-          if projLocation >= 0 then
-            val matrix = Drawing.getProjection()
-            val matrixPtr = stackalloc[GLfloat](16)
-            var i = 0; while i < 16 do { matrixPtr(i) = matrix(i); i += 1 }
-            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
-
-          if colorLocation >= 0 then
-            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
-        }
       case None =>
         defaultShader.foreach { shader =>
-          GLEWHelper.glUseProgram(shader.id.toUInt)
+          Drawing.useProgram(shader.id.toUInt)
           setColor(color)
         }
 
@@ -371,27 +322,17 @@ object BasicRenderer:
 
     Drawing.getCurrentShader match
       case Some(customShader) =>
-        GLEWHelper.glUseProgram(customShader.id.toUInt)
+        Drawing.useProgram(customShader.id.toUInt)
+        val projLoc  = Drawing.getCustomProjLoc
+        val colorLoc = Drawing.getCustomColorLoc
+        if projLoc >= 0 then
+          GLEWHelper.glUniformMatrix4fv(projLoc, 1.toUInt, GL_FALSE, Drawing.getProjectionPtr)
+        if colorLoc >= 0 then
+          GLEWHelper.glUniform4f(colorLoc, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
 
-        Zone {
-          val projName = toCString("uProjection")
-          val colorName = toCString("uColor")
-
-          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
-          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
-
-          if projLocation >= 0 then
-            val matrix = Drawing.getProjection()
-            val matrixPtr = stackalloc[GLfloat](16)
-            var i = 0; while i < 16 do { matrixPtr(i) = matrix(i); i += 1 }
-            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
-
-          if colorLocation >= 0 then
-            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
-        }
       case None =>
         defaultShader.foreach { shader =>
-          GLEWHelper.glUseProgram(shader.id.toUInt)
+          Drawing.useProgram(shader.id.toUInt)
           setColor(color)
         }
 
@@ -422,27 +363,16 @@ object BasicRenderer:
 
     Drawing.getCurrentShader match
       case Some(customShader) =>
-        GLEWHelper.glUseProgram(customShader.id.toUInt)
-
-        Zone {
-          val projName = toCString("uProjection")
-          val colorName = toCString("uColor")
-
-          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
-          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
-
-          if projLocation >= 0 then
-            val matrix = Drawing.getProjection()
-            val matrixPtr = stackalloc[GLfloat](16)
-            var i = 0; while i < 16 do { matrixPtr(i) = matrix(i); i += 1 }
-            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
-
-          if colorLocation >= 0 then
-            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
-        }
+        Drawing.useProgram(customShader.id.toUInt)
+        val projLoc  = Drawing.getCustomProjLoc
+        val colorLoc = Drawing.getCustomColorLoc
+        if projLoc >= 0 then
+          GLEWHelper.glUniformMatrix4fv(projLoc, 1.toUInt, GL_FALSE, Drawing.getProjectionPtr)
+        if colorLoc >= 0 then
+          GLEWHelper.glUniform4f(colorLoc, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
       case None =>
         defaultShader.foreach { shader =>
-          GLEWHelper.glUseProgram(shader.id.toUInt)
+          Drawing.useProgram(shader.id.toUInt)
           setColor(color)
         }
 
@@ -539,27 +469,16 @@ object BasicRenderer:
 
     Drawing.getCurrentShader match
       case Some(customShader) =>
-        GLEWHelper.glUseProgram(customShader.id.toUInt)
-
-        Zone {
-          val projName = toCString("uProjection")
-          val colorName = toCString("uColor")
-
-          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
-          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
-
-          if projLocation >= 0 then
-            val matrix = Drawing.getProjection()
-            val matrixPtr = stackalloc[GLfloat](16)
-            var i = 0; while i < 16 do { matrixPtr(i) = matrix(i); i += 1 }
-            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
-
-          if colorLocation >= 0 then
-            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
-        }
+        Drawing.useProgram(customShader.id.toUInt)
+        val projLoc  = Drawing.getCustomProjLoc
+        val colorLoc = Drawing.getCustomColorLoc
+        if projLoc >= 0 then
+          GLEWHelper.glUniformMatrix4fv(projLoc, 1.toUInt, GL_FALSE, Drawing.getProjectionPtr)
+        if colorLoc >= 0 then
+          GLEWHelper.glUniform4f(colorLoc, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
       case None =>
         defaultShader.foreach { shader =>
-          GLEWHelper.glUseProgram(shader.id.toUInt)
+          Drawing.useProgram(shader.id.toUInt)
           setColor(color)
         }
 
@@ -641,27 +560,16 @@ object BasicRenderer:
 
     Drawing.getCurrentShader match
       case Some(customShader) =>
-        GLEWHelper.glUseProgram(customShader.id.toUInt)
-
-        Zone {
-          val projName = toCString("uProjection")
-          val colorName = toCString("uColor")
-
-          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
-          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
-
-          if projLocation >= 0 then
-            val matrix = Drawing.getProjection()
-            val matrixPtr = stackalloc[GLfloat](16)
-            var i = 0; while i < 16 do { matrixPtr(i) = matrix(i); i += 1 }
-            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
-
-          if colorLocation >= 0 then
-            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
-        }
+        Drawing.useProgram(customShader.id.toUInt)
+        val projLoc  = Drawing.getCustomProjLoc
+        val colorLoc = Drawing.getCustomColorLoc
+        if projLoc >= 0 then
+          GLEWHelper.glUniformMatrix4fv(projLoc, 1.toUInt, GL_FALSE, Drawing.getProjectionPtr)
+        if colorLoc >= 0 then
+          GLEWHelper.glUniform4f(colorLoc, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
       case None =>
         defaultShader.foreach { shader =>
-          GLEWHelper.glUseProgram(shader.id.toUInt)
+          Drawing.useProgram(shader.id.toUInt)
           setColor(color)
         }
 
@@ -682,27 +590,16 @@ object BasicRenderer:
 
     Drawing.getCurrentShader match
       case Some(customShader) =>
-        GLEWHelper.glUseProgram(customShader.id.toUInt)
-
-        Zone {
-          val projName = toCString("uProjection")
-          val colorName = toCString("uColor")
-
-          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
-          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
-
-          if projLocation >= 0 then
-            val matrix = Drawing.getProjection()
-            val matrixPtr = stackalloc[GLfloat](16)
-            var i = 0; while i < 16 do { matrixPtr(i) = matrix(i); i += 1 }
-            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
-
-          if colorLocation >= 0 then
-            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
-        }
+        Drawing.useProgram(customShader.id.toUInt)
+        val projLoc  = Drawing.getCustomProjLoc
+        val colorLoc = Drawing.getCustomColorLoc
+        if projLoc >= 0 then
+          GLEWHelper.glUniformMatrix4fv(projLoc, 1.toUInt, GL_FALSE, Drawing.getProjectionPtr)
+        if colorLoc >= 0 then
+          GLEWHelper.glUniform4f(colorLoc, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
       case None =>
         defaultShader.foreach { shader =>
-          GLEWHelper.glUseProgram(shader.id.toUInt)
+          Drawing.useProgram(shader.id.toUInt)
           setColor(color)
         }
 
@@ -728,27 +625,16 @@ object BasicRenderer:
 
     Drawing.getCurrentShader match
       case Some(customShader) =>
-        GLEWHelper.glUseProgram(customShader.id.toUInt)
-
-        Zone {
-          val projName = toCString("uProjection")
-          val colorName = toCString("uColor")
-
-          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
-          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
-
-          if projLocation >= 0 then
-            val matrix = Drawing.getProjection()
-            val matrixPtr = stackalloc[GLfloat](16)
-            var i = 0; while i < 16 do { matrixPtr(i) = matrix(i); i += 1 }
-            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
-
-          if colorLocation >= 0 then
-            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
-        }
+        Drawing.useProgram(customShader.id.toUInt)
+        val projLoc  = Drawing.getCustomProjLoc
+        val colorLoc = Drawing.getCustomColorLoc
+        if projLoc >= 0 then
+          GLEWHelper.glUniformMatrix4fv(projLoc, 1.toUInt, GL_FALSE, Drawing.getProjectionPtr)
+        if colorLoc >= 0 then
+          GLEWHelper.glUniform4f(colorLoc, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
       case None =>
         defaultShader.foreach { shader =>
-          GLEWHelper.glUseProgram(shader.id.toUInt)
+          Drawing.useProgram(shader.id.toUInt)
           setColor(color)
         }
 
@@ -776,27 +662,16 @@ object BasicRenderer:
 
     Drawing.getCurrentShader match
       case Some(customShader) =>
-        GLEWHelper.glUseProgram(customShader.id.toUInt)
-
-        Zone {
-          val projName = toCString("uProjection")
-          val colorName = toCString("uColor")
-
-          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
-          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
-
-          if projLocation >= 0 then
-            val matrix = Drawing.getProjection()
-            val matrixPtr = stackalloc[GLfloat](16)
-            var i = 0; while i < 16 do { matrixPtr(i) = matrix(i); i += 1 }
-            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
-
-          if colorLocation >= 0 then
-            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
-        }
+        Drawing.useProgram(customShader.id.toUInt)
+        val projLoc  = Drawing.getCustomProjLoc
+        val colorLoc = Drawing.getCustomColorLoc
+        if projLoc >= 0 then
+          GLEWHelper.glUniformMatrix4fv(projLoc, 1.toUInt, GL_FALSE, Drawing.getProjectionPtr)
+        if colorLoc >= 0 then
+          GLEWHelper.glUniform4f(colorLoc, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
       case None =>
         defaultShader.foreach { shader =>
-          GLEWHelper.glUseProgram(shader.id.toUInt)
+          Drawing.useProgram(shader.id.toUInt)
           setColor(color)
         }
 
@@ -828,23 +703,16 @@ object BasicRenderer:
 
     Drawing.getCurrentShader match
       case Some(customShader) =>
-        GLEWHelper.glUseProgram(customShader.id.toUInt)
-        Zone {
-          val projName  = toCString("uProjection")
-          val colorName = toCString("uColor")
-          val projLocation  = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
-          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
-          if projLocation >= 0 then
-            val matrix = Drawing.getProjection()
-            val matrixPtr = stackalloc[GLfloat](16)
-            var i = 0; while i < 16 do { matrixPtr(i) = matrix(i); i += 1 }
-            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
-          if colorLocation >= 0 then
-            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
-        }
+        Drawing.useProgram(customShader.id.toUInt)
+        val projLoc  = Drawing.getCustomProjLoc
+        val colorLoc = Drawing.getCustomColorLoc
+        if projLoc >= 0 then
+          GLEWHelper.glUniformMatrix4fv(projLoc, 1.toUInt, GL_FALSE, Drawing.getProjectionPtr)
+        if colorLoc >= 0 then
+          GLEWHelper.glUniform4f(colorLoc, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
       case None =>
         defaultShader.foreach { shader =>
-          GLEWHelper.glUseProgram(shader.id.toUInt)
+          Drawing.useProgram(shader.id.toUInt)
           setColor(color)
         }
 
@@ -876,27 +744,16 @@ object BasicRenderer:
 
     Drawing.getCurrentShader match
       case Some(customShader) =>
-        GLEWHelper.glUseProgram(customShader.id.toUInt)
-
-        Zone {
-          val projName = toCString("uProjection")
-          val colorName = toCString("uColor")
-
-          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
-          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
-
-          if projLocation >= 0 then
-            val matrix = Drawing.getProjection()
-            val matrixPtr = stackalloc[GLfloat](16)
-            var i = 0; while i < 16 do { matrixPtr(i) = matrix(i); i += 1 }
-            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
-
-          if colorLocation >= 0 then
-            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
-        }
+        Drawing.useProgram(customShader.id.toUInt)
+        val projLoc  = Drawing.getCustomProjLoc
+        val colorLoc = Drawing.getCustomColorLoc
+        if projLoc >= 0 then
+          GLEWHelper.glUniformMatrix4fv(projLoc, 1.toUInt, GL_FALSE, Drawing.getProjectionPtr)
+        if colorLoc >= 0 then
+          GLEWHelper.glUniform4f(colorLoc, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
       case None =>
         defaultShader.foreach { shader =>
-          GLEWHelper.glUseProgram(shader.id.toUInt)
+          Drawing.useProgram(shader.id.toUInt)
           setColor(color)
         }
 
@@ -926,27 +783,20 @@ object BasicRenderer:
 
     Drawing.getCurrentShader match
       case Some(customShader) =>
-        GLEWHelper.glUseProgram(customShader.id.toUInt)
-        Zone {
-          val projName  = toCString("uProjection")
-          val colorName = toCString("uColor")
-          val projLocation  = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
-          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
-          if projLocation >= 0 then
-            val matrix = Drawing.getProjection()
-            val matrixPtr = stackalloc[GLfloat](16)
-            var i = 0; while i < 16 do { matrixPtr(i) = matrix(i); i += 1 }
-            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
-          if colorLocation >= 0 then
-            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
-        }
+        Drawing.useProgram(customShader.id.toUInt)
+        val projLoc  = Drawing.getCustomProjLoc
+        val colorLoc = Drawing.getCustomColorLoc
+        if projLoc >= 0 then
+          GLEWHelper.glUniformMatrix4fv(projLoc, 1.toUInt, GL_FALSE, Drawing.getProjectionPtr)
+        if colorLoc >= 0 then
+          GLEWHelper.glUniform4f(colorLoc, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
       case None =>
         defaultShader.foreach { shader =>
-          GLEWHelper.glUseProgram(shader.id.toUInt)
+          Drawing.useProgram(shader.id.toUInt)
           setColor(color)
         }
 
-    val segments = 36
+    val segments = circleSegments(radius)
     var n = 0
     var i = 0
     while i < segments do
@@ -973,23 +823,16 @@ object BasicRenderer:
 
     Drawing.getCurrentShader match
       case Some(customShader) =>
-        GLEWHelper.glUseProgram(customShader.id.toUInt)
-        Zone {
-          val projName  = toCString("uProjection")
-          val colorName = toCString("uColor")
-          val projLocation  = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
-          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
-          if projLocation >= 0 then
-            val matrix = Drawing.getProjection()
-            val matrixPtr = stackalloc[GLfloat](16)
-            var i = 0; while i < 16 do { matrixPtr(i) = matrix(i); i += 1 }
-            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
-          if colorLocation >= 0 then
-            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
-        }
+        Drawing.useProgram(customShader.id.toUInt)
+        val projLoc  = Drawing.getCustomProjLoc
+        val colorLoc = Drawing.getCustomColorLoc
+        if projLoc >= 0 then
+          GLEWHelper.glUniformMatrix4fv(projLoc, 1.toUInt, GL_FALSE, Drawing.getProjectionPtr)
+        if colorLoc >= 0 then
+          GLEWHelper.glUniform4f(colorLoc, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
       case None =>
         defaultShader.foreach { shader =>
-          GLEWHelper.glUseProgram(shader.id.toUInt)
+          Drawing.useProgram(shader.id.toUInt)
           setColor(color)
         }
 
@@ -1022,27 +865,16 @@ object BasicRenderer:
 
     Drawing.getCurrentShader match
       case Some(customShader) =>
-        GLEWHelper.glUseProgram(customShader.id.toUInt)
-
-        Zone {
-          val projName = toCString("uProjection")
-          val colorName = toCString("uColor")
-
-          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
-          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
-
-          if projLocation >= 0 then
-            val matrix = Drawing.getProjection()
-            val matrixPtr = stackalloc[GLfloat](16)
-            var i = 0; while i < 16 do { matrixPtr(i) = matrix(i); i += 1 }
-            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
-
-          if colorLocation >= 0 then
-            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
-        }
+        Drawing.useProgram(customShader.id.toUInt)
+        val projLoc  = Drawing.getCustomProjLoc
+        val colorLoc = Drawing.getCustomColorLoc
+        if projLoc >= 0 then
+          GLEWHelper.glUniformMatrix4fv(projLoc, 1.toUInt, GL_FALSE, Drawing.getProjectionPtr)
+        if colorLoc >= 0 then
+          GLEWHelper.glUniform4f(colorLoc, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
       case None =>
         defaultShader.foreach { shader =>
-          GLEWHelper.glUseProgram(shader.id.toUInt)
+          Drawing.useProgram(shader.id.toUInt)
           setColor(color)
         }
 
@@ -1080,31 +912,20 @@ object BasicRenderer:
 
     Drawing.getCurrentShader match
       case Some(customShader) =>
-        GLEWHelper.glUseProgram(customShader.id.toUInt)
-
-        Zone {
-          val projName = toCString("uProjection")
-          val colorName = toCString("uColor")
-
-          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
-          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
-
-          if projLocation >= 0 then
-            val matrix = Drawing.getProjection()
-            val matrixPtr = stackalloc[GLfloat](16)
-            var i = 0; while i < 16 do { matrixPtr(i) = matrix(i); i += 1 }
-            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
-
-          if colorLocation >= 0 then
-            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
-        }
+        Drawing.useProgram(customShader.id.toUInt)
+        val projLoc  = Drawing.getCustomProjLoc
+        val colorLoc = Drawing.getCustomColorLoc
+        if projLoc >= 0 then
+          GLEWHelper.glUniformMatrix4fv(projLoc, 1.toUInt, GL_FALSE, Drawing.getProjectionPtr)
+        if colorLoc >= 0 then
+          GLEWHelper.glUniform4f(colorLoc, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
       case None =>
         defaultShader.foreach { shader =>
-          GLEWHelper.glUseProgram(shader.id.toUInt)
+          Drawing.useProgram(shader.id.toUInt)
           setColor(color)
         }
 
-    val segments = 36
+    val segments = circleSegments(radius)
     var n = 0
     var i = 0
     while i < segments do

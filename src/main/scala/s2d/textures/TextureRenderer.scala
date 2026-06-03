@@ -115,7 +115,7 @@ object TextureRenderer:
 
   private def setProjectionMatrix(matrix: Array[Float]): Unit =
     textureShader.foreach { shader =>
-      GLEWHelper.glUseProgram(shader.id.toUInt)
+      Drawing.useProgram(shader.id.toUInt)
       var i = 0
       while i < 16 do { scratchBuffer(i) = matrix(i); i += 1 }
       GLEWHelper.glUniformMatrix4fv(projectionLocation, 1.toUInt, GL_FALSE, scratchBuffer)
@@ -136,35 +136,22 @@ object TextureRenderer:
 
     Drawing.getCurrentShader match
       case Some(customShader) =>
-        GLEWHelper.glUseProgram(customShader.id.toUInt)
-
-        Zone {
-          val projName = toCString("uProjection")
-          val colorName = toCString("uColor")
-          val texName = toCString("uTexture")
-
-          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
-          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
-          val textureLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, texName)
-
-          if projLocation >= 0 then
-            val matrix = Drawing.getProjection()
-            val matrixPtr = stackalloc[GLfloat](16)
-            var i = 0; while i < 16 do { matrixPtr(i) = matrix(i); i += 1 }
-            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
-
-          if colorLocation >= 0 then
-            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
-
-          if textureLocation >= 0 then
-            GLEWHelper.glActiveTexture(GL_TEXTURE0.toUInt)
-            glBindTexture(GL_TEXTURE_2D.toUInt, texture.id.toUInt)
-            GLEWHelper.glUniform1i(textureLocation, 0)
-        }
+        Drawing.useProgram(customShader.id.toUInt)
+        val projLoc  = Drawing.getCustomProjLoc
+        val colorLoc = Drawing.getCustomColorLoc
+        val texLoc   = Drawing.getCustomTexLoc
+        if projLoc >= 0 then
+          GLEWHelper.glUniformMatrix4fv(projLoc, 1.toUInt, GL_FALSE, Drawing.getProjectionPtr)
+        if colorLoc >= 0 then
+          GLEWHelper.glUniform4f(colorLoc, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
+        if texLoc >= 0 then
+          GLEWHelper.glActiveTexture(GL_TEXTURE0.toUInt)
+          glBindTexture(GL_TEXTURE_2D.toUInt, texture.id.toUInt)
+          GLEWHelper.glUniform1i(texLoc, 0)
 
       case None =>
         textureShader.foreach { shader =>
-          GLEWHelper.glUseProgram(shader.id.toUInt)
+          Drawing.useProgram(shader.id.toUInt)
           setColor(color)
 
           GLEWHelper.glActiveTexture(GL_TEXTURE0.toUInt)
@@ -198,35 +185,22 @@ object TextureRenderer:
 
     Drawing.getCurrentShader match
       case Some(customShader) =>
-        GLEWHelper.glUseProgram(customShader.id.toUInt)
-
-        Zone {
-          val projName = toCString("uProjection")
-          val colorName = toCString("uColor")
-          val texName = toCString("uTexture")
-
-          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
-          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
-          val textureLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, texName)
-
-          if projLocation >= 0 then
-            val matrix = Drawing.getProjection()
-            val matrixPtr = stackalloc[GLfloat](16)
-            var i = 0; while i < 16 do { matrixPtr(i) = matrix(i); i += 1 }
-            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
-
-          if colorLocation >= 0 then
-            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
-
-          if textureLocation >= 0 then
-            GLEWHelper.glActiveTexture(GL_TEXTURE0.toUInt)
-            glBindTexture(GL_TEXTURE_2D.toUInt, texture.id.toUInt)
-            GLEWHelper.glUniform1i(textureLocation, 0)
-        }
+        Drawing.useProgram(customShader.id.toUInt)
+        val projLoc  = Drawing.getCustomProjLoc
+        val colorLoc = Drawing.getCustomColorLoc
+        val texLoc   = Drawing.getCustomTexLoc
+        if projLoc >= 0 then
+          GLEWHelper.glUniformMatrix4fv(projLoc, 1.toUInt, GL_FALSE, Drawing.getProjectionPtr)
+        if colorLoc >= 0 then
+          GLEWHelper.glUniform4f(colorLoc, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
+        if texLoc >= 0 then
+          GLEWHelper.glActiveTexture(GL_TEXTURE0.toUInt)
+          glBindTexture(GL_TEXTURE_2D.toUInt, texture.id.toUInt)
+          GLEWHelper.glUniform1i(texLoc, 0)
 
       case None =>
         textureShader.foreach { shader =>
-          GLEWHelper.glUseProgram(shader.id.toUInt)
+          Drawing.useProgram(shader.id.toUInt)
           setColor(color)
 
           GLEWHelper.glActiveTexture(GL_TEXTURE0.toUInt)
@@ -277,35 +251,22 @@ object TextureRenderer:
 
     Drawing.getCurrentShader match
       case Some(customShader) =>
-        GLEWHelper.glUseProgram(customShader.id.toUInt)
-
-        Zone {
-          val projName = toCString("uProjection")
-          val colorName = toCString("uColor")
-          val texName = toCString("uTexture")
-
-          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
-          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
-          val textureLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, texName)
-
-          if projLocation >= 0 then
-            val matrix = Drawing.getProjection()
-            val matrixPtr = stackalloc[GLfloat](16)
-            var i = 0; while i < 16 do { matrixPtr(i) = matrix(i); i += 1 }
-            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
-
-          if colorLocation >= 0 then
-            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
-
-          if textureLocation >= 0 then
-            GLEWHelper.glActiveTexture(GL_TEXTURE0.toUInt)
-            glBindTexture(GL_TEXTURE_2D.toUInt, texture.id.toUInt)
-            GLEWHelper.glUniform1i(textureLocation, 0)
-        }
+        Drawing.useProgram(customShader.id.toUInt)
+        val projLoc  = Drawing.getCustomProjLoc
+        val colorLoc = Drawing.getCustomColorLoc
+        val texLoc   = Drawing.getCustomTexLoc
+        if projLoc >= 0 then
+          GLEWHelper.glUniformMatrix4fv(projLoc, 1.toUInt, GL_FALSE, Drawing.getProjectionPtr)
+        if colorLoc >= 0 then
+          GLEWHelper.glUniform4f(colorLoc, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
+        if texLoc >= 0 then
+          GLEWHelper.glActiveTexture(GL_TEXTURE0.toUInt)
+          glBindTexture(GL_TEXTURE_2D.toUInt, texture.id.toUInt)
+          GLEWHelper.glUniform1i(texLoc, 0)
 
       case None =>
         textureShader.foreach { shader =>
-          GLEWHelper.glUseProgram(shader.id.toUInt)
+          Drawing.useProgram(shader.id.toUInt)
           setColor(color)
 
           GLEWHelper.glActiveTexture(GL_TEXTURE0.toUInt)
@@ -346,35 +307,22 @@ object TextureRenderer:
 
     Drawing.getCurrentShader match
       case Some(customShader) =>
-        GLEWHelper.glUseProgram(customShader.id.toUInt)
-
-        Zone {
-          val projName = toCString("uProjection")
-          val colorName = toCString("uColor")
-          val texName = toCString("uTexture")
-
-          val projLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, projName)
-          val colorLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, colorName)
-          val textureLocation = GLEWHelper.glGetUniformLocation(customShader.id.toUInt, texName)
-
-          if projLocation >= 0 then
-            val matrix = Drawing.getProjection()
-            val matrixPtr = stackalloc[GLfloat](16)
-            var i = 0; while i < 16 do { matrixPtr(i) = matrix(i); i += 1 }
-            GLEWHelper.glUniformMatrix4fv(projLocation, 1.toUInt, GL_FALSE, matrixPtr)
-
-          if colorLocation >= 0 then
-            GLEWHelper.glUniform4f(colorLocation, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
-
-          if textureLocation >= 0 then
-            GLEWHelper.glActiveTexture(GL_TEXTURE0.toUInt)
-            glBindTexture(GL_TEXTURE_2D.toUInt, texture.id.toUInt)
-            GLEWHelper.glUniform1i(textureLocation, 0)
-        }
+        Drawing.useProgram(customShader.id.toUInt)
+        val projLoc  = Drawing.getCustomProjLoc
+        val colorLoc = Drawing.getCustomColorLoc
+        val texLoc   = Drawing.getCustomTexLoc
+        if projLoc >= 0 then
+          GLEWHelper.glUniformMatrix4fv(projLoc, 1.toUInt, GL_FALSE, Drawing.getProjectionPtr)
+        if colorLoc >= 0 then
+          GLEWHelper.glUniform4f(colorLoc, color.rNorm, color.gNorm, color.bNorm, color.aNorm)
+        if texLoc >= 0 then
+          GLEWHelper.glActiveTexture(GL_TEXTURE0.toUInt)
+          glBindTexture(GL_TEXTURE_2D.toUInt, texture.id.toUInt)
+          GLEWHelper.glUniform1i(texLoc, 0)
 
       case None =>
         textureShader.foreach { shader =>
-          GLEWHelper.glUseProgram(shader.id.toUInt)
+          Drawing.useProgram(shader.id.toUInt)
           setColor(color)
 
           GLEWHelper.glActiveTexture(GL_TEXTURE0.toUInt)

@@ -10,10 +10,17 @@ import s2d.core.{Window, Input}
 import s2d.math.*
 import scalanative.unsafe.*
 import scalanative.unsigned.*
+import scalanative.libc.stdlib
 
 object Drawing:
   private var currentCustomShader: Option[Shader] = None
+  private val projectionPtr: Ptr[GLfloat] =
+    stdlib.malloc(sizeof[GLfloat] * 16.toUInt).asInstanceOf[Ptr[GLfloat]]
   private var cachedProjection: Array[Float] = Matrix4.ortho(0.0f, 800.0f, 600.0f, 0.0f, -1.0f, 1.0f)
+  private var cachedProjLoc: Int = -1
+  private var cachedColorLoc: Int = -1
+  private var cachedTexLoc: Int = -1
+  private var currentProgramId: UInt = 0.toUInt
 
   def clear(color: Color): Unit =
     glClearColor(color.rNorm, color.gNorm, color.bNorm, color.aNorm)
@@ -30,6 +37,7 @@ object Drawing:
     Timing.updateDelta()
 
     updateProjection()
+    currentProgramId = 0.toUInt
 
     Input.updateKeyStates()
     Input.updateMouseStates()
@@ -112,14 +120,27 @@ object Drawing:
   def beginShader(shader: Shader): Unit =
     if !Window.isWindowInitialized then return
 
+    Zone {
+      cachedProjLoc  = GLEWHelper.glGetUniformLocation(shader.id.toUInt, toCString("uProjection"))
+      cachedColorLoc = GLEWHelper.glGetUniformLocation(shader.id.toUInt, toCString("uColor"))
+      cachedTexLoc   = GLEWHelper.glGetUniformLocation(shader.id.toUInt, toCString("uTexture"))
+    }
     currentCustomShader = Some(shader)
-    GLEWHelper.glUseProgram(shader.id.toUInt)
+    useProgram(shader.id.toUInt)
 
   def endShader(): Unit =
     if !Window.isWindowInitialized then return
 
+    cachedProjLoc  = -1
+    cachedColorLoc = -1
+    cachedTexLoc   = -1
     currentCustomShader = None
-    GLEWHelper.glUseProgram(0.toUInt)
+    useProgram(0.toUInt)
+
+  def useProgram(id: UInt): Unit =
+    if id != currentProgramId then
+      GLEWHelper.glUseProgram(id)
+      currentProgramId = id
 
   def beginBlend(mode: BlendMode): Unit =
     if !Window.isWindowInitialized then return
@@ -172,8 +193,14 @@ object Drawing:
 
   def updateProjection(): Unit =
     cachedProjection = Matrix4.ortho(0.0f, Window.width.toFloat, Window.height.toFloat, 0.0f, -1.0f, 1.0f)
+    var i = 0; while i < 16 do { projectionPtr(i) = cachedProjection(i); i += 1 }
 
   def getProjection(): Array[Float] = cachedProjection
+  def getProjectionPtr: Ptr[GLfloat] = projectionPtr
+
+  def getCustomProjLoc: Int  = cachedProjLoc
+  def getCustomColorLoc: Int = cachedColorLoc
+  def getCustomTexLoc: Int   = cachedTexLoc
 
   private def processEvent(event: Ptr[SDL_Event]): Unit =
     event.type_ match

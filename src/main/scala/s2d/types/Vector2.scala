@@ -29,6 +29,9 @@ case class Vector2(x: Float, y: Float):
     val cos = math.cos(angle).toFloat
     val sin = math.sin(angle).toFloat
     Vector2(x * cos - y * sin, x * sin + y * cos)
+
+  inline def withX(nx: Float): Vector2 = Vector2(nx, y)
+  inline def withY(ny: Float): Vector2 = Vector2(x, ny)
 end Vector2
 
 object Vector2:

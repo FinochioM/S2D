@@ -285,50 +285,43 @@ object Textures:
       case _: Exception =>
 
   def update(texture: Texture2D, pixels: Ptr[Byte]): Unit =
-    try
-      if !isValid(texture) || pixels == null then return
+    if !isValid(texture) || pixels == null then return
 
-      glBindTexture(GL_TEXTURE_2D.toUInt, texture.id.toUInt)
+    glBindTexture(GL_TEXTURE_2D.toUInt, texture.id.toUInt)
 
-      val (format, dataType) = texture.format match
-        case f if f == PixelFormat.UncompressedGrayscale.value => (GL_LUMINANCE.toUInt, GL_UNSIGNED_BYTE.toUInt)
-        case f if f == PixelFormat.UncompressedGrayAlpha.value => (GL_LUMINANCE_ALPHA.toUInt, GL_UNSIGNED_BYTE.toUInt)
-        case f if f == PixelFormat.UncompressedRGB8.value => (GL_RGB.toUInt, GL_UNSIGNED_BYTE.toUInt)
-        case f if f == PixelFormat.UncompressedR8G8B8A8.value => (GL_RGBA.toUInt, GL_UNSIGNED_BYTE.toUInt)
-        case f if f == PixelFormat.UncompressedR5G6B5.value => (GL_RGB.toUInt, GL_UNSIGNED_SHORT_5_6_5.toUInt)
-        case f if f == PixelFormat.UncompressedR5G6B5A1.value => (GL_RGBA.toUInt, GL_UNSIGNED_SHORT_5_5_5_1.toUInt)
-        case f if f == PixelFormat.UncompressedR4G4B4A4.value => (GL_RGBA.toUInt, GL_UNSIGNED_SHORT_4_4_4_4.toUInt)
-        case _ => (GL_RGBA.toUInt, GL_UNSIGNED_BYTE.toUInt)
+    val (format, dataType) = texture.format match
+      case f if f == PixelFormat.UncompressedGrayscale.value     => (GL_LUMINANCE.toUInt, GL_UNSIGNED_BYTE.toUInt)
+      case f if f == PixelFormat.UncompressedGrayAlpha.value     => (GL_LUMINANCE_ALPHA.toUInt, GL_UNSIGNED_BYTE.toUInt)
+      case f if f == PixelFormat.UncompressedRGB8.value          => (GL_RGB.toUInt, GL_UNSIGNED_BYTE.toUInt)
+      case f if f == PixelFormat.UncompressedR8G8B8A8.value      => (GL_RGBA.toUInt, GL_UNSIGNED_BYTE.toUInt)
+      case f if f == PixelFormat.UncompressedR5G6B5.value        => (GL_RGB.toUInt, GL_UNSIGNED_SHORT_5_6_5.toUInt)
+      case f if f == PixelFormat.UncompressedR5G6B5A1.value      => (GL_RGBA.toUInt, GL_UNSIGNED_SHORT_5_5_5_1.toUInt)
+      case f if f == PixelFormat.UncompressedR4G4B4A4.value      => (GL_RGBA.toUInt, GL_UNSIGNED_SHORT_4_4_4_4.toUInt)
+      case _                                                      => (GL_RGBA.toUInt, GL_UNSIGNED_BYTE.toUInt)
 
-      glTexSubImage2D(GL_TEXTURE_2D.toUInt, 0, 0, 0, texture.width.toUInt, texture.height.toUInt, format, dataType, pixels)
-      glBindTexture(GL_TEXTURE_2D.toUInt, 0.toUInt)
-    catch
-      case _: Exception =>
+    glTexSubImage2D(GL_TEXTURE_2D.toUInt, 0, 0, 0, texture.width.toUInt, texture.height.toUInt, format, dataType, pixels)
+    glBindTexture(GL_TEXTURE_2D.toUInt, 0.toUInt)
 
   def updateRec(texture: Texture2D, rec: Rectangle, pixels: Ptr[Byte]): Unit =
-    try
-      if !isValid(texture) || pixels == null then return
+    if !isValid(texture) || pixels == null then return
+    if rec.x < 0 || rec.y < 0 ||
+      rec.x + rec.width > texture.width ||
+      rec.y + rec.height > texture.height then return
 
-      if rec.x < 0 || rec.y < 0 ||
-        rec.x + rec.width > texture.width ||
-        rec.y + rec.height > texture.height then return
+    glBindTexture(GL_TEXTURE_2D.toUInt, texture.id.toUInt)
 
-      glBindTexture(GL_TEXTURE_2D.toUInt, texture.id.toUInt)
+    val (format, dataType) = texture.format match
+      case f if f == PixelFormat.UncompressedGrayscale.value     => (GL_LUMINANCE.toUInt, GL_UNSIGNED_BYTE.toUInt)
+      case f if f == PixelFormat.UncompressedGrayAlpha.value     => (GL_LUMINANCE_ALPHA.toUInt, GL_UNSIGNED_BYTE.toUInt)
+      case f if f == PixelFormat.UncompressedRGB8.value          => (GL_RGB.toUInt, GL_UNSIGNED_BYTE.toUInt)
+      case f if f == PixelFormat.UncompressedR8G8B8A8.value      => (GL_RGBA.toUInt, GL_UNSIGNED_BYTE.toUInt)
+      case f if f == PixelFormat.UncompressedR5G6B5.value        => (GL_RGB.toUInt, GL_UNSIGNED_SHORT_5_6_5.toUInt)
+      case f if f == PixelFormat.UncompressedR5G6B5A1.value      => (GL_RGBA.toUInt, GL_UNSIGNED_SHORT_5_5_5_1.toUInt)
+      case f if f == PixelFormat.UncompressedR4G4B4A4.value      => (GL_RGBA.toUInt, GL_UNSIGNED_SHORT_4_4_4_4.toUInt)
+      case _                                                      => (GL_RGBA.toUInt, GL_UNSIGNED_BYTE.toUInt)
 
-      val (format, dataType) = texture.format match
-        case f if f == PixelFormat.UncompressedGrayscale.value => (GL_LUMINANCE.toUInt, GL_UNSIGNED_BYTE.toUInt)
-        case f if f == PixelFormat.UncompressedGrayAlpha.value => (GL_LUMINANCE_ALPHA.toUInt, GL_UNSIGNED_BYTE.toUInt)
-        case f if f == PixelFormat.UncompressedRGB8.value => (GL_RGB.toUInt, GL_UNSIGNED_BYTE.toUInt)
-        case f if f == PixelFormat.UncompressedR8G8B8A8.value => (GL_RGBA.toUInt, GL_UNSIGNED_BYTE.toUInt)
-        case f if f == PixelFormat.UncompressedR5G6B5.value => (GL_RGB.toUInt, GL_UNSIGNED_SHORT_5_6_5.toUInt)
-        case f if f == PixelFormat.UncompressedR5G6B5A1.value => (GL_RGBA.toUInt, GL_UNSIGNED_SHORT_5_5_5_1.toUInt)
-        case f if f == PixelFormat.UncompressedR4G4B4A4.value => (GL_RGBA.toUInt, GL_UNSIGNED_SHORT_4_4_4_4.toUInt)
-        case _ => (GL_RGBA.toUInt, GL_UNSIGNED_BYTE.toUInt)
-
-      glTexSubImage2D(GL_TEXTURE_2D.toUInt, 0, rec.x.toInt, rec.y.toInt, rec.width.toInt.toUInt, rec.height.toInt.toUInt, format, dataType, pixels)
-      glBindTexture(GL_TEXTURE_2D.toUInt, 0.toUInt)
-    catch
-      case _: Exception =>
+    glTexSubImage2D(GL_TEXTURE_2D.toUInt, 0, rec.x.toInt, rec.y.toInt, rec.width.toInt.toUInt, rec.height.toInt.toUInt, format, dataType, pixels)
+    glBindTexture(GL_TEXTURE_2D.toUInt, 0.toUInt)
 
   def draw(texture: Texture2D, posX: Int, posY: Int, tint: Color): Unit =
     TextureRenderer.updateProjectionFromDrawing()
