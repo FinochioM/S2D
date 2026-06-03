@@ -1,10 +1,22 @@
 S2D Changelog File.
 In this file you can find the changes made to every version of the library.
 
-05/2026
+05/2026 - 06/2026
 v_0.1.8-SNAPSHOT:
 - fixed a bug on Timing.scala file where FPS were spiking to INT.MAXSIZE
 - added waitForTargetFPS and setTargetFPS functions on Timing.scala.
+- implemented a batch renderer in BasicRenderer. every shape using default-shader gets accumulated into one single vertex buffer.
+- removed all the per-draw allocations (scala array and arraybuffer). replaced it with pre-allocations, using a scratch buffer.
+- removed every "Zone" block from renderers. no more stack allocations.
+- removed all "for" loops from the code. replaced them with while loops for better performance.
+- glVertexAttribPointer and glEnableVertexAttribArray called once on initialize instead of per-draw. saves state on VAO.
+- glUseProgram now uses a state tracking logic. removed logic that was unnecesarily switching programs for every call.
+- glGetUniformLocation now uses a cache logic for custom shaders (beginShader).
+- projection matrix gets computed once per frame and stored in a pre-allocated pointer. it is now shared across all renderers.
+- beginCamera/endCamera had a bug when using custom shaders. fixed this and now camera correctly sends data to projection matrix.
+- removed hardcoded "36" segments value from circle rendering. now radius is automatically calculated.
+- removed every try/catch block inside texture renderer.
+- added 2 new functions to Vector2 (withX and withY). the goal is to be able to create a modified copy without allocating intermediate values.
 
 06/2025
 v_0.1.7-SNAPSHOT:

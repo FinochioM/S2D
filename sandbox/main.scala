@@ -20,4 +20,10 @@ def main(): Unit =
   Input.setExitKey(Key.Escape)
   Timing.setTargetFPS(60)
 
+  while Window.isOpen() do
+    Drawing.beginFrame()
+    Drawing.clear(Color.DarkBlue)
+
+    Drawing.endFrame()
+
   Window.close()
