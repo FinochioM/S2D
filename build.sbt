@@ -1,5 +1,7 @@
-ThisBuild / version := "0.1.8"
-ThisBuild / scalaVersion := "3.3.6"
+import xerial.sbt.Sonatype.GitHubHosting
+
+ThisBuild / version := "0.1.9-SNAPSHOT"
+ThisBuild / scalaVersion := "3.8.3"
 ThisBuild / organization := "io.github.finochiom"
 ThisBuild / versionScheme := Some("early-semver")
 
@@ -32,9 +34,20 @@ lazy val root = (project in file("."))
     ),
     pgpSigningKey := Some("E566FB27021A557C"),
     description := "A simple to use 2D videogames programming library written in Scala",
+    // LOCAL M2 REPO
     publishTo := Some(
       Resolver
         .file("local-repo", file(sys.props("user.home") + "/.m2/repository"))
+    ),
+
+    // SONATYPE
+    // publishTo := sonatypePublishToBundle.value,
+    //sonatypeCredentialHost := "central.sonatype.com",
+    credentials += Credentials(
+      "Sonatype Nexus Repository Manager",
+      "central.sonatype.com",
+      "YBMoN9",
+      "0kwF5vdtVegnPOLBi68rQqKTYMtOi9Th5"
     ),
     Compile / packageDoc / publishArtifact := true,
     Compile / packageSrc / publishArtifact := true,
