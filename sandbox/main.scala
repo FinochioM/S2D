@@ -3,7 +3,7 @@
 //> using nativeVersion 0.5.12
 //> using scalacOptions -Wconf:msg=indented:silent
 //> using repository "m2Local"
-//> using dep "io.github.finochiom:s2d_native0.5_3:0.2.0"
+//> using dep "io.github.finochiom:s2d_native0.5_3:0.2.1"
 //> using nativeLinking -lSDL2
 //> using nativeLinking -lGLEW
 //> using nativeLinking -lGL
@@ -11,37 +11,60 @@
 package sandbox
 
 import s2d.core.*
-import s2d.font.*
+import s2d.shapes.*
 import s2d.types.*
 
-@main
-def main(): Unit =
+@main def main(): Unit =
   Window.create(800, 450, "sandbox")
   Input.setExitKey(Key.Escape)
   Timing.setTargetFPS(60)
 
-  val small = Font.load("assets/font.ttf", 16.0f).get
-  val big = Font.load("assets/font.ttf", 64.0f).get
+  val vs = """
+    #version 330 core
+    layout (location = 0) in vec2 aPos;
+    layout (location = 1) in vec4 aColor;
+    uniform mat4 uProjection;
+    out vec4 vertexColor;
+    void main() {
+      gl_Position = uProjection * vec4(aPos, 0.0, 1.0);
+      vertexColor = aColor;
+    }
+  """
+
+  val fs = """
+    #version 330 core
+    in vec4 vertexColor;
+    out vec4 FragColor;
+    uniform float uTime;
+    void main() {
+      float r = (sin(uTime) + 1.0) * 0.5;
+      float g = (sin(uTime + 2.094) + 1.0) * 0.5;
+      float b = (sin(uTime + 4.189) + 1.0) * 0.5;
+      FragColor = vec4(r, g, b, 1.0);
+    }
+  """
+
+  val shader = Shaders.loadFromMemory(vs, fs).getOrElse:
+    println("Failed to load shader")
+    Window.close()
+    return
+
+  val timeLoc = Shaders.getShaderLocation(shader, "uTime")
+  var elapsed = 0.0f
 
   while Window.isOpen() do
+    elapsed += Timing.delta.toFloat
+
+    Shaders.setShaderValue(shader, timeLoc, elapsed)
+
     Drawing.beginFrame()
-    Drawing.clear(Color.DarkBlue)
+    Drawing.clear(Color.Black)
 
-    Text.draw("test font", 100, 100, small, Color.White)
-    Text.draw("test font", 100, 300, big, Color.White)
-
-    val text = "centered text"
-    val size = Text.measure(text, big)
-    Text.draw(text, (800 - size.x) / 2, (600 - size.y) / 2, big, Color.White)
-
-    for i <- 0 until 15 do
-      Text.draw(s"line $i", 550, 10 + i * 30, small, Color.White)
-
-
-    Text.draw("!@#$%^&*()_+-=[]{}|;':\",./<>?", 620, 400, small, Color.White)
+    Drawing.beginShader(shader)
+    Basics.rectangle(200, 125, 400, 200, Color.White)
+    Drawing.endShader()
 
     Drawing.endFrame()
 
-  Font.unload(small)
-  Font.unload(big)
+  Shaders.unloadShader(shader)
   Window.close()

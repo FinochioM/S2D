@@ -2,6 +2,14 @@ S2D Changelog File.
 In this file you can find the changes made to every version of the library.
 
 06/2026:
+v_0.2.1:
+- removed setShaderValue(Ptr[Byte], Int).
+- removed setShaderValueV.
+- removed setShaderValueMatrix.
+- added typed setShaderValue overloads for Float, Int, Vector2, Color, Texture2D.
+- added setShaderValue(x, y, z) and setShaderValue(x, y, z, w) overloads for vec3/vec4.
+
+06/2026:
 v_0.2.0:
 - added stb_truetype.h to stb_impl.c.
 - added stb_truetype bindings (stbtt_BakeFontBitmap, stbtt_GetBakedQuad, stbtt_bakedchar, stbtt_aligned_quad).
