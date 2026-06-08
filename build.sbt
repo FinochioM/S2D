@@ -35,15 +35,15 @@ lazy val root = (project in file("."))
     pgpSigningKey := Some("E566FB27021A557C"),
     description := "A simple to use 2D videogames programming library written in Scala",
     // LOCAL M2 REPO
-    /*
+    
     publishTo := Some(
       Resolver
         .file("local-repo", file(sys.props("user.home") + "/.m2/repository"))
-    ),*/
+    ),
 
     // SONATYPE
-    publishTo := sonatypePublishToBundle.value,
-    sonatypeCredentialHost := "central.sonatype.com",
+    //publishTo := sonatypePublishToBundle.value,
+    //sonatypeCredentialHost := "central.sonatype.com",
     credentials += Credentials(
       "Sonatype Nexus Repository Manager",
       "central.sonatype.com",
