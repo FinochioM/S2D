@@ -10,3 +10,4 @@ target/
 .vscode/
 project/
 release.sh
+announce.sh
