@@ -1,6 +1,11 @@
 S2D Changelog File.
 In this file you can find the changes made to every version of the library.
 
+06/2026:
+v_0.1.9-SNAPSHOT:
+- made COLOR an opaque type. Zero allocation with packed RGBA.
+- color now clamps values instead of throwing an error.
+
 05/2026 - 06/2026
 v_0.1.8-SNAPSHOT:
 - fixed a bug on Timing.scala file where FPS were spiking to INT.MAXSIZE
