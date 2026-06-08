@@ -20,19 +20,28 @@ def main(): Unit =
   Input.setExitKey(Key.Escape)
   Timing.setTargetFPS(60)
 
-  val font = Font.load("assets/font.ttf", 32.0f).getOrElse {
-    println("failed to load font.")
-    Window.close()
-    return
-  }
+  val small = Font.load("assets/font.ttf", 16.0f).get
+  val big = Font.load("assets/font.ttf", 64.0f).get
 
   while Window.isOpen() do
     Drawing.beginFrame()
     Drawing.clear(Color.DarkBlue)
 
-    Text.draw("test font", 100, 100, font, Color.White)
+    Text.draw("test font", 100, 100, small, Color.White)
+    Text.draw("test font", 100, 300, big, Color.White)
+
+    val text = "centered text"
+    val size = Text.measure(text, big)
+    Text.draw(text, (800 - size.x) / 2, (600 - size.y) / 2, big, Color.White)
+
+    for i <- 0 until 15 do
+      Text.draw(s"line $i", 550, 10 + i * 30, small, Color.White)
+
+
+    Text.draw("!@#$%^&*()_+-=[]{}|;':\",./<>?", 620, 400, small, Color.White)
 
     Drawing.endFrame()
 
-  Font.unload(font)
+  Font.unload(small)
+  Font.unload(big)
   Window.close()
