@@ -93,7 +93,7 @@ _**NOTE 2: Version** `1.0.1` **uses the wrong version scheme. S2D will be using 
 It would be nice to build a community over time to help each other so here are a few useful links for that: \
 _[SUBREDDIT](https://www.reddit.com/r/S2D/)_ \
 _[DISCORD]() **not available yet**_ \
-_[SUBSTACK]() **not available yet**_
+_[SUBSTACK](https://substack.com/@matiasfinochio)_
 
 ## License
 S2D is licensed under the *zlib* license. Read the [LICENSE](https://github.com/FinochioM/S2D/blob/master/LICENSE) for more information.
