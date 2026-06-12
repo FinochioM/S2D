@@ -75,8 +75,8 @@ Here is a step-by-step guide (You need Coursier installed on your machine):
 cs install s2d --contrib
 ```
 _This will install the s2d-cli application in your machine. \
-**Refer to the coursier documentation to see where the applications are installed.**_ \
-
+**Refer to the coursier documentation to see where the applications are installed.**_ 
+\
 2. After that you can run the CLI Tool like this:
 ```
 s2d --<command>
