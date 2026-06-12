@@ -115,7 +115,7 @@ object Drawing:
     currentCustomShader = None
     useProgram(0.toUInt)
 
-  def useProgram(id: UInt): Unit =
+  private[s2d] def useProgram(id: UInt): Unit =
     if id != currentProgramId then
       GLEWHelper.glUseProgram(id)
       currentProgramId = id
@@ -174,11 +174,11 @@ object Drawing:
     var i = 0; while i < 16 do { projectionPtr(i) = cachedProjection(i); i += 1 }
 
   def getProjection(): Array[Float] = cachedProjection
-  def getProjectionPtr: Ptr[GLfloat] = projectionPtr
+  private[s2d] def getProjectionPtr: Ptr[GLfloat] = projectionPtr
 
-  def getCustomProjLoc: Int  = cachedProjLoc
-  def getCustomColorLoc: Int = cachedColorLoc
-  def getCustomTexLoc: Int   = cachedTexLoc
+  private[s2d] def getCustomProjLoc: Int  = cachedProjLoc
+  private[s2d] def getCustomColorLoc: Int = cachedColorLoc
+  private[s2d] def getCustomTexLoc: Int   = cachedTexLoc
 
   private def processEvent(event: Ptr[SDL_Event]): Unit =
     event.type_ match
@@ -205,5 +205,5 @@ object Drawing:
       case _ =>
         ()
 
-  def getCurrentShader: Option[Shader] = currentCustomShader
+  private[s2d] def getCurrentShader: Option[Shader] = currentCustomShader
 end Drawing
