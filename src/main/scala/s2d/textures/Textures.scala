@@ -311,7 +311,7 @@ object Textures:
     
     glBindTexture(GL_TEXTURE_2D.toUInt, 0.toUInt)
 
-  def updateRec(texture: Texture2D, rec: Rectangle, pixels: Ptr[Byte]): Unit =
+  def updateRec(texture: Texture2D, rec: Rectangle, pixels: Array[Byte]): Unit =
     if !isValid(texture) || pixels == null then return
     if rec.x < 0 || rec.y < 0 ||
       rec.x + rec.width > texture.width ||
@@ -329,7 +329,15 @@ object Textures:
       case f if f == PixelFormat.UncompressedR4G4B4A4.value      => (GL_RGBA.toUInt, GL_UNSIGNED_SHORT_4_4_4_4.toUInt)
       case _                                                      => (GL_RGBA.toUInt, GL_UNSIGNED_BYTE.toUInt)
 
-    glTexSubImage2D(GL_TEXTURE_2D.toUInt, 0, rec.x.toInt, rec.y.toInt, rec.width.toInt.toUInt, rec.height.toInt.toUInt, format, dataType, pixels)
+    Zone {
+      val buf = alloc[Byte](pixels.length)
+      var i = 0
+      while i < pixels.length do
+        buf(i) = pixels(i)
+        i += 1
+      glTexSubImage2D(GL_TEXTURE_2D.toUInt, 0, rec.x.toInt, rec.y.toInt, rec.width.toInt.toUInt, rec.height.toInt.toUInt, format, dataType, buf)
+    }
+    
     glBindTexture(GL_TEXTURE_2D.toUInt, 0.toUInt)
 
   def draw(texture: Texture2D, posX: Int, posY: Int, tint: Color): Unit =
