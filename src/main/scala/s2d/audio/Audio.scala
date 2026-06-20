@@ -35,3 +35,28 @@ object Audio:
       free(ptr.asInstanceOf[Ptr[Byte]])
       AudioRegistry.remove(sound)
     }
+
+  def play(sound: Sound): Unit =
+    AudioRegistry.get(sound).foreach { ptr => 
+      MiniAudio.ma_sound_start(ptr)   
+    }
+
+  def stop(sound: Sound): Unit =
+    AudioRegistry.get(sound).foreach { ptr =>
+      MiniAudio.ma_sound_stop(ptr)
+    }
+
+  def pause(sound: Sound): Unit =
+    AudioRegistry.get(sound).foreach { ptr => 
+      MiniAudio.ma_sound_stop(ptr)  
+    }
+
+  def resume(sound: Sound): Unit =
+    AudioRegistry.get(sound).foreach { ptr =>
+        MiniAudio.ma_sound_start(ptr)
+    }
+
+  def isPlaying(sound: Sound): Boolean =
+    AudioRegistry.get(sound).exists { ptr =>
+      MiniAudio.ma_sound_is_playing(ptr) != 0.toUInt 
+    }
