@@ -60,3 +60,13 @@ object Audio:
     AudioRegistry.get(sound).exists { ptr =>
       MiniAudio.ma_sound_is_playing(ptr) != 0.toUInt 
     }
+
+  def setVolume(sound: Sound, volume: Float): Unit =
+    AudioRegistry.get(sound).foreach { ptr =>
+      MiniAudio.ma_sound_set_volume(ptr, volume)
+    }
+
+  def setPitch(sound: Sound, pitch: Float): Unit =
+    AudioRegistry.get(sound).foreach { ptr =>
+      MiniAudio.ma_sound_set_pitch(ptr, pitch)  
+    }
