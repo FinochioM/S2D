@@ -3,9 +3,10 @@ package s2d.audio
 import s2d.backend.miniaudio.{MiniAudio, ma_engine, ma_sound}
 import scalanative.unsafe.*
 import scalanative.libc.stdlib.*
+import scalanative.runtime.{RawPtr, Intrinsics}
 
 private[audio] object AudioRegistry:
-  private val sounds = scala.collection.mutable.HashMap.empty[Int, Long]
+  private val sounds = scala.collection.mutable.HashMap.empty[Int, Ptr[ma_sound]]
   private var nextId = 1
 
   private val engine: Ptr[ma_engine] =
@@ -21,11 +22,11 @@ private[audio] object AudioRegistry:
   private[audio] def register(ptr: Ptr[ma_sound]): Sound =
     val id = nextId
     nextId += 1
-    sounds(id) = ptr.asInstanceOf[Long]
+    sounds(id) = ptr
     Sound(id)
 
   private[audio] def get(s: Sound): Option[Ptr[ma_sound]] =
-    sounds.get(Sound.id(s)).map(_.asInstanceOf[Ptr[ma_sound]])
+    sounds.get(Sound.id(s))
 
   private[audio] def remove(s: Sound): Unit =
     sounds.remove(Sound.id(s))
