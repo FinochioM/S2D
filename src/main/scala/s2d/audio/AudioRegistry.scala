@@ -9,6 +9,9 @@ private[audio] object AudioRegistry:
   private val sounds = scala.collection.mutable.HashMap.empty[Int, Ptr[ma_sound]]
   private var nextId = 1
 
+  private val music = scala.collection.mutable.HashMap.empty[Int, Ptr[ma_sound]]
+  private var nextMusicId = 1
+
   private val engine: Ptr[ma_engine] =
     val ptr = malloc(sizeof[ma_engine]).asInstanceOf[Ptr[ma_engine]]
     val result = MiniAudio.ma_engine_init(null, ptr)
@@ -30,6 +33,18 @@ private[audio] object AudioRegistry:
 
   private[audio] def remove(s: Sound): Unit =
     sounds.remove(Sound.id(s))
+
+  private[audio] def registerMusic(ptr: Ptr[ma_sound]): Music =
+    val id = nextMusicId
+    nextMusicId += 1
+    music(id) = ptr
+    Music(id)
+
+  private[audio] def getMusic(m: Music): Option[Ptr[ma_sound]] =
+    music.get(Music.id(m))
+
+  private[audio] def removeMusic(m: Music): Unit =
+    music.remove(Music.id(m))
 
   private[audio] def uninit(): Unit =
     MiniAudio.ma_engine_uninit(engine)
