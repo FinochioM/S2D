@@ -3,7 +3,7 @@
 //> using nativeVersion 0.5.12
 //> using scalacOptions -Wconf:msg=indented:silent
 //> using repository "m2Local"
-//> using dep "io.github.finochiom:s2d_native0.5_3:0.3.3"
+//> using dep "io.github.finochiom:s2d_native0.5_3:0.3.4"
 //> using nativeLinking -lSDL2
 //> using nativeLinking -lGLEW
 //> using nativeLinking -lGL
@@ -18,19 +18,18 @@ import s2d.audio.*
 @main def main(): Unit =
   Window.create(800, 450, "sandbox")
 
-  val sound = Audio.load("assets/test.wav") match
-    case Some(s) => s
+  val music = Audio.loadMusic("assets/test.mp3") match
+    case Some(m) => m
     case None =>
-      println("failed to load sound")
+      println("failed to load music")
       Window.close()
       return
+
+  Audio.playMusic(music)
 
   while Window.isOpen() do
     Drawing.beginFrame()
     Drawing.endFrame()
 
-    if !Audio.isPlaying(sound) then
-      Audio.play(sound)
-
-  Audio.unload(sound)
+  Audio.unloadMusic(music)
   Window.close()
