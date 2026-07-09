@@ -35,6 +35,8 @@ object Drawing:
     if !Window.isWindowInitialized then
       throw new RuntimeException("Window not initialized!")
 
+    Hot.poll() // hot reload
+
     Timing.updateDelta()
 
     updateProjection()
