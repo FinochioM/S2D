@@ -18,7 +18,7 @@ import s2d.types.*
   Window.create(800, 450, "sandbox")
 
   Hot.enable()
-  println(s"hot reload status: ${Hot.isEnabled()}")
+  println(s"hot reload status: ${Hot.isEnabled}")
 
   val tex = Textures.load("assets/grill.png") match
     case Some(t) => t
