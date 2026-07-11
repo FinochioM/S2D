@@ -1,5 +1,6 @@
 package s2d.textures
 
+import s2d.core.Hot
 import s2d.textures.Images.*
 import s2d.textures.TextureRenderer
 import s2d.types.*
@@ -49,7 +50,10 @@ object Textures:
 
             val mipmaps = (math.log(math.max(image.width, image.height)) / math.log(2)).toInt + 1
 
-            Some(Texture2D(textureId.toInt, image.width, image.height, image.format, mipmaps))
+            val texture = Texture2D(textureId.toInt, image.width, image.height, image.format, mipmaps)
+            Hot.track(fileName, texture.id)
+
+            Some(texture)
           }
         catch
           case _: Exception => None

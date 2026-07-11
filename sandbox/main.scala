@@ -11,9 +11,8 @@
 package sandbox
 
 import s2d.core.*
-import s2d.shapes.*
+import s2d.textures.*
 import s2d.types.*
-import s2d.audio.*
 
 @main def main(): Unit =
   Window.create(800, 450, "sandbox")
@@ -21,9 +20,20 @@ import s2d.audio.*
   Hot.enable()
   println(s"hot reload status: ${Hot.isEnabled()}")
 
+  val tex = Textures.load("assets/grill.png") match
+    case Some(t) => t
+    case None =>
+      println("Failed to load texture")
+      Window.close()
+      return
+
+  println(s"Watched count: ${Hot.watchedCount}") // 1
+
   while Window.isOpen() do
     Drawing.beginFrame()
     Drawing.clear(Color.DarkBlue)
+
+    Textures.draw(tex, 100, 100, Color.White)
     Drawing.endFrame()
 
   Window.close()
